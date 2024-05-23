@@ -1,3 +1,5 @@
+import random
+
 from simpy import Environment
 
 
@@ -16,10 +18,10 @@ class Restaurant:
 
     def receive_order(self, order):
         preparation_time = self.preparation_time(order)
-        print(f"The {self.name} is preparing the order {order.order_id} for the {order.client.name} in {preparation_time}m")
+        print(f"The {self.name} is preparing the order {order.order_id} for the {order.client.name} in {preparation_time}")
         yield self.environment.timeout(preparation_time)
 
 
     def preparation_time(self, order):
-        return 2
+        return random.randrange(1, 12)
 

@@ -1,3 +1,5 @@
+import random
+
 from simpy import Environment
 
 from src.order.order import Order
@@ -11,10 +13,10 @@ class Client:
         self.coordinates = coordinates
 
     def make_a_request(self, order: Order, restaurant: Restaurant):
-        time_to_place_an_order = self.time_to_place_an_order()
+        time_to_make_a_request = self.time_to_make_a_request()
         print(f"Customer {self.name} placed an order {order.order_id} with restaurant {restaurant.name}")
-        yield self.environment.timeout(time_to_place_an_order)
+        yield self.environment.timeout(time_to_make_a_request)
 
 
-    def time_to_place_an_order(self):
-        return 2
+    def time_to_make_a_request(self):
+        return 1
