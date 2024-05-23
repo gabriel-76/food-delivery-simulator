@@ -12,11 +12,11 @@ class Client:
         self.name = name
         self.coordinates = coordinates
 
-    def make_a_request(self, order: Order, restaurant: Restaurant):
-        time_to_make_a_request = self.time_to_make_a_request()
+    def place_an_order(self, order: Order, restaurant: Restaurant):
+        place_an_order_time_policy = self.place_an_order_time_policy()
         print(f"Customer {self.name} placed an order {order.order_id} with restaurant {restaurant.name}")
-        yield self.environment.timeout(time_to_make_a_request)
+        yield self.environment.timeout(place_an_order_time_policy)
 
 
-    def time_to_make_a_request(self):
+    def place_an_order_time_policy(self):
         return 1

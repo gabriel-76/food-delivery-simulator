@@ -6,5 +6,5 @@ class Capacity:
         self.dimensions = dimensions
 
     def fits(self, dimensions: Dimensions):
-        return self.dimensions >= dimensions
+        return self.dimensions > dimensions
 

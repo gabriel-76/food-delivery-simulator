@@ -8,7 +8,7 @@ class Dimensions:
     def __lt__(self, other):
         return (
                 self.length < other.length and
-                self.height < other.heith and
+                self.height < other.height and
                 self.width < other.width and
                 self.weight < other.weight
         )
@@ -16,7 +16,7 @@ class Dimensions:
     def __gt__(self, other):
         return (
                 self.length > other.length and
-                self.height > other.heith and
+                self.height > other.height and
                 self.width > other.width and
                 self.weight > other.weight
         )
@@ -24,7 +24,7 @@ class Dimensions:
     def __eq__(self, other):
         return (
                 self.length == other.length and
-                self.height == other.heith and
+                self.height == other.height and
                 self.width == other.width and
                 self.weight == other.weight
         )

@@ -2,6 +2,8 @@ import random
 
 from simpy import Environment
 
+from src.restaurant.catalog import Catalog
+
 
 class Restaurant:
     def __init__(
@@ -9,19 +11,21 @@ class Restaurant:
             environment: Environment,
             name: str,
             coordinates,
-            available: bool
+            available: bool,
+            catalog: Catalog
     ):
         self.environment = environment
         self.name = name
         self.coordinates = coordinates
         self.available = available
+        self.catalog = catalog
 
-    def receive_order(self, order):
-        preparation_time = self.preparation_time(order)
-        print(f"The {self.name} is preparing the order {order.order_id} for the {order.client.name} in {preparation_time}")
-        yield self.environment.timeout(preparation_time)
+    def receiving_orders(self, order):
+        orders_time_policy = self.receiving_orders_time_policy(order)
+        print(f"The {self.name} is preparing the order {order.order_id} for the {order.client.name} in {orders_time_policy}")
+        yield self.environment.timeout(orders_time_policy)
 
 
-    def preparation_time(self, order):
+    def receiving_orders_time_policy(self, order):
         return random.randrange(1, 12)
 
