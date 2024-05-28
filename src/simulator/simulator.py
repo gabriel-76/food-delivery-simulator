@@ -1,9 +1,7 @@
 import random
 from datetime import datetime
-from uuid import uuid4
 
-from simpy import Environment
-
+from src import FoodDeliveryEnvironment
 from src.base.dimensions import Dimensions
 from src.client.client import Client
 from src.driver.capacity import Capacity
@@ -13,14 +11,14 @@ from src.order.order import Order
 from src.restaurant.catalog import Catalog
 from src.restaurant.restaurant import Restaurant
 
-NUM_RESTAURANTS = 10
-NUM_DRIVERS = 4
-NUM_CLIENTS = 50
-SIMULATION_TIME = 40
+NUM_RESTAURANTS = 300
+NUM_DRIVERS = 50
+NUM_CLIENTS = 3000
+SIMULATION_TIME = 1000000
 
 
 class Simulator:
-    def __init__(self, environment: Environment):
+    def __init__(self, environment: FoodDeliveryEnvironment):
         self.environment = environment
 
     def clients_generation_policy(self):
@@ -35,37 +33,38 @@ class Simulator:
         capacity = Capacity(Dimensions(10, 10, 10, 10))
         return [Driver(self.environment, f"driver_{i}", (), f"type_{i}", capacity) for i in range(NUM_DRIVERS)]
 
-    def order_generation_policy(self, clients: [Client], restaurants: [Restaurant], drivers: [Driver]):
-        count = 0
+    def order_generation_policy(self, clients: [Client], restaurants: [Restaurant]):
+        order_id = 0
         while True:
-            selected_clients = random.sample(clients, 4)
-            selected_restaurants = random.sample(restaurants, 3)
-            selected_drivers = random.sample(drivers, 2)
+            selected_clients = random.sample(clients, 1)
+            selected_restaurants = random.sample(restaurants, 1)
 
             for client in selected_clients:
-
                 restaurant = random.choice(selected_restaurants)
 
                 items = random.sample(restaurant.catalog.items, 2)
 
-                order = Order(str(count), client, restaurant, datetime.now(), items)
+                order = Order(str(order_id), client, restaurant, datetime.now(), items)
 
-                self.environment.process(client.place_an_order(order, restaurant))
+                client.place_order(order, restaurant)
 
-                self.environment.process(restaurant.receiving_orders(order))
-
-                filtered_drivers = [d for d in selected_drivers if d.fits(order)]
-
-                driver = random.choice(filtered_drivers)
-
-                self.environment.process(driver.deliver_order(order))
-
-                count += 1
+                order_id += 1
             yield self.environment.timeout(random.expovariate(1.0 / 2))
+
+    def optimizer(self, drivers: [Driver]):
+        while True:
+            while len(self.environment.ready_orders.items) > 0:
+                order = yield self.environment.ready_orders.get()
+                filtered_drivers = [d for d in drivers if d.fits(order)]
+                driver = random.choice(filtered_drivers)
+                self.environment.process(driver.deliver_order(order))
+            yield self.environment.timeout(1)
 
     def run(self):
         clients = self.clients_generation_policy()
         restaurants = self.restaurants_generation_policy()
         drivers = self.drivers_generation_policy()
 
-        self.environment.process(self.order_generation_policy(clients, restaurants, drivers))
+        self.environment.process(self.order_generation_policy(clients, restaurants))
+
+        self.environment.process(self.optimizer(drivers))
