@@ -1,6 +1,6 @@
 import random
 
-from src import FoodDeliveryEnvironment
+from src.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.base.dimensions import Dimensions
 from src.order.item import Item
 from src.restaurant.catalog import Catalog

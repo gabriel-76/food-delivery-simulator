@@ -6,11 +6,12 @@ from src.order.order_generator import OrderGenerator
 from src.restaurant.restaurant_generator import RestaurantGenerator
 from src.simulator.simulator import Simulator
 
-SIMULATION_TIME = 20
+SIMULATION_TIME = 40
 
 
 def main():
     environment = FoodDeliveryEnvironment()
+
     simulator = Simulator(
         environment,
         ClientGenerator(environment),
@@ -19,9 +20,8 @@ def main():
         OrderGenerator(environment),
         Optimizer(environment)
     )
-    simulator.run()
-    environment.run(until=SIMULATION_TIME)
 
+    simulator.run(until=SIMULATION_TIME)
     environment.debug()
 
 

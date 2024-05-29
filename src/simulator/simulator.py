@@ -1,4 +1,4 @@
-from src import FoodDeliveryEnvironment
+from src.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.client.client_generator import ClientGenerator
 from src.driver.driver_generator import DriverGenerator
 from src.optimizer.optimizer import Optimizer
@@ -23,9 +23,10 @@ class Simulator:
         self.driver_generator = driver_generator
         self.order_generator = order_generator
 
-    def run(self):
+    def run(self, until):
         self.environment.process(self.client_generator.generate())
         self.environment.process(self.restaurant_generator.generate())
         self.environment.process(self.driver_generator.generate())
         self.environment.process(self.order_generator.generate())
         self.environment.process(self.optimizer.optimize())
+        self.environment.run(until=until)
