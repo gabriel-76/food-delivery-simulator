@@ -40,10 +40,10 @@ class Restaurant:
 
     def accept_order(self, order):
         if self.accept_order_policy(order):
-            print(f"Order {order.order_id} accepted by restaurant {self.restaurant_id}")
+            print(f"Restaurant {self.restaurant_id} accepted order {order.order_id} from client {order.client.client_id} in {self.environment.now} time")
             self.confirmed_orders.put(order)
         else:
-            print(f"Order {order.order_id} rejected by restaurant {self.restaurant_id}")
+            print(f"Restaurant {self.restaurant_id} rejected order {order.order_id} from client {order.client.client_id} in {self.environment.now} time")
             self.canceled_orders.put(order)
         yield self.environment.timeout(1)
 
@@ -52,16 +52,16 @@ class Restaurant:
             while len(self.confirmed_orders.items) > 0:
                 order = yield self.confirmed_orders.get()
                 self.environment.process(self.prepare_order(order))
-            yield self.environment.timeout(2)
+            yield self.environment.timeout(1)
 
     def prepare_order(self, order):
         orders_time_policy = self.prepare_order_time_policy(order)
         print(
-            f"Restaurant {self.restaurant_id} is preparing the order {order.order_id} for the {order.client.client_id} in {orders_time_policy}")
+            f"Restaurant {self.restaurant_id} is preparing the order {order.order_id} for the {order.client.client_id} in {self.environment.now} time")
         yield self.environment.timeout(orders_time_policy)
 
         print(
-            f"Restaurant {self.restaurant_id} has finished preparing the order {order.order_id} for the {order.client.client_id} in {orders_time_policy}")
+            f"Restaurant {self.restaurant_id} has finished preparing the order {order.order_id} for the {order.client.client_id} in {self.environment.now} time")
         self.environment.add_ready_order(order)
 
     def prepare_order_time_policy(self, order):

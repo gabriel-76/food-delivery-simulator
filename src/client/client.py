@@ -6,12 +6,12 @@ from src.restaurant.restaurant import Restaurant
 
 
 class Client:
-    def __init__(self, environment: FoodDeliveryEnvironment, name, coordinates, available: bool):
+    def __init__(self, environment: FoodDeliveryEnvironment, coordinates, available: bool):
         self.client_id = uuid.uuid4()
         self.environment = environment
         self.coordinates = coordinates
         self.available = available
 
     def place_order(self, order: Order, restaurant: Restaurant):
-        print(f"Client {self.client_id} placed an order {order.order_id} with restaurant {restaurant.restaurant_id}")
+        print(f"Client {self.client_id} placed an order {order.order_id} with restaurant {restaurant.restaurant_id} in {self.environment.now} time")
         restaurant.receive_orders([order])

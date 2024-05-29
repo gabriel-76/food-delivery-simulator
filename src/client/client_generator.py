@@ -12,6 +12,6 @@ class ClientGenerator:
 
     def generate(self):
         while True:
-            clients = [Client(self.environment, f"client_{i}", (), True) for i in range(random.randrange(0, NUM_CLIENTS))]
+            clients = [Client(self.environment, (), True) for i in range(random.randrange(0, NUM_CLIENTS))]
             self.environment.add_clients(clients)
             yield self.environment.timeout(1)
