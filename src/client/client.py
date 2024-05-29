@@ -1,8 +1,4 @@
-import random
-
-from simpy import Environment
-
-from src import FoodDeliveryEnvironment
+from src.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.order.order import Order
 from src.restaurant.restaurant import Restaurant
 

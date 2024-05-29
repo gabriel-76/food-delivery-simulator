@@ -1,6 +1,6 @@
 import random
 
-from src import FoodDeliveryEnvironment
+from src.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.base.dimensions import Dimensions
 from src.driver.capacity import Capacity
 from src.order.order import Order
@@ -13,13 +13,15 @@ class Driver:
             name,
             coordinates,
             driver_type,
-            capacity: Capacity
+            capacity: Capacity,
+            available: bool
     ):
         self.environment = environment
         self.name = name
         self.coordinates = coordinates
         self.driver_type = driver_type
         self.capacity = capacity
+        self.available = available
 
     def fits(self, order: Order):
         dimensions = Dimensions(0, 0, 0, 0)

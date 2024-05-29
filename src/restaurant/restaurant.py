@@ -2,7 +2,7 @@ import random
 
 import simpy
 
-from src import FoodDeliveryEnvironment
+from src.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.restaurant.catalog import Catalog
 
 
@@ -62,7 +62,7 @@ class Restaurant:
 
         print(
             f"The {self.name} has finished preparing the order {order.order_id} for the {order.client.name} in {orders_time_policy}")
-        self.environment.ready_orders.put(order)
+        self.environment.add_ready_order(order)
 
     def receiving_order_time_policy(self, order):
         return random.randrange(1, 12)
