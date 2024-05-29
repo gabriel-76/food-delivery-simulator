@@ -11,8 +11,6 @@ class FoodDeliveryEnvironment(simpy.Environment):
         self.ready_orders = simpy.Store(self)
         # Order deliveries rejected by driver
         self.rejected_delivery_orders = simpy.Store(self)
-        # Orders in the delivery process
-        self.orders_in_transit = simpy.Store(self)
         # Orders delivered by drivers
         self.delivered_orders = simpy.Store(self)
 
@@ -33,6 +31,15 @@ class FoodDeliveryEnvironment(simpy.Environment):
 
     def count_ready_orders(self):
         return len(self.ready_orders.items)
+
+    def add_rejected_delivery_order(self, order):
+        self.rejected_delivery_orders.put(order)
+
+    def get_rejected_delivery_order(self):
+        return self.rejected_delivery_orders.get()
+
+    def count_rejected_delivery_orders(self):
+        return len(self.rejected_delivery_orders.items)
 
     def debug(self):
         for order in self.ready_orders.items:
