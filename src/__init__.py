@@ -1,9 +1,9 @@
-from src.client.client_factory import ClientFactory
-from src.driver.driver_factory import DriverFactory
+from src.client.client_generator import ClientGenerator
+from src.driver.driver_generator import DriverGenerator
 from src.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.optimizer.optimizer import Optimizer
-from src.order.order_factory import OrderFactory
-from src.restaurant.restaurant_factory import RestaurantFactory
+from src.order.order_generator import OrderGenerator
+from src.restaurant.restaurant_generator import RestaurantGenerator
 from src.simulator.simulator import Simulator
 
 SIMULATION_TIME = 1000
@@ -11,12 +11,14 @@ SIMULATION_TIME = 1000
 
 def main():
     environment = FoodDeliveryEnvironment()
-    optimizer = Optimizer(environment)
-    order_factory = OrderFactory(environment)
-    client_factory = ClientFactory(environment)
-    restaurant_factory = RestaurantFactory(environment)
-    driver_factory = DriverFactory(environment)
-    simulator = Simulator(environment, optimizer, client_factory, restaurant_factory, driver_factory, order_factory)
+    simulator = Simulator(
+        environment,
+        ClientGenerator(environment),
+        RestaurantGenerator(environment),
+        DriverGenerator(environment),
+        OrderGenerator(environment),
+        Optimizer(environment)
+    )
     simulator.run()
     environment.run(until=SIMULATION_TIME)
 

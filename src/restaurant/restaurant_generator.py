@@ -7,7 +7,7 @@ from src.restaurant.restaurant import Restaurant
 NUM_RESTAURANTS = 300
 
 
-class RestaurantFactory:
+class RestaurantGenerator:
     def __init__(self, environment: FoodDeliveryEnvironment):
         self.environment = environment
 

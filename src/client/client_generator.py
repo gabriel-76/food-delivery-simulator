@@ -4,7 +4,7 @@ from src.client.client import Client
 NUM_CLIENTS = 3000
 
 
-class ClientFactory:
+class ClientGenerator:
     def __init__(self, environment: FoodDeliveryEnvironment):
         self.environment = environment
 

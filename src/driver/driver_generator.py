@@ -6,7 +6,7 @@ from src.driver.driver import Driver
 NUM_DRIVERS = 50
 
 
-class DriverFactory:
+class DriverGenerator:
     def __init__(self, environment: FoodDeliveryEnvironment):
         self.environment = environment
 

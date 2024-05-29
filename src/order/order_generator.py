@@ -7,7 +7,7 @@ from src.order.order import Order
 from src.restaurant.restaurant import Restaurant
 
 
-class OrderFactory:
+class OrderGenerator:
     def __init__(self, environment: FoodDeliveryEnvironment):
         self.environment = environment
 
