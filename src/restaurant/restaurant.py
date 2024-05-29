@@ -55,7 +55,7 @@ class Restaurant:
             yield self.environment.timeout(2)
 
     def prepare_order(self, order):
-        orders_time_policy = self.receiving_order_time_policy(order)
+        orders_time_policy = self.prepare_order_time_policy(order)
         print(
             f"The {self.name} is preparing the order {order.order_id} for the {order.client.name} in {orders_time_policy}")
         yield self.environment.timeout(orders_time_policy)
@@ -64,7 +64,7 @@ class Restaurant:
             f"The {self.name} has finished preparing the order {order.order_id} for the {order.client.name} in {orders_time_policy}")
         self.environment.add_ready_order(order)
 
-    def receiving_order_time_policy(self, order):
+    def prepare_order_time_policy(self, order):
         return random.randrange(1, 12)
 
     def accept_order_policy(self, order):

@@ -10,7 +10,7 @@ class Optimizer:
 
     def optimize(self):
         while True:
-            drivers = self.environment.drivers
+            drivers = [driver for driver in self.environment.drivers if driver.available]
             while self.environment.count_ready_orders() > 0:
                 order = yield self.environment.get_ready_order()
                 filtered_drivers = [d for d in drivers if d.fits(order)]

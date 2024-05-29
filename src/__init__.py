@@ -6,7 +6,7 @@ from src.order.order_generator import OrderGenerator
 from src.restaurant.restaurant_generator import RestaurantGenerator
 from src.simulator.simulator import Simulator
 
-SIMULATION_TIME = 100
+SIMULATION_TIME = 10
 
 
 def main():
@@ -22,7 +22,7 @@ def main():
     simulator.run()
     environment.run(until=SIMULATION_TIME)
 
-    environment.debug()
+    # environment.debug()
 
 
 if __name__ == '__main__':
