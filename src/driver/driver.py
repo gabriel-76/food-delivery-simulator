@@ -54,6 +54,7 @@ class Driver:
         yield self.environment.timeout(delivery_time)
         print(f"Driver {self.driver_id} delivered order {order.order_id} from {order.restaurant.restaurant_id} to {order.client.client_id} in {delivery_time}")
         self.status = DriverStatus.WAITING
+        self.environment.add_delivered_order(order)
 
 
     def delivery_time_policy(self):

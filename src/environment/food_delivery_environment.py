@@ -41,10 +41,26 @@ class FoodDeliveryEnvironment(simpy.Environment):
     def count_rejected_delivery_orders(self):
         return len(self.rejected_delivery_orders.items)
 
+    def add_delivered_order(self, order):
+        self.delivered_orders.put(order)
+
+    def get_delivered_order(self):
+        self.delivered_orders.get()
+
+    def count_delivered_orders(self):
+        return len(self.delivered_orders.items)
+
     def debug(self):
+        print()
         for order in self.ready_orders.items:
-            print(f"==============> order_{order.order_id}")
+            print(f"==============> order {order.order_id}")
+        print()
+        #
+        # for driver in self.drivers:
+        #     print(f"================ driver {driver.driver_id}")
+
+        for order in self.delivered_orders.items:
+            print(f"==============> order {order.order_id}")
         print()
 
-        for driver in self.drivers:
-            print(f"================ {driver.driver_id}")
+        print(len(self.delivered_orders.items))
