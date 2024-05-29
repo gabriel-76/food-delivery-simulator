@@ -32,16 +32,27 @@ class Driver:
             dimensions += item.dimensions
         return self.capacity.fits(dimensions)
 
+    def deliver(self, order):
+        if self.accept_order(order):
+            print(f"Driver {self.driver_id} accepted order {order.order_id} from {order.restaurant.restaurant_id} and client {order.client.client_id}")
+            self.environment.process(self.collect_order(order))
+            self.environment.process(self.deliver_order(order))
+        else:
+            print(f"Driver {self.driver_id} reject order {order.order_id} from {order.restaurant.restaurant_id} and client {order.client.client_id}")
+            self.environment.add_ready_order(order)
+
     def collect_order(self, order):
+        self.status = DriverStatus.COLLECTING
         collecting_time = self.collecting_time_policy()
         print(f"Driver {self.driver_id} collecting order {order.order_id} from {order.restaurant.restaurant_id} to {order.client.client_id} in {collecting_time}")
         yield self.environment.timeout(collecting_time)
 
     def deliver_order(self, order: Order):
-        self.environment.process(self.collect_order(order))
+        self.status = DriverStatus.DELIVERING
         delivery_time = self.delivery_time_policy()
         yield self.environment.timeout(delivery_time)
         print(f"Driver {self.driver_id} delivered order {order.order_id} from {order.restaurant.restaurant_id} to {order.client.client_id} in {delivery_time}")
+        self.status = DriverStatus.WAITING
 
 
     def delivery_time_policy(self):
@@ -51,7 +62,7 @@ class Driver:
         return random.randrange(1, 5)
 
     def accept_order(self, order):
-        return self.available
+        return self.available and self.status is DriverStatus.WAITING
 
 
 class DriverStatus(Enum):

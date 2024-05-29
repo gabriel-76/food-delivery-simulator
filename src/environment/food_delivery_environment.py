@@ -40,4 +40,4 @@ class FoodDeliveryEnvironment(simpy.Environment):
         print()
 
         for driver in self.drivers:
-            print(f"================ {driver.name}")
+            print(f"================ {driver.driver_id}")
