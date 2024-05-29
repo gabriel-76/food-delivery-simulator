@@ -10,7 +10,6 @@ class OrderGenerator:
         self.environment = environment
 
     def generate(self):
-        order_id = 0
         while True:
             clients = self.environment.clients
             restaurants = self.environment.restaurants
@@ -22,9 +21,8 @@ class OrderGenerator:
 
                 items = random.sample(restaurant.catalog.items, 2)
 
-                order = Order(str(order_id), client, restaurant, datetime.now(), items)
+                order = Order(client, restaurant, datetime.now(), items)
 
                 client.place_order(order, restaurant)
 
-                order_id += 1
             yield self.environment.timeout(1)

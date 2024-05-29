@@ -1,4 +1,5 @@
 import random
+import uuid
 
 import simpy
 
@@ -10,13 +11,12 @@ class Restaurant:
     def __init__(
             self,
             environment: FoodDeliveryEnvironment,
-            name: str,
             coordinates,
             available: bool,
             catalog: Catalog
     ):
+        self.restaurant_id = uuid.uuid4()
         self.environment = environment
-        self.name = name
         self.coordinates = coordinates
         self.available = available
         self.catalog = catalog
@@ -40,10 +40,10 @@ class Restaurant:
 
     def accept_order(self, order):
         if self.accept_order_policy(order):
-            print(f"Order order_{order.order_id} accepted")
+            print(f"Order {order.order_id} accepted by restaurant {self.restaurant_id}")
             self.confirmed_orders.put(order)
         else:
-            print(f"Order order_{order.order_id} rejected")
+            print(f"Order {order.order_id} rejected by restaurant {self.restaurant_id}")
             self.canceled_orders.put(order)
         yield self.environment.timeout(1)
 
@@ -57,11 +57,11 @@ class Restaurant:
     def prepare_order(self, order):
         orders_time_policy = self.prepare_order_time_policy(order)
         print(
-            f"The {self.name} is preparing the order {order.order_id} for the {order.client.name} in {orders_time_policy}")
+            f"Restaurant {self.restaurant_id} is preparing the order {order.order_id} for the {order.client.client_id} in {orders_time_policy}")
         yield self.environment.timeout(orders_time_policy)
 
         print(
-            f"The {self.name} has finished preparing the order {order.order_id} for the {order.client.name} in {orders_time_policy}")
+            f"Restaurant {self.restaurant_id} has finished preparing the order {order.order_id} for the {order.client.client_id} in {orders_time_policy}")
         self.environment.add_ready_order(order)
 
     def prepare_order_time_policy(self, order):

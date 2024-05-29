@@ -1,4 +1,5 @@
 import random
+import uuid
 from enum import Enum, auto
 
 from src.environment.food_delivery_environment import FoodDeliveryEnvironment
@@ -11,19 +12,19 @@ class Driver:
     def __init__(
             self,
             environment: FoodDeliveryEnvironment,
-            name,
             coordinates,
             driver_type,
             capacity: Capacity,
             available: bool,
             status
     ):
+        self.driver_id = uuid.uuid4()
         self.environment = environment
-        self.name = name
         self.coordinates = coordinates
         self.driver_type = driver_type
         self.capacity = capacity
         self.available = available
+        self.status = status
 
     def fits(self, order: Order):
         dimensions = Dimensions(0, 0, 0, 0)
@@ -33,14 +34,14 @@ class Driver:
 
     def collect_order(self, order):
         collecting_time = self.collecting_time_policy()
-        print(f"Driver {self.name} collecting order_{order.order_id} from {order.restaurant.name} to {order.client.name} in {collecting_time}")
+        print(f"Driver {self.driver_id} collecting order {order.order_id} from {order.restaurant.restaurant_id} to {order.client.client_id} in {collecting_time}")
         yield self.environment.timeout(collecting_time)
 
     def deliver_order(self, order: Order):
         self.environment.process(self.collect_order(order))
         delivery_time = self.delivery_time_policy()
         yield self.environment.timeout(delivery_time)
-        print(f"Driver {self.name} delivered order_{order.order_id} from {order.restaurant.name} to {order.client.name} in {delivery_time}")
+        print(f"Driver {self.driver_id} delivered order {order.order_id} from {order.restaurant.restaurant_id} to {order.client.client_id} in {delivery_time}")
 
 
     def delivery_time_policy(self):
