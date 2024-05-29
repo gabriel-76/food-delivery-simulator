@@ -6,7 +6,7 @@ from src.order.order_generator import OrderGenerator
 from src.restaurant.restaurant_generator import RestaurantGenerator
 from src.simulator.simulator import Simulator
 
-SIMULATION_TIME = 1000
+SIMULATION_TIME = 100
 
 
 def main():
@@ -22,9 +22,7 @@ def main():
     simulator.run()
     environment.run(until=SIMULATION_TIME)
 
-    for order in environment.ready_orders.items:
-        print(f"==============> order_{order.order_id}")
-    print()
+    environment.debug()
 
 
 if __name__ == '__main__':

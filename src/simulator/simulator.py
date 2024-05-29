@@ -5,9 +5,6 @@ from src.optimizer.optimizer import Optimizer
 from src.order.order_generator import OrderGenerator
 from src.restaurant.restaurant_generator import RestaurantGenerator
 
-NUM_DRIVERS = 50
-SIMULATION_TIME = 1000000
-
 
 class Simulator:
     def __init__(
@@ -27,10 +24,8 @@ class Simulator:
         self.order_generator = order_generator
 
     def run(self):
-        clients = self.client_generator.clients_generation_policy()
-        restaurants = self.restaurant_generator.restaurants_generation_policy()
-        drivers = self.driver_generator.drivers_generation_policy()
-
-        self.environment.process(self.order_generator.order_generation_policy(clients, restaurants))
-
-        self.environment.process(self.optimizer.optimize(drivers))
+        self.environment.process(self.client_generator.generate())
+        self.environment.process(self.restaurant_generator.generate())
+        self.environment.process(self.driver_generator.generate())
+        self.environment.process(self.order_generator.generate())
+        self.environment.process(self.optimizer.optimize())

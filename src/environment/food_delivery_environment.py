@@ -4,6 +4,9 @@ import simpy
 class FoodDeliveryEnvironment(simpy.Environment):
     def __init__(self):
         super().__init__()
+        self.clients = []
+        self.restaurants = []
+        self.drivers = []
         # Orders ready for collection
         self.ready_orders = simpy.Store(self)
         # Order deliveries rejected by driver
@@ -13,6 +16,15 @@ class FoodDeliveryEnvironment(simpy.Environment):
         # Orders delivered by drivers
         self.delivered_orders = simpy.Store(self)
 
+    def add_clients(self, clients):
+        self.clients += clients
+
+    def add_restaurants(self, restaurants):
+        self.restaurants += restaurants
+
+    def add_drivers(self, drivers):
+        self.drivers += drivers
+
     def add_ready_order(self, order):
         self.ready_orders.put(order)
 
@@ -21,3 +33,11 @@ class FoodDeliveryEnvironment(simpy.Environment):
 
     def count_ready_orders(self):
         return len(self.ready_orders.items)
+
+    def debug(self):
+        for order in self.ready_orders.items:
+            print(f"==============> order_{order.order_id}")
+        print()
+
+        for driver in self.drivers:
+            print(f"================ {driver.name}")

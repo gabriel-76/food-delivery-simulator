@@ -1,19 +1,19 @@
 import random
 from datetime import datetime
 
-from src import FoodDeliveryEnvironment
-from src.client.client import Client
+from src.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.order.order import Order
-from src.restaurant.restaurant import Restaurant
 
 
 class OrderGenerator:
     def __init__(self, environment: FoodDeliveryEnvironment):
         self.environment = environment
 
-    def order_generation_policy(self, clients: [Client], restaurants: [Restaurant]):
+    def generate(self):
         order_id = 0
         while True:
+            clients = self.environment.clients
+            restaurants = self.environment.restaurants
             selected_clients = random.sample(clients, 1)
             selected_restaurants = random.sample(restaurants, 1)
 
@@ -27,4 +27,4 @@ class OrderGenerator:
                 client.place_order(order, restaurant)
 
                 order_id += 1
-            yield self.environment.timeout(random.expovariate(1.0 / 2))
+            yield self.environment.timeout(1)
