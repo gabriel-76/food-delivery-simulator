@@ -2,11 +2,10 @@ import random
 
 from src.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.driver.driver import DriverStatus
-from src.map.map import Map
 
 
 class Optimizer:
-    def __init__(self, environment: FoodDeliveryEnvironment, map: Map):
+    def __init__(self, environment: FoodDeliveryEnvironment):
         self.environment = environment
 
     def optimize(self):

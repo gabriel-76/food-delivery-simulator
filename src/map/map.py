@@ -10,4 +10,3 @@ class Map:
 
     def estimated_time(self, coord1, coord2):
         return random.randrange(1, 6)
-

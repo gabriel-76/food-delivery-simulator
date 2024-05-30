@@ -1,9 +1,12 @@
 import simpy
 
+from src.map.map import Map
+
 
 class FoodDeliveryEnvironment(simpy.Environment):
-    def __init__(self):
+    def __init__(self, map: Map):
         super().__init__()
+        self.map = map
         self.clients = []
         self.restaurants = []
         self.drivers = []

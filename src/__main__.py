@@ -9,9 +9,12 @@ from src.simulator.simulator import Simulator
 
 SIMULATION_TIME = 50
 
+sp_centroid = (-23.5549, -46.6159)
+
 
 def main():
-    environment = FoodDeliveryEnvironment()
+
+    environment = FoodDeliveryEnvironment(Map())
 
     simulator = Simulator(
         environment,
@@ -19,7 +22,7 @@ def main():
         RestaurantGenerator(environment),
         DriverGenerator(environment),
         OrderGenerator(environment),
-        Optimizer(environment, Map())
+        Optimizer(environment)
     )
 
     simulator.run(until=SIMULATION_TIME)
