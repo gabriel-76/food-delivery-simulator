@@ -108,7 +108,7 @@ class Restaurant:
         return random.randrange(1, 5)
 
     def time_to_prepare_order(self, order):
-        return random.randrange(1, 12)
+        return random.randrange(8, 20)
 
     def accept_order_policy(self, order):
         return self.available

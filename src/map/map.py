@@ -9,7 +9,7 @@ class Map:
         return abs(coord1[0] - coord2[0]) + abs(coord1[1] - coord2[1])
 
     def estimated_time(self, coord1, coord2):
-        return random.randrange(2, 20)
+        return random.randrange(5, 30)
 
     def random_point(self):
         return random.randrange(self.length), random.randrange(self.length)

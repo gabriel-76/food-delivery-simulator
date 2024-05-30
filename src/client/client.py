@@ -38,5 +38,5 @@ class Client:
         self.environment.add_event(event)
 
     def time_to_receive_order(self, order: Order):
-        return random.randrange(1, 5)
+        return random.randrange(2, 10)
 

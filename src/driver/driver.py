@@ -146,7 +146,7 @@ class Driver:
         self.environment.add_delivered_order(order)
 
     def time_to_accept_or_reject_order(self, order: Order):
-        return random.randrange(1, 5)
+        return random.randrange(3, 10)
 
     def time_to_deliver_order(self, order: Order):
         return self.environment.map.estimated_time(order.restaurant.coordinates, order.client.coordinates)
