@@ -1,5 +1,6 @@
 class Event:
-    def __init__(self, client_id, restaurant_id, time):
+    def __init__(self, order_id, client_id, restaurant_id, time):
+        self.order_id = order_id
         self.client_id = client_id
         self.restaurant_id = restaurant_id
         self.time = time

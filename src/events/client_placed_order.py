@@ -2,5 +2,12 @@ from src.events.event import Event
 
 
 class ClientPlacedOrder(Event):
-    def __init__(self, client_id, restaurant_id, time):
-        super().__init__(client_id, restaurant_id, time)
+    def __init__(self, order_id, client_id, restaurant_id, time):
+        super().__init__(order_id, client_id, restaurant_id, time)
+        print(self)
+
+    def __str__(self):
+        return (f"Client {self.client_id} "
+                f"placed an order {self.order_id} "
+                f"to restaurant {self.restaurant_id} "
+                f"in time {self.time}")

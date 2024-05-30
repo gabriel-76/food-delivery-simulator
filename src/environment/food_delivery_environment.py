@@ -10,6 +10,7 @@ class FoodDeliveryEnvironment(simpy.Environment):
         self.clients = []
         self.restaurants = []
         self.drivers = []
+        self.events = simpy.Store(self)
         # Orders ready for collection
         self.ready_orders = simpy.Store(self)
         # Order deliveries rejected by driver
@@ -52,6 +53,15 @@ class FoodDeliveryEnvironment(simpy.Environment):
 
     def count_delivered_orders(self):
         return len(self.delivered_orders.items)
+
+    def add_event(self, event):
+        self.events.put(event)
+
+    def get_event(self):
+        return self.events.get()
+
+    def count_event(self):
+        return len(self.events.items)
 
     def debug(self):
         print()
