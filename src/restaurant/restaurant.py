@@ -4,6 +4,10 @@ import uuid
 import simpy
 
 from src.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.events.restaurant_accepted_order import RestaurantAcceptedOrder
+from src.events.restaurant_finish_order import RestaurantFinishOrder
+from src.events.restaurant_preparing_order import RestaurantPreparingOrder
+from src.events.restaurant_rejected_order import RestaurantRejectedOrder
 from src.restaurant.catalog import Catalog
 
 
@@ -40,10 +44,22 @@ class Restaurant:
 
     def accept_order(self, order):
         if self.accept_order_policy(order):
-            print(f"Restaurant {self.restaurant_id} accepted order {order.order_id} from client {order.client.client_id} in time {self.environment.now}")
+            event = RestaurantAcceptedOrder(
+                order_id=order.order_id,
+                client_id=order.client.client_id,
+                restaurant_id=self.restaurant_id,
+                time=self.environment.now
+            )
+            self.environment.add_event(event)
             self.confirmed_orders.put(order)
         else:
-            print(f"Restaurant {self.restaurant_id} rejected order {order.order_id} from client {order.client.client_id} in time {self.environment.now}")
+            event = RestaurantRejectedOrder(
+                order_id=order.order_id,
+                client_id=order.client.client_id,
+                restaurant_id=self.restaurant_id,
+                time=self.environment.now
+            )
+            self.environment.add_event(event)
             self.canceled_orders.put(order)
         yield self.environment.timeout(1)
 
@@ -56,12 +72,21 @@ class Restaurant:
 
     def prepare_order(self, order):
         orders_time_policy = self.prepare_order_time_policy(order)
-        print(
-            f"Restaurant {self.restaurant_id} is preparing the order {order.order_id} from client {order.client.client_id} in time {self.environment.now}")
+        event = RestaurantPreparingOrder(
+            order_id=order.order_id,
+            client_id=order.client.client_id,
+            restaurant_id=self.restaurant_id,
+            time=self.environment.now
+        )
+        self.environment.add_event(event)
         yield self.environment.timeout(orders_time_policy)
-
-        print(
-            f"Restaurant {self.restaurant_id} has finished preparing the order {order.order_id} from client {order.client.client_id} in time {self.environment.now}")
+        event = RestaurantFinishOrder(
+            order_id=order.order_id,
+            client_id=order.client.client_id,
+            restaurant_id=self.restaurant_id,
+            time=self.environment.now
+        )
+        self.environment.add_event(event)
         self.environment.add_ready_order(order)
 
     def prepare_order_time_policy(self, order):
