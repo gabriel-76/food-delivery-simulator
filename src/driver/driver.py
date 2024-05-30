@@ -34,27 +34,27 @@ class Driver:
 
     def deliver(self, order):
         if self.accept_order(order):
-            print(f"Driver {self.driver_id} accepted order {order.order_id} from {order.restaurant.restaurant_id} and client {order.client.client_id} in {self.environment.now} time")
+            print(f"Driver {self.driver_id} accepted to deliver order {order.order_id} from restaurant {order.restaurant.restaurant_id} and from client {order.client.client_id} in time {self.environment.now}")
             self.environment.process(self.collect_order(order))
         else:
-            print(f"Driver {self.driver_id} reject order {order.order_id} from {order.restaurant.restaurant_id} and client {order.client.client_id} in {self.environment.now} time")
+            print(f"Driver {self.driver_id} reject to deliver order {order.order_id} from restaurant {order.restaurant.restaurant_id} and from client {order.client.client_id} in time {self.environment.now}")
             self.environment.add_rejected_delivery_order(order)
         yield self.environment.timeout(1)
 
     def collect_order(self, order):
         self.status = DriverStatus.COLLECTING
         collecting_time = self.collecting_time_policy()
-        print(f"Driver {self.driver_id} collecting order {order.order_id} from restaurant {order.restaurant.restaurant_id} and client {order.client.client_id} in {self.environment.now} time")
+        print(f"Driver {self.driver_id} is collecting order {order.order_id} from restaurant {order.restaurant.restaurant_id} and client {order.client.client_id} in time {self.environment.now}")
         yield self.environment.timeout(collecting_time)
-        print(f"Driver {self.driver_id} collected order {order.order_id} from restaurant {order.restaurant.restaurant_id} and client {order.client.client_id} in {self.environment.now} time")
+        print(f"Driver {self.driver_id} collected order {order.order_id} from restaurant {order.restaurant.restaurant_id} and client {order.client.client_id} in time {self.environment.now}")
         self.environment.process(self.deliver_order(order))
 
     def deliver_order(self, order: Order):
         self.status = DriverStatus.DELIVERING
         delivery_time = self.delivery_time_policy()
-        print(f"Driver {self.driver_id} delivering order {order.order_id} from restaurant {order.restaurant.restaurant_id} and client {order.client.client_id} in {self.environment.now} time")
+        print(f"Driver {self.driver_id} is delivering order {order.order_id} from restaurant {order.restaurant.restaurant_id} and client {order.client.client_id} in time {self.environment.now}")
         yield self.environment.timeout(delivery_time)
-        print(f"Driver {self.driver_id} delivered order {order.order_id} from {order.restaurant.restaurant_id} to {order.client.client_id} in {self.environment.now} time")
+        print(f"Driver {self.driver_id} delivered order {order.order_id} from restaurant {order.restaurant.restaurant_id} to client {order.client.client_id} in time {self.environment.now}")
         self.status = DriverStatus.WAITING
         self.environment.add_delivered_order(order)
 

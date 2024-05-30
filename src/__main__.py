@@ -9,6 +9,7 @@ from src.simulator.simulator import Simulator
 
 SIMULATION_TIME = 50
 
+
 def main():
 
     environment = FoodDeliveryEnvironment(Map())

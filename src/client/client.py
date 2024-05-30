@@ -13,5 +13,5 @@ class Client:
         self.available = available
 
     def place_order(self, order: Order, restaurant: Restaurant):
-        print(f"Client {self.client_id} placed an order {order.order_id} with restaurant {restaurant.restaurant_id} in {self.environment.now} time")
+        print(f"Client {self.client_id} placed an order {order.order_id} to restaurant {restaurant.restaurant_id} in time {self.environment.now}")
         restaurant.receive_orders([order])
