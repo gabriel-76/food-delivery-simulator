@@ -7,7 +7,7 @@ class RestaurantFinishOrder(Event):
         print(self)
 
     def __str__(self):
-        return (f"Restaurant {self.restaurant_id} "
-                f"has finished preparing the order {self.order_id} "
-                f"from client {self.client_id} "
-                f"in time {self.time}")
+        return (f"Restaurant {self.restaurant_id} has finished preparing the "
+                f"order {self.order_id} from "
+                f"client {self.client_id} in "
+                f"time {self.time}")

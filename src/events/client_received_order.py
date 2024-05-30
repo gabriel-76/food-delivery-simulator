@@ -8,8 +8,8 @@ class ClientReceivedOrder(Event):
         print(self)
 
     def __str__(self):
-        return (f"Client {self.client_id} "
-                f"picked up the order {self.order_id} "
-                f"with driver {self.driver_id} "
-                f"from restaurant {self.restaurant_id} "
-                f"in time {self.time}")
+        return (f"Client {self.client_id} picked up the "
+                f"order {self.order_id} with "
+                f"driver {self.driver_id} from "
+                f"restaurant {self.restaurant_id} in "
+                f"time {self.time}")

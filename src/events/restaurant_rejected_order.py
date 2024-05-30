@@ -7,7 +7,7 @@ class RestaurantRejectedOrder(Event):
         print(self)
 
     def __str__(self):
-        return (f"Restaurant {self.restaurant_id} "
-                f"rejected order {self.order_id} "
-                f"from client {self.client_id} "
-                f"in time {self.time}")
+        return (f"Restaurant {self.restaurant_id} rejected "
+                f"order {self.order_id} from "
+                f"client {self.client_id} in "
+                f"time {self.time}")

@@ -5,6 +5,8 @@ from enum import Enum, auto
 from src.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.base.dimensions import Dimensions
 from src.driver.capacity import Capacity
+from src.events.driver_accepted_delivery import DriverAcceptedDelivery
+from src.events.driver_rejected_delivery import DriverRejectedDelivery
 from src.order.order import Order
 
 
@@ -34,10 +36,25 @@ class Driver:
 
     def deliver(self, order):
         if self.accept_order(order):
-            print(f"Driver {self.driver_id} accepted to deliver order {order.order_id} from restaurant {order.restaurant.restaurant_id} and from client {order.client.client_id} in time {self.environment.now}")
+            event = DriverAcceptedDelivery(
+                order_id=order.order_id,
+                client_id=order.client.client_id,
+                restaurant_id=order.restaurant.restaurant_id,
+                driver_id=self.driver_id,
+                time=self.environment.now
+            )
+            self.environment.add_event(event)
             self.environment.process(self.collect_order(order))
         else:
             print(f"Driver {self.driver_id} reject to deliver order {order.order_id} from restaurant {order.restaurant.restaurant_id} and from client {order.client.client_id} in time {self.environment.now}")
+            event = DriverRejectedDelivery(
+                order_id=order.order_id,
+                client_id=order.client.client_id,
+                restaurant_id=order.restaurant.restaurant_id,
+                driver_id=self.driver_id,
+                time=self.environment.now
+            )
+            self.environment.add_event(event)
             self.environment.add_rejected_delivery_order(order)
         yield self.environment.timeout(1)
 

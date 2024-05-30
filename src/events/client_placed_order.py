@@ -7,7 +7,7 @@ class ClientPlacedOrder(Event):
         print(self)
 
     def __str__(self):
-        return (f"Client {self.client_id} "
-                f"placed an order {self.order_id} "
-                f"to restaurant {self.restaurant_id} "
-                f"in time {self.time}")
+        return (f"Client {self.client_id} placed an "
+                f"order {self.order_id} to "
+                f"restaurant {self.restaurant_id} in "
+                f"time {self.time}")
