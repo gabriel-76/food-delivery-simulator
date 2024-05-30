@@ -9,9 +9,6 @@ from src.simulator.simulator import Simulator
 
 SIMULATION_TIME = 50
 
-sp_centroid = (-23.5549, -46.6159)
-
-
 def main():
 
     environment = FoodDeliveryEnvironment(Map())
