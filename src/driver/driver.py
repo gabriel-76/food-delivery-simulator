@@ -47,7 +47,7 @@ class Driver:
         return self.capacity.fits(dimensions)
 
     def deliver_order(self, order):
-        yield self.environment.timeout(1)
+        yield self.environment.timeout(self.time_to_accept_or_reject_order(order))
         if self.accept_order_condition(order):
             self.accept_delivery(order)
         else:
@@ -81,7 +81,6 @@ class Driver:
 
     def start_order_collection(self, order):
         self.status = DriverStatus.COLLECTING
-        collecting_time = self.collecting_time_policy()
         event = DriverCollectingOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -91,7 +90,7 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        yield self.environment.timeout(collecting_time)
+        yield self.environment.timeout(self.collecting_time_policy())
         self.finish_order_collection(order)
 
     def finish_order_collection(self, order):
@@ -107,7 +106,6 @@ class Driver:
 
     def start_order_delivery(self, order: Order):
         self.status = DriverStatus.DELIVERING
-        delivery_time = self.delivery_time_policy()
         event = DriverDeliveringOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -117,7 +115,7 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        yield self.environment.timeout(delivery_time)
+        yield self.environment.timeout(self.delivery_time_policy())
         self.environment.process(self.wait_client_pick_up_order(order))
 
     def wait_client_pick_up_order(self, order: Order):
@@ -147,6 +145,9 @@ class Driver:
         self.status = DriverStatus.WAITING
         self.environment.add_delivered_order(order)
 
+
+    def time_to_accept_or_reject_order(self, order: Order):
+        return random.randrange(1, 3)
     def delivery_time_policy(self):
         return random.randrange(1, 5)
 

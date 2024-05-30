@@ -8,6 +8,7 @@ from src.events.restaurant_accepted_order import RestaurantAcceptedOrder
 from src.events.restaurant_finish_order import RestaurantFinishOrder
 from src.events.restaurant_preparing_order import RestaurantPreparingOrder
 from src.events.restaurant_rejected_order import RestaurantRejectedOrder
+from src.order.order import Order
 from src.restaurant.catalog import Catalog
 
 
@@ -40,10 +41,10 @@ class Restaurant:
             while len(self.new_orders.items) > 0:
                 order = yield self.new_orders.get()
                 self.environment.process(self.process_order(order))
-            yield self.environment.timeout(2)
+            yield self.environment.timeout(self.time_process_orders())
 
     def process_order(self, order):
-        yield self.environment.timeout(1)
+        yield self.environment.timeout(self.time_to_accept_or_reject_order(order))
         if self.accept_order_policy(order):
             self.accept_order(order)
         else:
@@ -74,10 +75,9 @@ class Restaurant:
             while len(self.confirmed_orders.items) > 0:
                 order = yield self.confirmed_orders.get()
                 self.environment.process(self.prepare_order(order))
-            yield self.environment.timeout(1)
+            yield self.environment.timeout(self.time_check_orders_ready_for_preparation())
 
     def prepare_order(self, order):
-        orders_time_policy = self.prepare_order_time_policy(order)
         event = RestaurantPreparingOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -85,7 +85,7 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        yield self.environment.timeout(orders_time_policy)
+        yield self.environment.timeout(self.prepare_order_time_policy(order))
         self.finish_order(order)
 
     def finish_order(self, order):
@@ -97,6 +97,15 @@ class Restaurant:
         )
         self.environment.add_event(event)
         self.environment.add_ready_order(order)
+
+    def time_process_orders(self):
+        return random.randrange(1, 5)
+
+    def time_check_orders_ready_for_preparation(self):
+        return random.randrange(1, 5)
+
+    def time_to_accept_or_reject_order(self, order: Order):
+        return random.randrange(1, 3)
 
     def prepare_order_time_policy(self, order):
         return random.randrange(1, 12)
