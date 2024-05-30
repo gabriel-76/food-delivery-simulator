@@ -28,40 +28,46 @@ class Restaurant:
         self.confirmed_orders = simpy.Store(self.environment)
         self.canceled_orders = simpy.Store(self.environment)
 
-        self.environment.process(self.accept_orders())
+        self.environment.process(self.process_orders())
         self.environment.process(self.prepare_orders())
 
     def receive_orders(self, orders):
         for order in orders:
             self.new_orders.put(order)
 
-    def accept_orders(self):
+    def process_orders(self):
         while True:
             while len(self.new_orders.items) > 0:
                 order = yield self.new_orders.get()
-                self.environment.process(self.accept_order(order))
+                self.environment.process(self.process_order(order))
             yield self.environment.timeout(2)
 
-    def accept_order(self, order):
-        if self.accept_order_policy(order):
-            event = RestaurantAcceptedOrder(
-                order_id=order.order_id,
-                client_id=order.client.client_id,
-                restaurant_id=self.restaurant_id,
-                time=self.environment.now
-            )
-            self.environment.add_event(event)
-            self.confirmed_orders.put(order)
-        else:
-            event = RestaurantRejectedOrder(
-                order_id=order.order_id,
-                client_id=order.client.client_id,
-                restaurant_id=self.restaurant_id,
-                time=self.environment.now
-            )
-            self.environment.add_event(event)
-            self.canceled_orders.put(order)
+    def process_order(self, order):
         yield self.environment.timeout(1)
+        if self.accept_order_policy(order):
+            self.accept_order(order)
+        else:
+            self.reject_order(order)
+
+    def accept_order(self, order):
+        event = RestaurantAcceptedOrder(
+            order_id=order.order_id,
+            client_id=order.client.client_id,
+            restaurant_id=self.restaurant_id,
+            time=self.environment.now
+        )
+        self.environment.add_event(event)
+        self.confirmed_orders.put(order)
+
+    def reject_order(self, order):
+        event = RestaurantRejectedOrder(
+            order_id=order.order_id,
+            client_id=order.client.client_id,
+            restaurant_id=self.restaurant_id,
+            time=self.environment.now
+        )
+        self.environment.add_event(event)
+        self.canceled_orders.put(order)
 
     def prepare_orders(self):
         while True:
@@ -80,6 +86,9 @@ class Restaurant:
         )
         self.environment.add_event(event)
         yield self.environment.timeout(orders_time_policy)
+        self.finish_order(order)
+
+    def finish_order(self, order):
         event = RestaurantFinishOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,

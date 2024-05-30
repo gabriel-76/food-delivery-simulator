@@ -8,7 +8,7 @@ class DriverArrivedDeliveryLocation(Event):
         print(self)
 
     def __str__(self):
-        return (f"Driver has arrived at the delivery location for "
+        return (f"Driver {self.driver_id} has arrived at the delivery location for "
                 f"order {self.order_id} from "
                 f"restaurant {self.restaurant_id} and is waiting for "
                 f"client {self.client_id} in "

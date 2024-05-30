@@ -39,30 +39,36 @@ class Driver:
             dimensions += item.dimensions
         return self.capacity.fits(dimensions)
 
-    def deliver(self, order):
-        if self.accept_order(order):
-            event = DriverAcceptedDelivery(
-                order_id=order.order_id,
-                client_id=order.client.client_id,
-                restaurant_id=order.restaurant.restaurant_id,
-                driver_id=self.driver_id,
-                time=self.environment.now
-            )
-            self.environment.add_event(event)
-            self.environment.process(self.collect_order(order))
-        else:
-            event = DriverRejectedDelivery(
-                order_id=order.order_id,
-                client_id=order.client.client_id,
-                restaurant_id=order.restaurant.restaurant_id,
-                driver_id=self.driver_id,
-                time=self.environment.now
-            )
-            self.environment.add_event(event)
-            self.environment.add_rejected_delivery_order(order)
+    def deliver_order(self, order):
         yield self.environment.timeout(1)
+        if self.accept_order_condition(order):
+            self.accept_delivery(order)
+        else:
+            self.reject_delivery(order)
 
-    def collect_order(self, order):
+    def accept_delivery(self, order: Order):
+        event = DriverAcceptedDelivery(
+            order_id=order.order_id,
+            client_id=order.client.client_id,
+            restaurant_id=order.restaurant.restaurant_id,
+            driver_id=self.driver_id,
+            time=self.environment.now
+        )
+        self.environment.add_event(event)
+        self.environment.process(self.start_order_collection(order))
+
+    def reject_delivery(self, order: Order):
+        event = DriverRejectedDelivery(
+            order_id=order.order_id,
+            client_id=order.client.client_id,
+            restaurant_id=order.restaurant.restaurant_id,
+            driver_id=self.driver_id,
+            time=self.environment.now
+        )
+        self.environment.add_event(event)
+        self.environment.add_rejected_delivery_order(order)
+
+    def start_order_collection(self, order):
         self.status = DriverStatus.COLLECTING
         collecting_time = self.collecting_time_policy()
         event = DriverCollectingOrder(
@@ -74,6 +80,9 @@ class Driver:
         )
         self.environment.add_event(event)
         yield self.environment.timeout(collecting_time)
+        self.finish_order_collection(order)
+
+    def finish_order_collection(self, order):
         event = DriverCollectedOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -82,9 +91,9 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        self.environment.process(self.deliver_order(order))
+        self.environment.process(self.start_order_delivery(order))
 
-    def deliver_order(self, order: Order):
+    def start_order_delivery(self, order: Order):
         self.status = DriverStatus.DELIVERING
         delivery_time = self.delivery_time_policy()
         event = DriverDeliveringOrder(
@@ -96,6 +105,9 @@ class Driver:
         )
         self.environment.add_event(event)
         yield self.environment.timeout(delivery_time)
+        self.environment.process(self.wait_client_pick_up_order(order))
+
+    def wait_client_pick_up_order(self, order: Order):
         event = DriverArrivedDeliveryLocation(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -105,6 +117,9 @@ class Driver:
         )
         self.environment.add_event(event)
         yield self.environment.process(order.client.receive_order(order, self))
+        self.finish_order_delivery(order)
+
+    def finish_order_delivery(self, order: Order):
         event = DriverDeliveredOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -116,14 +131,13 @@ class Driver:
         self.status = DriverStatus.WAITING
         self.environment.add_delivered_order(order)
 
-
     def delivery_time_policy(self):
         return random.randrange(1, 5)
 
     def collecting_time_policy(self):
         return random.randrange(1, 5)
 
-    def accept_order(self, order):
+    def accept_order_condition(self, order):
         return self.available and self.status is DriverStatus.WAITING
 
 

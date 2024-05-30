@@ -16,12 +16,12 @@ class Optimizer:
                 order = yield self.environment.get_rejected_delivery_order()
                 filtered_drivers = [d for d in drivers if d.fits(order)]
                 driver = random.choice(filtered_drivers)
-                self.environment.process(driver.deliver(order))
+                self.environment.process(driver.deliver_order(order))
             while self.environment.count_ready_orders() > 0:
                 order = yield self.environment.get_ready_order()
                 filtered_drivers = [d for d in drivers if d.fits(order)]
                 driver = random.choice(filtered_drivers)
-                self.environment.process(driver.deliver(order))
+                self.environment.process(driver.deliver_order(order))
             yield self.environment.timeout(self.optimize_time_policy())
 
     def optimize_time_policy(self):
