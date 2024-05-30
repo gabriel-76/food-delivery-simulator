@@ -12,6 +12,13 @@ class ClientGenerator:
 
     def generate(self):
         while True:
-            clients = [Client(self.environment, (), True) for i in range(random.randrange(0, NUM_CLIENTS))]
+            clients = [
+                Client(
+                    environment=self.environment,
+                    coordinates=self.environment.map.random_point(),
+                    available=True
+                )
+                for _ in range(random.randrange(0, NUM_CLIENTS))
+            ]
             self.environment.add_clients(clients)
             yield self.environment.timeout(1)

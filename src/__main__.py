@@ -12,7 +12,7 @@ SIMULATION_TIME = 50
 
 def main():
 
-    environment = FoodDeliveryEnvironment(Map())
+    environment = FoodDeliveryEnvironment(Map(100))
 
     simulator = Simulator(
         environment,

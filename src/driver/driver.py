@@ -15,23 +15,30 @@ from src.events.driver_rejected_delivery import DriverRejectedDelivery
 from src.order.order import Order
 
 
+class DriverStatus(Enum):
+    WAITING = auto()
+    COLLECTING = auto()
+    DELIVERING = auto()
+
+
 class Driver:
     def __init__(
             self,
             environment: FoodDeliveryEnvironment,
             coordinates,
-            driver_type,
             capacity: Capacity,
             available: bool,
-            status
+            status: DriverStatus
     ):
         self.driver_id = uuid.uuid4()
         self.environment = environment
         self.coordinates = coordinates
-        self.driver_type = driver_type
         self.capacity = capacity
         self.available = available
         self.status = status
+        self.collection_distance = 0
+        self.delivery_distance = 0
+        self.total_distance = 0
 
     def fits(self, order: Order):
         dimensions = Dimensions(0, 0, 0, 0)
@@ -47,11 +54,15 @@ class Driver:
             self.reject_delivery(order)
 
     def accept_delivery(self, order: Order):
+        self.collection_distance = self.environment.map.distance(self.coordinates, order.restaurant.coordinates)
+        self.delivery_distance = self.environment.map.distance(order.restaurant.coordinates, order.client.coordinates)
+        self.total_distance = self.collection_distance + self.delivery_distance
         event = DriverAcceptedDelivery(
             order_id=order.order_id,
             client_id=order.client.client_id,
             restaurant_id=order.restaurant.restaurant_id,
             driver_id=self.driver_id,
+            distance=self.total_distance,
             time=self.environment.now
         )
         self.environment.add_event(event)
@@ -76,6 +87,7 @@ class Driver:
             client_id=order.client.client_id,
             restaurant_id=order.restaurant.restaurant_id,
             driver_id=self.driver_id,
+            distance=self.collection_distance,
             time=self.environment.now
         )
         self.environment.add_event(event)
@@ -101,6 +113,7 @@ class Driver:
             client_id=order.client.client_id,
             restaurant_id=order.restaurant.restaurant_id,
             driver_id=self.driver_id,
+            distance=self.delivery_distance,
             time=self.environment.now
         )
         self.environment.add_event(event)
@@ -128,6 +141,9 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
+        self.collection_distance = 0
+        self.delivery_distance = 0
+        self.total_distance = 0
         self.status = DriverStatus.WAITING
         self.environment.add_delivered_order(order)
 
@@ -139,9 +155,3 @@ class Driver:
 
     def accept_order_condition(self, order):
         return self.available and self.status is DriverStatus.WAITING
-
-
-class DriverStatus(Enum):
-    WAITING = auto()
-    COLLECTING = auto()
-    DELIVERING = auto()

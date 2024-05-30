@@ -15,6 +15,14 @@ class DriverGenerator:
     def generate(self):
         while True:
             capacity = Capacity(Dimensions(10, 10, 10, 10))
-            drivers = [Driver(self.environment, (), "type", capacity, True, DriverStatus.WAITING) for i in range(random.randrange(0, NUM_DRIVERS))]
+            drivers = [
+                Driver(
+                    environment=self.environment,
+                    coordinates=self.environment.map.random_point(),
+                    capacity=capacity,
+                    available=True,
+                    status=DriverStatus.WAITING
+                ) for _ in range(random.randrange(0, NUM_DRIVERS))
+            ]
             self.environment.add_drivers(drivers)
             yield self.environment.timeout(1)
