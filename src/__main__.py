@@ -7,7 +7,7 @@ from src.order.order_generator import OrderGenerator
 from src.restaurant.restaurant_generator import RestaurantGenerator
 from src.simulator.simulator import Simulator
 
-SIMULATION_TIME = 50
+SIMULATION_TIME = 100
 
 
 def main():
