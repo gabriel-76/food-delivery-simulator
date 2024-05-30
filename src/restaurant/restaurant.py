@@ -85,7 +85,7 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        yield self.environment.timeout(self.prepare_order_time_policy(order))
+        yield self.environment.timeout(self.time_to_prepare_order(order))
         self.finish_order(order)
 
     def finish_order(self, order):
@@ -105,9 +105,9 @@ class Restaurant:
         return random.randrange(1, 5)
 
     def time_to_accept_or_reject_order(self, order: Order):
-        return random.randrange(1, 3)
+        return random.randrange(1, 5)
 
-    def prepare_order_time_policy(self, order):
+    def time_to_prepare_order(self, order):
         return random.randrange(1, 12)
 
     def accept_order_policy(self, order):

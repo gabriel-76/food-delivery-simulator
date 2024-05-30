@@ -90,7 +90,7 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        yield self.environment.timeout(self.collecting_time_policy())
+        yield self.environment.timeout(self.time_to_collect_order(order))
         self.finish_order_collection(order)
 
     def finish_order_collection(self, order):
@@ -115,7 +115,7 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        yield self.environment.timeout(self.delivery_time_policy())
+        yield self.environment.timeout(self.time_to_deliver_order(order))
         self.environment.process(self.wait_client_pick_up_order(order))
 
     def wait_client_pick_up_order(self, order: Order):
@@ -145,14 +145,14 @@ class Driver:
         self.status = DriverStatus.WAITING
         self.environment.add_delivered_order(order)
 
-
     def time_to_accept_or_reject_order(self, order: Order):
-        return random.randrange(1, 3)
-    def delivery_time_policy(self):
         return random.randrange(1, 5)
 
-    def collecting_time_policy(self):
-        return random.randrange(1, 5)
+    def time_to_deliver_order(self, order: Order):
+        return self.environment.map.estimated_time(order.restaurant.coordinates, order.client.coordinates)
+
+    def time_to_collect_order(self, order: Order):
+        return self.environment.map.estimated_time(self.coordinates, order.restaurant.coordinates)
 
     def accept_order_condition(self, order):
         return self.available and self.status is DriverStatus.WAITING
