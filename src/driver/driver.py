@@ -54,6 +54,8 @@ class Driver:
         delivery_time = self.delivery_time_policy()
         print(f"Driver {self.driver_id} is delivering order {order.order_id} from restaurant {order.restaurant.restaurant_id} and client {order.client.client_id} in time {self.environment.now}")
         yield self.environment.timeout(delivery_time)
+        print(f"Driver has arrived at the delivery location for order {order.order_id} from restaurant {order.restaurant.restaurant_id} and is waiting for client {order.client.client_id} in time {self.environment.now}")
+        yield self.environment.process(order.client.receive_order(order, self))
         print(f"Driver {self.driver_id} delivered order {order.order_id} from restaurant {order.restaurant.restaurant_id} to client {order.client.client_id} in time {self.environment.now}")
         self.status = DriverStatus.WAITING
         self.environment.add_delivered_order(order)
