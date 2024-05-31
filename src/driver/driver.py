@@ -155,4 +155,7 @@ class Driver:
         return self.environment.map.estimated_time(self.coordinates, order.restaurant.coordinates)
 
     def accept_order_condition(self, order):
-        return self.available and self.status is DriverStatus.WAITING
+        return self.fits(order) and self.available and self.status is DriverStatus.WAITING
+
+    def check_availability(self, order: Order):
+        return self.fits(order) and self.available and self.status is DriverStatus.WAITING
