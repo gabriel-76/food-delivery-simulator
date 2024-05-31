@@ -1,4 +1,5 @@
 from src.client.client_generator import ClientGenerator
+from src.client.random_client_generator import RandomClientGenerator
 from src.driver.driver_generator import DriverGenerator
 from src.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.map.map import Map
@@ -10,6 +11,8 @@ from src.order.order_generator import OrderGenerator
 from src.restaurant.restaurant_generator import RestaurantGenerator
 from src.simulator.simulator import Simulator
 
+
+NUM_CLIENTS = 10
 SIMULATION_TIME = 100
 
 
@@ -19,7 +22,8 @@ def main():
 
     simulator = Simulator(
         environment,
-        ClientGenerator(environment),
+        ClientGenerator(environment, NUM_CLIENTS),
+        # RandomClientGenerator(environment, 0, NUM_CLIENTS),
         RestaurantGenerator(environment),
         DriverGenerator(environment),
         OrderGenerator(environment),

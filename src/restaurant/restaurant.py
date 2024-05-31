@@ -46,7 +46,7 @@ class Restaurant:
 
     def process_order(self, order):
         yield self.environment.timeout(self.time_to_accept_or_reject_order(order))
-        if self.accept_order_policy(order):
+        if self.accept_order_condition(order):
             self.accept_order(order)
         else:
             self.reject_order(order)
@@ -123,5 +123,5 @@ class Restaurant:
     def time_to_prepare_order(self, order):
         return random.randrange(8, 20)
 
-    def accept_order_policy(self, order):
+    def accept_order_condition(self, order):
         return self.available
