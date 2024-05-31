@@ -28,7 +28,8 @@ class Driver:
             coordinates,
             capacity: Capacity,
             available: bool,
-            status: DriverStatus
+            status: DriverStatus,
+            movement_rate
     ):
         self.driver_id = uuid.uuid4()
         self.environment = environment
@@ -36,6 +37,7 @@ class Driver:
         self.capacity = capacity
         self.available = available
         self.status = status
+        self.movement_rate = movement_rate
         self.collection_distance = 0
         self.delivery_distance = 0
         self.total_distance = 0
@@ -149,10 +151,12 @@ class Driver:
         return random.randrange(3, 10)
 
     def time_to_deliver_order(self, order: Order):
-        return self.environment.map.estimated_time(order.restaurant.coordinates, order.client.coordinates)
+        restaurant_coordinates = order.restaurant.coordinates
+        client_coordinates = order.client.coordinates
+        return self.environment.map.estimated_time(restaurant_coordinates, client_coordinates, self.movement_rate)
 
     def time_to_collect_order(self, order: Order):
-        return self.environment.map.estimated_time(self.coordinates, order.restaurant.coordinates)
+        return self.environment.map.estimated_time(self.coordinates, order.restaurant.coordinates, self.movement_rate)
 
     def accept_order_condition(self, order):
         return self.fits(order) and self.available and self.status is DriverStatus.WAITING
