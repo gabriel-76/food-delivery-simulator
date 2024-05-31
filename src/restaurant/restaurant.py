@@ -4,6 +4,7 @@ import uuid
 import simpy
 
 from src.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.events.estimated_order_preparation_time import EstimatedOrderPreparationTime
 from src.events.restaurant_accepted_order import RestaurantAcceptedOrder
 from src.events.restaurant_finish_order import RestaurantFinishOrder
 from src.events.restaurant_preparing_order import RestaurantPreparingOrder
@@ -58,7 +59,19 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
+        self.estimate_preparation_time(order)
         self.confirmed_orders.put(order)
+
+    def estimate_preparation_time(self, order):
+        event = EstimatedOrderPreparationTime(
+            order_id=order.order_id,
+            client_id=order.client.client_id,
+            restaurant_id=self.restaurant_id,
+            estimated_time=self.time_to_prepare_order(order) + random.randrange(-5, 5),
+            time=self.environment.now
+        )
+        self.environment.add_event(event)
+
 
     def reject_order(self, order):
         event = RestaurantRejectedOrder(
