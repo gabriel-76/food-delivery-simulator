@@ -12,9 +12,9 @@ class FoodDeliveryEnvironment(simpy.Environment):
         self.drivers = []
         self.events = simpy.Store(self)
         # Orders ready for collection
-        self.ready_orders = simpy.Store(self)
+        self.ready_orders = simpy.FilterStore(self)
         # Order deliveries rejected by driver
-        self.rejected_delivery_orders = simpy.Store(self)
+        self.rejected_delivery_orders = simpy.FilterStore(self)
         # Orders delivered by drivers
         self.delivered_orders = simpy.Store(self)
 

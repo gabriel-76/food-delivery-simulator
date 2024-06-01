@@ -14,7 +14,7 @@ class Simulator:
             restaurant_generator: RestaurantGenerator,
             driver_generator: DriverGenerator,
             order_generator: OrderGenerator,
-            optimizer: Optimizer,
+            optimizer: Optimizer | None = None,
             debug: bool = False,
     ):
         self.environment = environment
@@ -30,7 +30,8 @@ class Simulator:
         self.environment.process(self.restaurant_generator.generate())
         self.environment.process(self.driver_generator.generate())
         self.environment.process(self.order_generator.generate())
-        self.environment.process(self.optimizer.optimize())
+        if self.optimizer:
+            self.environment.process(self.optimizer.optimize())
         self.environment.run(until=until)
 
         if self.debug:
