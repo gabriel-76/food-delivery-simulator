@@ -6,7 +6,7 @@ import simpy
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.events.estimated_order_preparation_time import EstimatedOrderPreparationTime
 from src.main.events.restaurant_accepted_order import RestaurantAcceptedOrder
-from src.main.events.restaurant_finish_order import RestaurantFinishOrder
+from src.main.events.restaurant_finished_order import RestaurantFinishedOrder
 from src.main.events.restaurant_preparing_order import RestaurantPreparingOrder
 from src.main.events.restaurant_rejected_order import RestaurantRejectedOrder
 from src.main.order.order import Order
@@ -102,7 +102,7 @@ class Restaurant:
         self.finish_order(order)
 
     def finish_order(self, order):
-        event = RestaurantFinishOrder(
+        event = RestaurantFinishedOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
             restaurant_id=self.restaurant_id,

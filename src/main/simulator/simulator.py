@@ -15,6 +15,7 @@ class Simulator:
             driver_generator: DriverGenerator,
             order_generator: OrderGenerator,
             optimizer: Optimizer,
+            debug: bool = False,
     ):
         self.environment = environment
         self.optimizer = optimizer
@@ -22,6 +23,7 @@ class Simulator:
         self.restaurant_generator = restaurant_generator
         self.driver_generator = driver_generator
         self.order_generator = order_generator
+        self.debug = debug
 
     def run(self, until):
         self.environment.process(self.client_generator.generate())
@@ -30,3 +32,10 @@ class Simulator:
         self.environment.process(self.order_generator.generate())
         self.environment.process(self.optimizer.optimize())
         self.environment.run(until=until)
+
+        if self.debug:
+            self.log_events()
+
+    def log_events(self):
+        for event in self.environment.events.items:
+            print(event)

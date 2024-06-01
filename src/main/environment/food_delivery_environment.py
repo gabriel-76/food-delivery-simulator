@@ -62,18 +62,3 @@ class FoodDeliveryEnvironment(simpy.Environment):
 
     def count_event(self):
         return len(self.events.items)
-
-    def debug(self):
-        print()
-        for order in self.ready_orders.items:
-            print(f"==============> order {order.order_id}")
-        print()
-        #
-        # for driver in self.drivers:
-        #     print(f"================ driver {driver.driver_id}")
-
-        for order in self.delivered_orders.items:
-            print(f"==============> order {order.order_id}")
-        print()
-
-        print(len(self.delivered_orders.items))

@@ -1,10 +1,11 @@
 from src.main.events.event import Event
+from src.main.events.event_type import EventType
 
 
-class RestaurantFinishOrder(Event):
+class RestaurantFinishedOrder(Event):
     def __init__(self, order_id, client_id, restaurant_id, time):
         super().__init__(order_id, client_id, restaurant_id, time)
-        print(self)
+        self.event_type = EventType.RESTAURANT_FINISHED_ORDER
 
     def __str__(self):
         return (f"Restaurant {self.restaurant_id} has finished preparing the "

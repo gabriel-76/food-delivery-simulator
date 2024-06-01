@@ -25,11 +25,11 @@ def main():
         # Optimizer(environment),
         # FirstDriverOptimizer(environment),
         # RandomDriverOptimizer(environment),
-        NearestDriverOptimizer(environment)
+        NearestDriverOptimizer(environment),
+        debug=True
     )
 
     simulator.run(until=SIMULATION_TIME)
-    # environment.debug()
 
 
 if __name__ == '__main__':
