@@ -8,4 +8,4 @@
 
 ## Run project
 
-### Execute `python -m src.__main__`
+### Execute `python -m src.main.__main__`
