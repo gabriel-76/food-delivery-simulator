@@ -9,10 +9,7 @@ class NearestDriverOptimizer(Optimizer):
         super().__init__(environment)
 
     def compare_distance(self, driver: Driver, order: Order):
-        collection_distance = self.environment.map.distance(driver.coordinates, order.restaurant.coordinates)
-        delivery_distance = self.environment.map.distance(order.restaurant.coordinates, order.client.coordinates)
-        total_distance = collection_distance + delivery_distance
-        return total_distance
+        return self.environment.map.total_distance(order, driver)
 
     def select_driver(self, order: Order):
         drivers = self.available_drivers(order)

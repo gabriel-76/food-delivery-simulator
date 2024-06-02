@@ -8,7 +8,7 @@ from src.main.order.order_generator import OrderGenerator
 from src.main.restaurant.restaurant_generator import RestaurantGenerator
 from src.main.simulator.simulator import Simulator
 
-NUM_CLIENTS = 100
+NUM_CLIENTS = 10
 SIMULATION_TIME = 100
 
 

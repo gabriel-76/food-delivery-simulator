@@ -56,8 +56,8 @@ class Driver:
             self.reject_delivery(order)
 
     def accept_delivery(self, order: Order):
-        self.collection_distance = self.environment.map.distance(self.coordinates, order.restaurant.coordinates)
-        self.delivery_distance = self.environment.map.distance(order.restaurant.coordinates, order.client.coordinates)
+        self.collection_distance = self.environment.map.collection_distance(order, self)
+        self.delivery_distance = self.environment.map.delivery_distance(order)
         self.total_distance = self.collection_distance + self.delivery_distance
         event = DriverAcceptedDelivery(
             order_id=order.order_id,
