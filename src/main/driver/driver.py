@@ -103,6 +103,7 @@ class Driver:
             driver_id=self.driver_id,
             time=self.environment.now
         )
+        self.coordinates = order.restaurant.coordinates
         self.environment.add_event(event)
         self.environment.process(self.start_order_delivery(order))
 
@@ -140,6 +141,7 @@ class Driver:
             driver_id=self.driver_id,
             time=self.environment.now
         )
+        self.coordinates = order.client.coordinates
         self.environment.add_event(event)
         self.collection_distance = 0
         self.delivery_distance = 0
