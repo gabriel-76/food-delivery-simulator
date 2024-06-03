@@ -4,11 +4,15 @@ from src.main.driver.reactive_driver_generator import ReactiveDriverGenerator
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.map.map import Map
 from src.main.optimizer.nearest_driver_optimizer import NearestDriverOptimizer
+from src.main.optimizer.optimizer import Optimizer
 from src.main.order.order_generator import OrderGenerator
+from src.main.order.order_restaurant_rate_generator import OrderRestaurantRateGenerator
 from src.main.restaurant.restaurant_generator import RestaurantGenerator
+from src.main.restaurant.restaurant_order_rate_generator import RestaurantOrderRateGenerator
 from src.main.simulator.simulator import Simulator
 
 NUM_CLIENTS = 10
+NUM_RESTAURANTS = 10
 SIMULATION_TIME = 100
 
 
@@ -17,14 +21,16 @@ def main():
     environment = FoodDeliveryEnvironment(Map(100))
 
     simulator = Simulator(
-        environment,
-        ClientGenerator(environment, NUM_CLIENTS),
-        # RandomClientGenerator(environment, 0, NUM_CLIENTS),
-        RestaurantGenerator(environment),
-        # DriverGenerator(environment),
-        ReactiveDriverGenerator(environment),
-        OrderGenerator(environment),
-        # Optimizer(environment),
+        environment=environment,
+        # client_generator=ClientGenerator(environment, NUM_CLIENTS),
+        # client_generator=RandomClientGenerator(environment, 0, NUM_CLIENTS),
+        # restaurant_generator=RestaurantGenerator(environment),
+        restaurant_generator=RestaurantOrderRateGenerator(environment, NUM_RESTAURANTS),
+        # driver_generator=DriverGenerator(environment),
+        driver_generator=ReactiveDriverGenerator(environment),
+        # order_generator=OrderGenerator(environment),
+        order_generator=OrderRestaurantRateGenerator(environment),
+        # optimizer=Optimizer(environment),
         # FirstDriverOptimizer(environment),
         # RandomDriverOptimizer(environment),
         # NearestDriverOptimizer(environment),

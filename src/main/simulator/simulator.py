@@ -10,10 +10,10 @@ class Simulator:
     def __init__(
             self,
             environment: FoodDeliveryEnvironment,
-            client_generator: ClientGenerator,
-            restaurant_generator: RestaurantGenerator,
-            driver_generator: DriverGenerator,
-            order_generator: OrderGenerator,
+            client_generator: ClientGenerator | None = None,
+            restaurant_generator: RestaurantGenerator | None = None,
+            driver_generator: DriverGenerator | None = None,
+            order_generator: OrderGenerator | None = None,
             optimizer: Optimizer | None = None,
             debug: bool = False,
     ):
@@ -26,10 +26,14 @@ class Simulator:
         self.debug = debug
 
     def run(self, until):
-        self.environment.process(self.client_generator.generate())
-        self.environment.process(self.restaurant_generator.generate())
-        self.environment.process(self.driver_generator.generate())
-        self.environment.process(self.order_generator.generate())
+        if self.client_generator:
+            self.environment.process(self.client_generator.generate())
+        if self.restaurant_generator:
+            self.environment.process(self.restaurant_generator.generate())
+        if self.driver_generator:
+            self.environment.process(self.driver_generator.generate())
+        if self.order_generator:
+            self.environment.process(self.order_generator.generate())
         if self.optimizer:
             self.environment.process(self.optimizer.optimize())
         self.environment.run(until=until)
