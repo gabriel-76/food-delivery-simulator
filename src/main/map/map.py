@@ -24,12 +24,12 @@ class Map:
     def random_point(self):
         return random.randrange(self.length), random.randrange(self.length)
 
-    def random_point_in_radius(self, coordinates, radius, inf_limit, sup_limit):
+    def random_point_in_radius(self, coordinates, inf_limit, sup_limit):
         # Gere um ângulo aleatório entre 0 e 2π
         theta = random.uniform(0, 2 * math.pi)
 
-        # Gere um raio aleatório, considerando a distribuição uniforme dentro do círculo
-        r = radius * math.sqrt(random.uniform(inf_limit, sup_limit))
+        # Gere um raio aleatório, entre os limites
+        r = random.uniform(inf_limit, sup_limit)
 
         # Converta as coordenadas polares para coordenadas cartesianas
         x = coordinates[0] + r * math.cos(theta)
@@ -39,17 +39,18 @@ class Map:
 
     def random_point_in_circle(self, coordinates, radius):
         while True:
-            print("Gerando ponto no circulo")
-            x, y = self.random_point_in_radius(coordinates, radius, 0, radius)
+            # print("Gerando ponto no circulo")
+            x, y = self.random_point_in_radius(coordinates, 0, radius)
             if 0 <= x <= self.length and 0 <= y <= self.length:
-                print(f"Ponto no circulo gerado {x, y}")
+                # print(f"Ponto no circulo gerado {x, y}")
                 return x, y
 
     def random_point_outside_circle(self, coordinates, radius):
         while True:
-            print("Gerando ponto fora do circulo")
-            x, y = self.random_point_in_radius(coordinates, radius, radius + 1, self.length / 5)
-            print(f"Ponto no fora do circulo gerado {x, y} fora do limite")
+            # print("Gerando ponto fora do circulo")
+            x, y = self.random_point_in_radius(coordinates, radius + 1, self.length)
             if 0 <= x <= self.length and 0 <= y <= self.length:
-                print(f"Ponto no fora do circulo gerado {x, y}")
+                # print(f"Ponto no fora do circulo gerado {x, y}")
                 return x, y
+            # else:
+            #     print(f"Ponto no fora do circulo gerado {x, y} fora do limite")

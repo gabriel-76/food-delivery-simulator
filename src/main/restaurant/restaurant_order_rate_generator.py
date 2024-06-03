@@ -24,7 +24,7 @@ class RestaurantOrderRateGenerator(RestaurantGenerator):
                 available=True,
                 catalog=catalog,
                 order_rate=random.randint(0, 10),
-                operating_radius=random.randint(10, 20)
+                operating_radius=random.randint(10, 30)
             )
             for _ in range(self.number_of_restaurants)
         ]
