@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 
+from src.main.base.dimensions import Dimensions
 from src.main.order.item import Item
 
 
@@ -17,3 +18,10 @@ class Order:
         self.restaurant = restaurant
         self.request_date = request_date
         self.items = items
+        self.required_capacity = self.calculate_required_capacity()
+
+    def calculate_required_capacity(self):
+        dimensions = Dimensions(0, 0, 0, 0)
+        for item in self.items:
+            dimensions += item.dimensions
+        return dimensions
