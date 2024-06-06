@@ -39,7 +39,12 @@ class Simulator:
         self.environment.run(until=until)
 
         if self.debug:
-            self.log_events()
+            # self.log_events()
+            print("restaurants", len(self.environment.restaurants))
+            print("clients", len(self.environment.clients))
+            print("drivers", len(self.environment.drivers))
+            print("orders delivered", len(self.environment.delivered_orders.items))
+            print("orders waiting", len(self.environment.ready_orders.items))
 
     def log_events(self):
         for event in self.environment.events.items:

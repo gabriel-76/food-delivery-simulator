@@ -23,7 +23,7 @@ class RestaurantOrderRateGenerator(RestaurantGenerator):
                 coordinates=self.environment.map.random_point(),
                 available=True,
                 catalog=catalog,
-                order_rate=random.randint(0, 10),
+                order_rate=random.randint(1, 10),
                 operating_radius=random.randint(10, 30)
             )
             for _ in range(self.number_of_restaurants)

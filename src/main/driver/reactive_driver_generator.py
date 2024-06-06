@@ -7,25 +7,25 @@ from src.main.environment.food_delivery_environment import FoodDeliveryEnvironme
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver import Driver, DriverStatus
 
-NUM_DRIVERS = 50
-
 
 class ReactiveDriverGenerator(DriverGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment):
+    def __init__(self, environment: FoodDeliveryEnvironment, num_drivers):
         super().__init__(environment)
+        self.num_drivers = num_drivers
 
     def generate(self):
-        while True:
-            capacity = Capacity(Dimensions(10, 10, 10, 10))
-            drivers = [
-                ReactiveDriver(
-                    environment=self.environment,
-                    coordinates=self.environment.map.random_point(),
-                    capacity=capacity,
-                    available=True,
-                    status=DriverStatus.WAITING,
-                    movement_rate=random.uniform(1, 30),
-                ) for _ in range(random.randrange(0, NUM_DRIVERS))
-            ]
-            self.environment.add_drivers(drivers)
-            yield self.environment.timeout(1)
+        # while True:
+        capacity = Capacity(Dimensions(10, 10, 10, 10))
+        drivers = [
+            ReactiveDriver(
+                environment=self.environment,
+                coordinates=self.environment.map.random_point(),
+                capacity=capacity,
+                available=True,
+                status=DriverStatus.WAITING,
+                movement_rate=random.uniform(1, 30),
+                max_distance=random.randrange(100, 300)
+            ) for _ in range(self.num_drivers)
+        ]
+        self.environment.add_drivers(drivers)
+        yield self.environment.timeout(1)

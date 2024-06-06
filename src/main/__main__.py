@@ -12,13 +12,14 @@ from src.main.restaurant.restaurant_order_rate_generator import RestaurantOrderR
 from src.main.simulator.simulator import Simulator
 
 NUM_CLIENTS = 10
-NUM_RESTAURANTS = 10
+NUM_RESTAURANTS = 2000
+NUM_DRIVERS = 200
 SIMULATION_TIME = 100
 
 
 def main():
 
-    environment = FoodDeliveryEnvironment(Map(100))
+    environment = FoodDeliveryEnvironment(Map(1000))
 
     simulator = Simulator(
         environment=environment,
@@ -27,7 +28,7 @@ def main():
         # restaurant_generator=RestaurantGenerator(environment),
         restaurant_generator=RestaurantOrderRateGenerator(environment, NUM_RESTAURANTS),
         # driver_generator=DriverGenerator(environment),
-        driver_generator=ReactiveDriverGenerator(environment),
+        driver_generator=ReactiveDriverGenerator(environment, NUM_DRIVERS),
         # order_generator=OrderGenerator(environment),
         order_generator=OrderRestaurantRateGenerator(environment),
         # optimizer=Optimizer(environment),
