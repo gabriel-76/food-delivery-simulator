@@ -16,6 +16,7 @@ class Simulator:
             order_generator: OrderGenerator | None = None,
             optimizer: Optimizer | None = None,
             debug: bool = False,
+            statistics: bool = False,
     ):
         self.environment = environment
         self.optimizer = optimizer
@@ -24,6 +25,7 @@ class Simulator:
         self.driver_generator = driver_generator
         self.order_generator = order_generator
         self.debug = debug
+        self.statistics = statistics
 
     def run(self, until):
         if self.client_generator:
@@ -40,6 +42,8 @@ class Simulator:
 
         if self.debug:
             self.log_events()
+
+        if self.statistics:
             print()
             print("restaurants", len(self.environment.restaurants))
             print("clients", len(self.environment.clients))

@@ -14,7 +14,7 @@ class DriverGeneratorEarly(DriverGenerator):
         self.num_drivers = num_drivers
 
     def generate(self):
-        capacity = Capacity(Dimensions(10, 10, 10, 10))
+        capacity = Capacity(Dimensions(100, 100, 100, 100))
         drivers = [
             Driver(
                 environment=self.environment,

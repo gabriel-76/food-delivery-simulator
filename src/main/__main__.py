@@ -51,12 +51,13 @@ def simple():
 
     simulator = Simulator(
         environment=environment,
-        client_generator=ClientGeneratorEarly(environment, 1),
-        restaurant_generator=RestaurantGeneratorEarly(environment, 1),
-        driver_generator=DriverGeneratorEarly(environment, 1),
+        client_generator=ClientGeneratorEarly(environment, 10),
+        restaurant_generator=RestaurantGeneratorEarly(environment, 10),
+        driver_generator=DriverGeneratorEarly(environment, 10),
         order_generator=OrderGeneratorEarly(environment, 10),
         optimizer=Optimizer(environment),
-        debug=True
+        debug=True,
+        statistics=True
     )
 
     simulator.run(until=1000)

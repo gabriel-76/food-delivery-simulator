@@ -48,12 +48,12 @@ class Driver:
         return self.capacity.fits(trip.required_capacity)
 
     def deliver_order(self, trip: Trip):
-        print(trip.required_capacity)
         yield self.environment.timeout(self.time_to_accept_or_reject_trip(trip))
         if self.accept_trip_condition(trip):
             print("Accepted")
             self.accept_delivery(trip)
         else:
+            print("Rejected")
             self.reject_delivery(trip)
 
     def accept_delivery(self, trip: Trip):
@@ -71,18 +71,21 @@ class Driver:
         # self.environment.add_event(event)
         if self.current_trip is None:
             self.current_trip = trip
+            self.sequential_processor()
         else:
             self.current_trip.extend_trip(trip)
 
-        while self.current_trip.has_next_route():
+    def sequential_processor(self):
+        if self.current_trip.has_next_route():
             route = self.current_trip.next_route()
             if route.route_type is RouteType.COLLECT:
                 self.environment.process(self.start_order_collection(route.order))
             if route.route_type is RouteType.DELIVERY:
                 self.environment.process(self.start_order_delivery(route.order))
+        else:
+            self.current_trip = None
 
     def reject_delivery(self, trip: Trip):
-        print("Reject trip")
         pass
         # event = DriverRejectedDelivery(
         #     order_id=order.order_id,
@@ -118,7 +121,8 @@ class Driver:
         )
         self.coordinates = order.restaurant.coordinates
         self.environment.add_event(event)
-        self.environment.process(self.start_order_delivery(order))
+        self.sequential_processor()
+        # self.environment.process(self.start_order_delivery(order))
 
     def start_order_delivery(self, order: Order):
         self.status = DriverStatus.DELIVERING
@@ -161,6 +165,7 @@ class Driver:
         self.total_distance = 0
         self.status = DriverStatus.WAITING
         self.environment.add_delivered_order(order)
+        self.sequential_processor()
 
     def time_to_accept_or_reject_trip(self, trip: Trip):
         return random.randrange(3, 10)
@@ -174,7 +179,7 @@ class Driver:
         return self.environment.map.estimated_time(self.coordinates, order.restaurant.coordinates, self.movement_rate)
 
     def accept_trip_condition(self, trip: Trip):
-        return self.fits(trip) and self.available and self.status is DriverStatus.WAITING
+        return self.fits(trip) and self.available
 
     def check_availability(self, trip: Trip):
         return self.fits(trip) and self.available
