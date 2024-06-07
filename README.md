@@ -5,6 +5,7 @@
 ### Use python version 3.6 or higher
 
 ### Execute `pip install simpy`
+### Execute `pip install matplotlib`
 
 ## Run project
 
