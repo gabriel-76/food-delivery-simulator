@@ -1,12 +1,12 @@
 import unittest
 
-from src.main.client.client_generator import ClientGenerator
-from src.main.driver.driver_generator import DriverGenerator
+from src.main.generator.client_generator import ClientGenerator
+from src.main.generator.driver_generator import DriverGenerator
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.map.map import Map
 from src.main.optimizer.nearest_driver_optimizer import NearestDriverOptimizer
-from src.main.order.order_generator import OrderGenerator
-from src.main.restaurant.restaurant_generator import RestaurantGenerator
+from src.main.generator.order_generator import OrderGenerator
+from src.main.generator.restaurant_generator import RestaurantGenerator
 from src.main.simulator.simulator import Simulator
 
 

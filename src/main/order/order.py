@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime
 
 from src.main.base.dimensions import Dimensions
 from src.main.order.item import Item
@@ -11,7 +10,7 @@ class Order:
             self,
             client,
             restaurant,
-            request_date: datetime,
+            request_date: int,
             items: [Item]
     ):
         self.order_id = uuid.uuid4()

@@ -1,11 +1,11 @@
 import random
 
 from src.main.base.dimensions import Dimensions
-from src.main.driver.driver_generator import DriverGenerator
+from src.main.generator.driver_generator import DriverGenerator
 from src.main.driver.reactive_driver import ReactiveDriver
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.driver.capacity import Capacity
-from src.main.driver.driver import Driver, DriverStatus
+from src.main.driver.driver import DriverStatus
 
 
 class ReactiveDriverGenerator(DriverGenerator):

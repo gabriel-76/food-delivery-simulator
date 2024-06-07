@@ -4,9 +4,8 @@ from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.order.item import Item
 from src.main.restaurant.catalog import Catalog
-from src.main.restaurant.restaurant import Restaurant
-from src.main.restaurant.restaurant_generator import RestaurantGenerator
-from src.main.restaurant.restaurant_order_rate import RestaurantOrderRate
+from src.main.generator.restaurant_generator import RestaurantGenerator
+from src.main.generator.restaurant_order_rate import RestaurantOrderRate
 
 
 class RestaurantOrderRateGenerator(RestaurantGenerator):
