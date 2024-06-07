@@ -1,11 +1,10 @@
-from src.main.events.event import Event
+from src.main.events.order_event import OrderEvent
 from src.main.events.event_type import EventType
 
 
-class ClientPlacedOrder(Event):
+class ClientPlacedOrder(OrderEvent):
     def __init__(self, order_id, client_id, restaurant_id, time):
-        super().__init__(order_id, client_id, restaurant_id, time)
-        self.event_type = EventType.CLIENT_PLACED_ORDER
+        super().__init__(order_id, client_id, restaurant_id, time, EventType.CLIENT_PLACED_ORDER)
 
     def __str__(self):
         return (f"Client {self.client_id} placed an "

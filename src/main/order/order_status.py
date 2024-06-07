@@ -17,9 +17,6 @@ class OrderStatus(Enum):
     RECEIVED = auto()
     DELIVERED = auto()
 
-    def __eq__(self, other):
-        return self.value == other.value
-
     def __lt__(self, other):
         return self.value < other.value
 

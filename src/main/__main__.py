@@ -47,8 +47,8 @@ def time_shift():
         generators=[
             TimeShiftClientGenerator(environment, lambda time: 3),
             TimeShiftRestaurantGenerator(environment, lambda time: 3),
-            TimeShiftDriverGenerator(environment, lambda time: 1),
-            TimeShiftOrderGenerator(environment, lambda time: 3 * time)
+            TimeShiftDriverGenerator(environment, lambda time: 10),
+            TimeShiftOrderGenerator(environment, lambda time: 2 * time)
         ],
         optimizer=Optimizer(environment),
         statistic=Statistic(environment),
