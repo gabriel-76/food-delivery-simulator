@@ -42,9 +42,6 @@ class Driver:
         self.available = available
         self.status = status
         self.movement_rate = movement_rate
-        self.collection_distance = 0
-        self.delivery_distance = 0
-        self.total_distance = 0
         self.current_trip = None
         self.requests = simpy.Store(self.environment)
 
@@ -119,7 +116,7 @@ class Driver:
             client_id=order.client.client_id,
             restaurant_id=order.restaurant.restaurant_id,
             driver_id=self.driver_id,
-            distance=self.collection_distance,
+            distance=self.environment.map.distance(self.coordinates, order.restaurant.coordinates),
             time=self.environment.now
         )
         self.environment.add_event(event)
@@ -137,7 +134,6 @@ class Driver:
         self.coordinates = order.restaurant.coordinates
         self.environment.add_event(event)
         self.sequential_processor()
-        # self.environment.process(self.start_order_delivery(order))
 
     def start_order_delivery(self, order: Order):
         self.status = DriverStatus.DELIVERING
@@ -146,7 +142,7 @@ class Driver:
             client_id=order.client.client_id,
             restaurant_id=order.restaurant.restaurant_id,
             driver_id=self.driver_id,
-            distance=self.delivery_distance,
+            distance=self.environment.map.distance(self.coordinates, order.client.coordinates),
             time=self.environment.now
         )
         self.environment.add_event(event)
@@ -175,15 +171,12 @@ class Driver:
         )
         self.coordinates = order.client.coordinates
         self.environment.add_event(event)
-        self.collection_distance = 0
-        self.delivery_distance = 0
-        self.total_distance = 0
         self.status = DriverStatus.WAITING
         self.environment.add_delivered_order(order)
         self.sequential_processor()
 
     def time_to_accept_or_reject_trip(self, trip: Trip):
-        return random.randrange(10, 50)
+        return random.randrange(3, 10)
 
     def time_to_deliver_order(self, order: Order):
         restaurant_coordinates = order.restaurant.coordinates
