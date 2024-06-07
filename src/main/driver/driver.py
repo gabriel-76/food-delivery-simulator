@@ -6,7 +6,6 @@ import simpy
 
 from src.main.driver.capacity import Capacity
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
-from src.main.events.driver_accepted_delivery import DriverAcceptedDelivery
 from src.main.events.driver_accepted_trip import DriverAcceptedTrip
 from src.main.events.driver_accepted_trip_extension import DriverAcceptedTripExtension
 from src.main.events.driver_arrived_delivery_location import DriverArrivedDeliveryLocation
@@ -14,7 +13,6 @@ from src.main.events.driver_collected_order import DriverCollectedOrder
 from src.main.events.driver_collecting_order import DriverCollectingOrder
 from src.main.events.driver_delivered_order import DriverDeliveredOrder
 from src.main.events.driver_delivering_order import DriverDeliveringOrder
-from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
 from src.main.events.driver_rejected_trip import DriverRejectedTrip
 from src.main.order.order import Order
 from src.main.trip.route import RouteType
@@ -61,13 +59,11 @@ class Driver:
     def process_requests(self):
         while True:
             trip = yield self.requests.get()
-            if self.accept_trip_condition(trip):
-                self.accept_trip(trip)
-            else:
-                self.reject_trip(trip)
+            self.process_trip(trip)
+            yield self.environment.timeout(self.time_to_accept_or_reject_trip(trip))
 
-            timeout = self.time_to_accept_or_reject_trip(trip)
-            yield self.environment.timeout(timeout)
+    def process_trip(self, trip: Trip):
+        self.accept_trip(trip) if self.accept_trip_condition(trip) else self.reject_trip(trip)
 
     def accept_trip(self, trip: Trip):
         if self.current_trip is None:
