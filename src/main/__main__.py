@@ -51,16 +51,16 @@ def simple():
 
     simulator = Simulator(
         environment=environment,
-        client_generator=ClientGeneratorEarly(environment, 10),
-        restaurant_generator=RestaurantGeneratorEarly(environment, 10),
-        driver_generator=DriverGeneratorEarly(environment, 1),
-        order_generator=OrderGeneratorEarly(environment, 10),
+        client_generator=ClientGeneratorEarly(environment, 100000),
+        restaurant_generator=RestaurantGeneratorEarly(environment, 1000),
+        driver_generator=DriverGeneratorEarly(environment, 10000),
+        order_generator=OrderGeneratorEarly(environment, 100000),
         optimizer=Optimizer(environment),
         debug=True,
         statistics=True
     )
 
-    simulator.run(until=2000)
+    simulator.run(until=1440)
 
 
 if __name__ == '__main__':

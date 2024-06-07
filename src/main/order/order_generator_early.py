@@ -21,6 +21,8 @@ class OrderGeneratorEarly(OrderGenerator):
 
             order = Order(client, restaurant, datetime.now(), items)
 
+            self.environment.orders += [order]
+
             client.place_order(order, restaurant)
 
         yield self.environment.timeout(1)

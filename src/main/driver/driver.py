@@ -1,10 +1,10 @@
 import random
 import uuid
-from enum import Enum, auto
 
 import simpy
 
 from src.main.driver.capacity import Capacity
+from src.main.driver.driver_status import DriverStatus
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.events.driver_accepted_trip import DriverAcceptedTrip
 from src.main.events.driver_accepted_trip_extension import DriverAcceptedTripExtension
@@ -15,14 +15,9 @@ from src.main.events.driver_delivered_order import DriverDeliveredOrder
 from src.main.events.driver_delivering_order import DriverDeliveringOrder
 from src.main.events.driver_rejected_trip import DriverRejectedTrip
 from src.main.order.order import Order
+from src.main.order.order_status import OrderStatus
 from src.main.trip.route import RouteType
 from src.main.trip.trip import Trip
-
-
-class DriverStatus(Enum):
-    WAITING = auto()
-    COLLECTING = auto()
-    DELIVERING = auto()
 
 
 class Driver:
@@ -72,6 +67,8 @@ class Driver:
                 time=self.environment.now
             )
             self.environment.add_event(event)
+            for route in self.current_trip.routes:
+                route.order.update_status(OrderStatus.DRIVER_ACCEPTED)
             self.sequential_processor()
         else:
             self.accepted_trip_extension(trip)
@@ -87,6 +84,8 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
+        for route in self.current_trip.routes:
+            route.order.update_status(OrderStatus.DRIVER_ACCEPTED)
 
     def sequential_processor(self):
         if self.current_trip.has_next_route():
@@ -107,10 +106,12 @@ class Driver:
         )
         self.environment.add_event(event)
         for route in trip.routes:
+            route.order.update_status(OrderStatus.DRIVER_REJECTED)
             self.environment.add_rejected_delivery_order(route.order)
 
     def start_order_collection(self, order):
         self.status = DriverStatus.COLLECTING
+        order.update_status(OrderStatus.DRIVER_COLLECTING)
         event = DriverCollectingOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -137,6 +138,7 @@ class Driver:
 
     def start_order_delivery(self, order: Order):
         self.status = DriverStatus.DELIVERING
+        order.update_status(OrderStatus.DRIVER_DELIVERING)
         event = DriverDeliveringOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -150,6 +152,7 @@ class Driver:
         self.environment.process(self.wait_client_pick_up_order(order))
 
     def wait_client_pick_up_order(self, order: Order):
+        order.update_status(OrderStatus.DRIVER_ARRIVED_DELIVERY_LOCATION)
         event = DriverArrivedDeliveryLocation(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -172,6 +175,7 @@ class Driver:
         self.coordinates = order.client.coordinates
         self.environment.add_event(event)
         self.status = DriverStatus.WAITING
+        order.update_status(OrderStatus.DRIVER_DELIVERED)
         self.environment.add_delivered_order(order)
         self.sequential_processor()
 

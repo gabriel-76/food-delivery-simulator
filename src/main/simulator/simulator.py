@@ -1,8 +1,11 @@
+from itertools import groupby
+
 from src.main.client.client_generator import ClientGenerator
 from src.main.driver.driver_generator import DriverGenerator
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.optimizer.optimizer import Optimizer
 from src.main.order.order_generator import OrderGenerator
+from src.main.order.order_status import OrderStatus
 from src.main.restaurant.restaurant_generator import RestaurantGenerator
 
 
@@ -45,12 +48,15 @@ class Simulator:
 
         if self.statistics:
             print()
-            print("restaurants", len(self.environment.restaurants))
-            print("clients", len(self.environment.clients))
-            print("drivers", len(self.environment.drivers))
-            print("orders waiting", len(self.environment.ready_orders.items))
-            print("orders delivered", len(self.environment.delivered_orders.items))
-            print("orders rejected", len(self.environment.rejected_delivery_orders.items))
+            print("RESTAURANTS", len(self.environment.restaurants))
+            print("CLIENTS", len(self.environment.clients))
+            print("DRIVERS", len(self.environment.drivers))
+            print("ORDERS", len(self.environment.orders))
+
+            self.environment.orders.sort(key=lambda x: x.status)
+
+            for k, g in groupby(self.environment.orders, key=lambda order: order.status):
+                print(k.name, len(list(g)))
 
     def log_events(self):
         for event in self.environment.events.items:

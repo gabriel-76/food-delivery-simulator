@@ -6,6 +6,7 @@ from src.main.environment.food_delivery_environment import FoodDeliveryEnvironme
 from src.main.events.client_placed_order import ClientPlacedOrder
 from src.main.events.client_received_order import ClientReceivedOrder
 from src.main.order.order import Order
+from src.main.order.order_status import OrderStatus
 from src.main.restaurant.restaurant import Restaurant
 
 
@@ -25,6 +26,7 @@ class Client:
         )
         self.environment.add_event(event)
         restaurant.receive_orders([order])
+        order.update_status(OrderStatus.CLIENT_PLACED)
 
     def receive_order(self, order: Order, driver: Driver):
         yield self.environment.timeout(self.time_to_receive_order(order))
@@ -36,6 +38,7 @@ class Client:
             time=self.environment.now
         )
         self.environment.add_event(event)
+        order.update_status(OrderStatus.CLIENT_RECEIVED)
 
     def time_to_receive_order(self, order: Order):
         return random.randrange(2, 10)

@@ -10,6 +10,7 @@ class FoodDeliveryEnvironment(simpy.Environment):
         self.clients = []
         self.restaurants = []
         self.drivers = []
+        self.orders = []
         self.events = simpy.Store(self)
         # Orders ready for collection
         self.ready_orders = simpy.FilterStore(self)
