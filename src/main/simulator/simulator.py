@@ -3,6 +3,8 @@ from collections import defaultdict
 from src.main.generator.client_generator import ClientGenerator
 from src.main.generator.driver_generator import DriverGenerator
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.generator.generator import Generator
+from src.main.generator.initial_generator import InitialGenerator
 from src.main.optimizer.optimizer import Optimizer
 from src.main.generator.order_generator import OrderGenerator
 from src.main.generator.restaurant_generator import RestaurantGenerator
@@ -12,32 +14,20 @@ class Simulator:
     def __init__(
             self,
             environment: FoodDeliveryEnvironment,
-            client_generator: ClientGenerator | None = None,
-            restaurant_generator: RestaurantGenerator | None = None,
-            driver_generator: DriverGenerator | None = None,
-            order_generator: OrderGenerator | None = None,
+            generators: [Generator],
             optimizer: Optimizer | None = None,
             debug: bool = False,
             statistics: bool = False,
     ):
         self.environment = environment
         self.optimizer = optimizer
-        self.client_generator = client_generator
-        self.restaurant_generator = restaurant_generator
-        self.driver_generator = driver_generator
-        self.order_generator = order_generator
+        self.generators = generators
         self.debug = debug
         self.statistics = statistics
 
     def run(self, until):
-        if self.client_generator:
-            self.environment.process(self.client_generator.generate())
-        if self.restaurant_generator:
-            self.environment.process(self.restaurant_generator.generate())
-        if self.driver_generator:
-            self.environment.process(self.driver_generator.generate())
-        if self.order_generator:
-            self.environment.process(self.order_generator.generate())
+        for generator in self.generators:
+            self.environment.process(generator.generate())
         if self.optimizer:
             self.environment.process(self.optimizer.optimize())
         self.environment.run(until=until)
