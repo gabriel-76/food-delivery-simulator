@@ -6,12 +6,16 @@ from src.main.generator.generator import Generator
 
 class TimeShiftGenerator(Generator, ABC):
 
-    def __init__(self, environment: FoodDeliveryEnvironment, time_shift=1):
+    def __init__(self, environment: FoodDeliveryEnvironment, function, time_shift=1):
         super().__init__(environment)
         self.time_shift = time_shift
+        self.function = function
 
     @abstractmethod
     def run(self): pass
+
+    def range(self):
+        return range(round(self.function(self.environment.now)))
 
     def generate(self):
         while True:

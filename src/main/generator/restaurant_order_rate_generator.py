@@ -4,11 +4,11 @@ from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.order.item import Item
 from src.main.restaurant.catalog import Catalog
-from src.main.generator.restaurant_generator import RestaurantGenerator
+from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
 from src.main.generator.restaurant_order_rate import RestaurantOrderRate
 
 
-class RestaurantOrderRateGenerator(RestaurantGenerator):
+class TimeShiftRestaurantOrderRateGenerator(TimeShiftRestaurantGenerator):
     def __init__(self, environment: FoodDeliveryEnvironment, number_of_restaurants: int):
         super().__init__(environment)
         self.number_of_restaurants = number_of_restaurants

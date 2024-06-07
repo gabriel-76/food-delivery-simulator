@@ -6,7 +6,7 @@ from src.main.environment.food_delivery_environment import FoodDeliveryEnvironme
 from src.main.map.map import Map
 from src.main.optimizer.nearest_driver_optimizer import NearestDriverOptimizer
 from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
-from src.main.generator.restaurant_generator import RestaurantGenerator
+from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
 from src.main.simulator.simulator import Simulator
 
 
@@ -19,7 +19,7 @@ class TestSimulator(unittest.TestCase):
             environment,
             TimeShiftClientGenerator(environment, 2),
             # RandomClientGenerator(environment, 0, NUM_CLIENTS),
-            RestaurantGenerator(environment),
+            TimeShiftRestaurantGenerator(environment),
             TimeShiftDriverGenerator(environment),
             TimeShiftOrderGenerator(environment),
             # Optimizer(environment),

@@ -4,9 +4,8 @@ from src.main.generator.time_shift_generator import TimeShiftGenerator
 
 
 class TimeShiftClientGenerator(TimeShiftGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, num_clients, time_shift=1):
-        super().__init__(environment, time_shift)
-        self.maximum_clients_per_time = num_clients
+    def __init__(self, environment: FoodDeliveryEnvironment, function, time_shift=1):
+        super().__init__(environment, function, time_shift)
 
     def run(self):
         clients = [
@@ -15,6 +14,6 @@ class TimeShiftClientGenerator(TimeShiftGenerator):
                 coordinates=self.environment.map.random_point(),
                 available=True
             )
-            for _ in range(self.maximum_clients_per_time)
+            for _ in self.range()
         ]
         self.environment.add_clients(clients)

@@ -8,7 +8,7 @@ from src.main.driver.driver import Driver, DriverStatus
 from src.main.generator.initial_generator import InitialGenerator
 
 
-class DriverGeneratorEarly(InitialGenerator):
+class InitialDriverGenerator(InitialGenerator):
     def __init__(self, environment: FoodDeliveryEnvironment, num_drivers):
         super().__init__(environment)
         self.num_drivers = num_drivers

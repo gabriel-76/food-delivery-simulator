@@ -2,25 +2,26 @@ import random
 
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
-from src.main.driver.capacity import Capacity
-from src.main.driver.driver import Driver, DriverStatus
 from src.main.generator.time_shift_generator import TimeShiftGenerator
+from src.main.order.item import Item
+from src.main.restaurant.catalog import Catalog
+from src.main.restaurant.restaurant import Restaurant
 
 
-class TimeShiftDriverGenerator(TimeShiftGenerator):
+class TimeShiftRestaurantGenerator(TimeShiftGenerator):
     def __init__(self, environment: FoodDeliveryEnvironment, function, time_shift=1):
         super().__init__(environment, function, time_shift)
 
     def run(self):
-        capacity = Capacity(Dimensions(10, 10, 10, 10))
-        drivers = [
-            Driver(
+        dimension = Dimensions(1, 1, 1, 1)
+        catalog = Catalog([Item(f"type_{i}", dimension, 4) for i in range(5)])
+        restaurants = [
+            Restaurant(
                 environment=self.environment,
                 coordinates=self.environment.map.random_point(),
-                capacity=capacity,
                 available=True,
-                status=DriverStatus.AVAILABLE,
-                movement_rate=random.uniform(1, 30),
-            ) for _ in self.range()
+                catalog=catalog
+            )
+            for _ in self.range()
         ]
-        self.environment.add_drivers(drivers)
+        self.environment.add_restaurants(restaurants)

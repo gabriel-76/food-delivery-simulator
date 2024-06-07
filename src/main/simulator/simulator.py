@@ -7,7 +7,7 @@ from src.main.generator.generator import Generator
 from src.main.generator.initial_generator import InitialGenerator
 from src.main.optimizer.optimizer import Optimizer
 from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
-from src.main.generator.restaurant_generator import RestaurantGenerator
+from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
 from src.main.statistic.statistic import Statistic
 
 
