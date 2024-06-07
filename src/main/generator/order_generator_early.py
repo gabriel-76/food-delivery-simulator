@@ -19,7 +19,7 @@ class OrderGeneratorEarly(InitialGenerator):
 
             items = random.sample(restaurant.catalog.items, 2)
 
-            order = Order(client, restaurant, datetime.now(), items)
+            order = Order(client, restaurant, self.environment.now, items)
 
             self.environment.orders += [order]
 

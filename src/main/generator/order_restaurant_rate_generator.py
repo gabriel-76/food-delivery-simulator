@@ -39,7 +39,7 @@ class OrderRestaurantRateGenerator(OrderGenerator):
 
             items = random.sample(restaurant.catalog.items, 2)
 
-            order = Order(client, restaurant, datetime.now(), items)
+            order = Order(client, restaurant, self.environment.now, items)
 
             client.place_order(order, restaurant)
 
