@@ -44,10 +44,17 @@ class OrderRestaurantRateGenerator(OrderGenerator):
 
             client.place_order(order, restaurant)
 
-
     def generate(self):
         while True:
+            start_time = datetime.now()
             for restaurant in self.environment.restaurants:
                 self.process_restaurant(restaurant)
 
+            end_time = datetime.now()
+            print(self.environment.now, (end_time - start_time).total_seconds())
+            # print("restaurants", len(self.environment.restaurants))
+            # print("clients", len(self.environment.clients))
+            # print("drivers", len(self.environment.drivers))
+            # print("orders delivered", len(self.environment.delivered_orders.items))
+            # print("orders waiting", len(self.environment.ready_orders.items))
             yield self.environment.timeout(1)

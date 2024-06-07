@@ -1,3 +1,6 @@
+from collections import defaultdict
+from itertools import groupby
+
 from src.main.client.client_generator import ClientGenerator
 from src.main.driver.driver_generator import DriverGenerator
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
@@ -16,6 +19,7 @@ class Simulator:
             order_generator: OrderGenerator | None = None,
             optimizer: Optimizer | None = None,
             debug: bool = False,
+            statistics: bool = False,
     ):
         self.environment = environment
         self.optimizer = optimizer
@@ -24,6 +28,7 @@ class Simulator:
         self.driver_generator = driver_generator
         self.order_generator = order_generator
         self.debug = debug
+        self.statistics = statistics
 
     def run(self, until):
         if self.client_generator:
@@ -40,6 +45,37 @@ class Simulator:
 
         if self.debug:
             self.log_events()
+
+        if self.statistics:
+            print()
+            print("TOTAL RESTAURANTS", len(self.environment.restaurants))
+            print("TOTAL CLIENTS", len(self.environment.clients))
+            print("TOTAL DRIVERS", len(self.environment.drivers))
+            print("TOTAL ORDERS", len(self.environment.orders))
+            print()
+
+            print("ORDERS")
+            order_status_counts = defaultdict(int)
+            for order in self.environment.orders:
+                order_status_counts[order.status.name] += 1
+
+            for status, count in order_status_counts.items():
+                print(f"{status} {count}")
+
+            print()
+
+            print("DRIVERS")
+            drivers_status_counts = defaultdict(int)
+            for driver in self.environment.drivers:
+                drivers_status_counts[driver.status.name] += 1
+
+            for status, count in drivers_status_counts.items():
+                print(f"{status} {count}")
+
+            # self.environment.orders.sort(key=lambda x: x.status)
+            #
+            # for k, g in groupby(self.environment.orders, key=lambda order: order.status):
+            #     print(k.name, len(list(g)))
 
     def log_events(self):
         for event in self.environment.events.items:

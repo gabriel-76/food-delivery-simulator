@@ -10,6 +10,7 @@ from src.main.events.restaurant_finished_order import RestaurantFinishedOrder
 from src.main.events.restaurant_preparing_order import RestaurantPreparingOrder
 from src.main.events.restaurant_rejected_order import RestaurantRejectedOrder
 from src.main.order.order import Order
+from src.main.order.order_status import OrderStatus
 from src.main.restaurant.catalog import Catalog
 
 
@@ -59,6 +60,7 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
+        order.update_status(OrderStatus.RESTAURANT_ACCEPTED)
         self.estimate_preparation_time(order)
         self.confirmed_orders.put(order)
 
@@ -72,7 +74,6 @@ class Restaurant:
         )
         self.environment.add_event(event)
 
-
     def reject_order(self, order):
         event = RestaurantRejectedOrder(
             order_id=order.order_id,
@@ -81,6 +82,7 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
+        order.update_status(OrderStatus.RESTAURANT_REJECTED)
         self.canceled_orders.put(order)
 
     def prepare_orders(self):
@@ -98,6 +100,7 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
+        order.update_status(OrderStatus.PREPARING)
         yield self.environment.timeout(self.time_to_prepare_order(order))
         self.finish_order(order)
 
@@ -109,6 +112,7 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
+        order.update_status(OrderStatus.READY)
         self.environment.add_ready_order(order)
 
     def time_process_orders(self):
