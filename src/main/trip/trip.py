@@ -42,10 +42,6 @@ class Trip:
 
         return distance
 
-        # for i in range(1, len(self.routes)):
-        #     acc += self.environment.map.distance(self.routes[i - 1].coordinates, self.routes[i].coordinates)
-        # return acc
-
     def extend_trip(self, other_trip):
         self.routes += other_trip.routes
         self.required_capacity = self.calculate_required_capacity()

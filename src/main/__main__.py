@@ -1,9 +1,12 @@
+import random
+
 from src.main.client.client_generator import ClientGenerator
 from src.main.client.client_generator_early import ClientGeneratorEarly
 from src.main.driver.driver_generator import DriverGenerator
 from src.main.driver.driver_generator_early import DriverGeneratorEarly
 from src.main.driver.reactive_driver_generator import ReactiveDriverGenerator
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.map.grid_map import GridMap
 from src.main.map.map import Map
 from src.main.optimizer.nearest_driver_optimizer import NearestDriverOptimizer
 from src.main.optimizer.optimizer import Optimizer
@@ -47,14 +50,14 @@ def main():
 
 def simple():
 
-    environment = FoodDeliveryEnvironment(Map(1000))
+    environment = FoodDeliveryEnvironment(GridMap(100))
 
     simulator = Simulator(
         environment=environment,
-        client_generator=ClientGeneratorEarly(environment, 100000),
-        restaurant_generator=RestaurantGeneratorEarly(environment, 1000),
-        driver_generator=DriverGeneratorEarly(environment, 10000),
-        order_generator=OrderGeneratorEarly(environment, 100000),
+        client_generator=ClientGeneratorEarly(environment, 1000),
+        restaurant_generator=RestaurantGeneratorEarly(environment, 100),
+        driver_generator=DriverGeneratorEarly(environment, 100),
+        order_generator=OrderGeneratorEarly(environment, 1000),
         optimizer=Optimizer(environment),
         debug=True,
         statistics=True
