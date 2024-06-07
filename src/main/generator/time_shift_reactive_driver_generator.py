@@ -8,13 +8,11 @@ from src.main.driver.capacity import Capacity
 from src.main.driver.driver import DriverStatus
 
 
-class ReactiveTimeShiftDriverGenerator(TimeShiftDriverGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, num_drivers):
-        super().__init__(environment)
-        self.num_drivers = num_drivers
+class TimeShiftReactiveDriverGenerator(TimeShiftDriverGenerator):
+    def __init__(self, environment: FoodDeliveryEnvironment, function, time_shift=1):
+        super().__init__(environment, function, time_shift)
 
-    def generate(self):
-        # while True:
+    def run(self):
         capacity = Capacity(Dimensions(10, 10, 10, 10))
         drivers = [
             ReactiveDriver(
@@ -25,7 +23,6 @@ class ReactiveTimeShiftDriverGenerator(TimeShiftDriverGenerator):
                 status=DriverStatus.AVAILABLE,
                 movement_rate=random.uniform(1, 30),
                 max_distance=random.randrange(100, 300)
-            ) for _ in range(self.num_drivers)
+            ) for _ in self.range()
         ]
         self.environment.add_drivers(drivers)
-        yield self.environment.timeout(1)

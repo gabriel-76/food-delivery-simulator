@@ -3,13 +3,13 @@ from datetime import datetime
 
 from src.main.client.client import Client
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.order import Order
-from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
 
 
-class TimeShiftOrderRestaurantRateGenerator(TimeShiftOrderGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment):
-        super().__init__(environment)
+class TimeShiftOrderRestaurantRateGenerator(TimeShiftGenerator):
+    def __init__(self, environment: FoodDeliveryEnvironment, function, time_shift):
+        super().__init__(environment, function, time_shift)
 
     def is_in_normal_distribution(self, radius):
         value = random.gauss(0, radius)
@@ -43,17 +43,15 @@ class TimeShiftOrderRestaurantRateGenerator(TimeShiftOrderGenerator):
 
             client.place_order(order, restaurant)
 
-    def generate(self):
-        while True:
-            start_time = datetime.now()
-            for restaurant in self.environment.restaurants:
-                self.process_restaurant(restaurant)
+    def run(self):
+        start_time = datetime.now()
+        for restaurant in self.environment.restaurants:
+            self.process_restaurant(restaurant)
 
-            end_time = datetime.now()
-            print(self.environment.now, (end_time - start_time).total_seconds())
-            # print("restaurants", len(self.environment.restaurants))
-            # print("clients", len(self.environment.clients))
-            # print("drivers", len(self.environment.drivers))
-            # print("orders delivered", len(self.environment.delivered_orders.items))
-            # print("orders waiting", len(self.environment.ready_orders.items))
-            yield self.environment.timeout(1)
+        end_time = datetime.now()
+        print(self.environment.now, (end_time - start_time).total_seconds())
+        # print("restaurants", len(self.environment.restaurants))
+        # print("clients", len(self.environment.clients))
+        # print("drivers", len(self.environment.drivers))
+        # print("orders delivered", len(self.environment.delivered_orders.items))
+        # print("orders waiting", len(self.environment.ready_orders.items))

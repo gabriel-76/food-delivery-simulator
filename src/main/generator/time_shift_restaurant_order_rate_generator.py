@@ -2,18 +2,17 @@ import random
 
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.item import Item
 from src.main.restaurant.catalog import Catalog
-from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
-from src.main.generator.restaurant_order_rate import RestaurantOrderRate
+from src.main.restaurant.restaurant_order_rate import RestaurantOrderRate
 
 
-class TimeShiftRestaurantOrderRateGenerator(TimeShiftRestaurantGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, number_of_restaurants: int):
-        super().__init__(environment)
-        self.number_of_restaurants = number_of_restaurants
+class TimeShiftRestaurantOrderRateGenerator(TimeShiftGenerator):
+    def __init__(self, environment: FoodDeliveryEnvironment, function, time_shift):
+        super().__init__(environment, function, time_shift)
 
-    def generate(self):
+    def run(self):
         dimension = Dimensions(1, 1, 1, 1)
         catalog = Catalog([Item(f"type_{i}", dimension, 4) for i in range(5)])
         restaurants = [
@@ -25,7 +24,6 @@ class TimeShiftRestaurantOrderRateGenerator(TimeShiftRestaurantGenerator):
                 order_rate=random.randint(1, 10),
                 operating_radius=random.randint(10, 30)
             )
-            for _ in range(self.number_of_restaurants)
+            for _ in self.range()
         ]
         self.environment.add_restaurants(restaurants)
-        yield self.environment.timeout(1)
