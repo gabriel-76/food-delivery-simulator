@@ -1,12 +1,11 @@
 from collections import defaultdict
-from itertools import groupby
 
-from src.main.client.client_generator import ClientGenerator
-from src.main.driver.driver_generator import DriverGenerator
+from src.main.generator.client_generator import ClientGenerator
+from src.main.generator.driver_generator import DriverGenerator
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.optimizer.optimizer import Optimizer
-from src.main.order.order_generator import OrderGenerator
-from src.main.restaurant.restaurant_generator import RestaurantGenerator
+from src.main.generator.order_generator import OrderGenerator
+from src.main.generator.restaurant_generator import RestaurantGenerator
 
 
 class Simulator:

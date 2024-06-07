@@ -3,7 +3,7 @@ from datetime import datetime
 
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.order.order import Order
-from src.main.order.order_generator import OrderGenerator
+from src.main.generator.order_generator import OrderGenerator
 
 
 class OrderGeneratorEarly(OrderGenerator):

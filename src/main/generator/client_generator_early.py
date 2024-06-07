@@ -1,5 +1,5 @@
 from src.main.client.client import Client
-from src.main.client.client_generator import ClientGenerator
+from src.main.generator.client_generator import ClientGenerator
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 
 
