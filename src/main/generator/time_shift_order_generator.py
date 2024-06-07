@@ -5,9 +5,9 @@ from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.order import Order
 
 
-class OrderGenerator(TimeShiftGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, num_orders):
-        super().__init__(environment)
+class TimeShiftOrderGenerator(TimeShiftGenerator):
+    def __init__(self, environment: FoodDeliveryEnvironment, num_orders, time_shift=1):
+        super().__init__(environment, time_shift)
         self.num_orders = num_orders
 
     def run(self):

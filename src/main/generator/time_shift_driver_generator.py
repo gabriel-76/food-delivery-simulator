@@ -1,20 +1,19 @@
 import random
 
 from src.main.base.dimensions import Dimensions
-from src.main.generator.driver_generator import DriverGenerator
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver import Driver, DriverStatus
-from src.main.generator.initial_generator import InitialGenerator
+from src.main.generator.time_shift_generator import TimeShiftGenerator
 
 
-class DriverGeneratorEarly(InitialGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, num_drivers):
-        super().__init__(environment)
+class TimeShiftDriverGenerator(TimeShiftGenerator):
+    def __init__(self, environment: FoodDeliveryEnvironment, num_drivers, time_shift=1):
+        super().__init__(environment, time_shift)
         self.num_drivers = num_drivers
 
     def run(self):
-        capacity = Capacity(Dimensions(100, 100, 100, 100))
+        capacity = Capacity(Dimensions(10, 10, 10, 10))
         drivers = [
             Driver(
                 environment=self.environment,

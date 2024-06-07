@@ -6,7 +6,7 @@ from src.main.generator.initial_generator import InitialGenerator
 from src.main.order.order import Order
 
 
-class OrderGeneratorEarly(InitialGenerator):
+class InitialOrderGenerator(InitialGenerator):
     def __init__(self, environment: FoodDeliveryEnvironment, num_orders):
         super().__init__(environment)
         self.environment = environment

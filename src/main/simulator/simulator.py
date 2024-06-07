@@ -1,12 +1,12 @@
 from collections import defaultdict
 
-from src.main.generator.client_generator import ClientGenerator
-from src.main.generator.driver_generator import DriverGenerator
+from src.main.generator.time_shift_client_generator import TimeShiftClientGenerator
+from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenerator
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.generator.generator import Generator
 from src.main.generator.initial_generator import InitialGenerator
 from src.main.optimizer.optimizer import Optimizer
-from src.main.generator.order_generator import OrderGenerator
+from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
 from src.main.generator.restaurant_generator import RestaurantGenerator
 from src.main.statistic.statistic import Statistic
 

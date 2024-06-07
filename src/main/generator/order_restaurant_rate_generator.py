@@ -4,10 +4,10 @@ from datetime import datetime
 from src.main.client.client import Client
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.order.order import Order
-from src.main.generator.order_generator import OrderGenerator
+from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
 
 
-class OrderRestaurantRateGenerator(OrderGenerator):
+class TimeShiftOrderRestaurantRateGenerator(TimeShiftOrderGenerator):
     def __init__(self, environment: FoodDeliveryEnvironment):
         super().__init__(environment)
 

@@ -1,10 +1,10 @@
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
-from src.main.generator.client_generator import ClientGenerator
-from src.main.generator.client_generator_early import ClientGeneratorEarly
-from src.main.generator.driver_generator_early import DriverGeneratorEarly
-from src.main.generator.order_generator import OrderGenerator
-from src.main.generator.order_generator_early import OrderGeneratorEarly
-from src.main.generator.restaurant_generator_eraly import RestaurantGeneratorEarly
+from src.main.generator.time_shift_client_generator import TimeShiftClientGenerator
+from src.main.generator.initial_client_generator import InitialClientGenerator
+from src.main.generator.initial_driver_generator import DriverGeneratorEarly
+from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
+from src.main.generator.initial_order_generator import InitialOrderGenerator
+from src.main.generator.initial_restaurant_generator import InitialRestaurantGenerator
 from src.main.map.grid_map import GridMap
 from src.main.optimizer.optimizer import Optimizer
 from src.main.simulator.simulator import Simulator
@@ -22,11 +22,11 @@ def simple():
     simulator = Simulator(
         environment=environment,
         generators=[
-            ClientGeneratorEarly(environment, 10),
-            RestaurantGeneratorEarly(environment, 10),
+            InitialClientGenerator(environment, 10),
+            InitialRestaurantGenerator(environment, 10),
             DriverGeneratorEarly(environment, 10),
             # OrderGeneratorEarly(environment, 10),
-            OrderGenerator(environment, 10)
+            TimeShiftOrderGenerator(environment, 10)
         ],
         optimizer=Optimizer(environment),
         statistic=Statistic(environment),

@@ -6,7 +6,7 @@ from src.main.restaurant.catalog import Catalog
 from src.main.restaurant.restaurant import Restaurant
 
 
-class RestaurantGeneratorEarly(InitialGenerator):
+class InitialRestaurantGenerator(InitialGenerator):
     def __init__(self, environment: FoodDeliveryEnvironment, num_restaurants):
         super().__init__(environment)
         self.environment = environment
