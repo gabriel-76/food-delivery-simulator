@@ -9,11 +9,11 @@ from src.main.trip.route import Route, RouteType
 
 class Trip:
     def __init__(self, environment: FoodDeliveryEnvironment, routes: [Route]):
-        self.order_id = uuid.uuid4()
+        self.tripe_id = uuid.uuid4()
         self.environment = environment
         self.routes = routes
         self.required_capacity = self.calculate_required_capacity()
-        # self.distance = self.calculate_total_distance()
+        self.distance = self.calculate_total_distance()
 
     def calculate_required_capacity(self):
         dimensions = Dimensions(0, 0, 0, 0)
@@ -25,28 +25,28 @@ class Trip:
         return len(self.routes) > 0
 
     def next_route(self):
+        self.required_capacity = self.calculate_required_capacity()
+        self.distance = self.calculate_total_distance()
         return self.routes.pop(0)
 
-    # def distance_rule(self, route1: Route, route2: Route):
-    #     restaurant1_coords = route1.order.restaurant.coordinates
-    #     restaurant2_coords = route2.order.restaurant.coordinates
-    #     client1_coords = route1.order.client.coordinates
-    #     client2_coords = route2.order.client.coordinates
-    #
-    #     if route1.route_type is RouteType.COLLECT and route2.route_type is RouteType.COLLECT:
-    #         return self.environment.map.distance(restaurant1_coords, restaurant2_coords)
-    #
-    #     if route1.route_type is RouteType.COLLECT and route2.route_type is RouteType.DELIVERY:
-    #         return self.environment.map.distance(restaurant1_coords, client2_coords)
-    #
-    #     if route1.route_type is RouteType.DELIVERY and route2.route_type is RouteType.COLLECT:
-    #         return self.environment.map.distance(client1_coords, restaurant2_coords)
-    #
-    #     if route1.route_type is RouteType.DELIVERY and route2.route_type is RouteType.DELIVERY:
-    #         return self.environment.map.distance(client1_coords, client2_coords)
-    #
-    # def calculate_total_distance(self):
-    #     return reduce(lambda route1, route2: self.distance_rule(route1, route2), self.routes)
+    def calculate_total_distance(self):
+        distance = 0
+
+        if len(self.routes) <= 1:
+            return distance
+
+        previous_route = self.routes[0]
+        for route in self.routes[1:]:
+            distance += self.environment.map.distance(previous_route.coordinates, route.coordinates)
+            previous_route = route
+
+        return distance
+
+        # for i in range(1, len(self.routes)):
+        #     acc += self.environment.map.distance(self.routes[i - 1].coordinates, self.routes[i].coordinates)
+        # return acc
 
     def extend_trip(self, other_trip):
         self.routes += other_trip.routes
+        self.required_capacity = self.calculate_required_capacity()
+        self.distance = self.calculate_total_distance()

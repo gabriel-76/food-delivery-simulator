@@ -34,7 +34,7 @@ class ReactiveDriver(Driver):
                 search_result = yield self.environment.any_of([order_request, search_timeout])
                 if order_request in search_result:
                     # print(self.environment.now, f"Driver {self.driver_id} get order {order_request.value.order_id}")
-                    self.accept_delivery(order_request.value)
+                    self.accept_trip(order_request.value)
                     # yield self.environment.timeout(5)
                 # else:
                 #     print(self.environment.now, f"Driver {self.driver_id} failure search order")

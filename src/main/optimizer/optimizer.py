@@ -32,7 +32,7 @@ class Optimizer:
                 driver = self.select_driver(trip)
 
                 if driver is not None:
-                    self.environment.process(driver.deliver_order(trip))
+                    driver.request_delivery(trip)
                 # else:
                 #     self.environment.add_rejected_delivery_order(order)
 
@@ -46,7 +46,7 @@ class Optimizer:
                 driver = self.select_driver(trip)
 
                 if driver is not None:
-                    self.environment.process(driver.deliver_order(trip))
+                    driver.request_delivery(trip)
                 # else:
                 #     self.environment.add_ready_order(order)
 

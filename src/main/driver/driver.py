@@ -2,15 +2,20 @@ import random
 import uuid
 from enum import Enum, auto
 
+import simpy
+
 from src.main.driver.capacity import Capacity
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.events.driver_accepted_delivery import DriverAcceptedDelivery
+from src.main.events.driver_accepted_trip import DriverAcceptedTrip
+from src.main.events.driver_accepted_trip_extension import DriverAcceptedTripExtension
 from src.main.events.driver_arrived_delivery_location import DriverArrivedDeliveryLocation
 from src.main.events.driver_collected_order import DriverCollectedOrder
 from src.main.events.driver_collecting_order import DriverCollectingOrder
 from src.main.events.driver_delivered_order import DriverDeliveredOrder
 from src.main.events.driver_delivering_order import DriverDeliveringOrder
 from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
+from src.main.events.driver_rejected_trip import DriverRejectedTrip
 from src.main.order.order import Order
 from src.main.trip.route import RouteType
 from src.main.trip.trip import Trip
@@ -43,37 +48,52 @@ class Driver:
         self.delivery_distance = 0
         self.total_distance = 0
         self.current_trip = None
+        self.requests = simpy.Store(self.environment)
+
+        self.environment.process(self.process_requests())
 
     def fits(self, trip: Trip):
         return self.capacity.fits(trip.required_capacity)
 
-    def deliver_order(self, trip: Trip):
-        yield self.environment.timeout(self.time_to_accept_or_reject_trip(trip))
-        if self.accept_trip_condition(trip):
-            print("Accepted")
-            self.accept_delivery(trip)
-        else:
-            print("Rejected")
-            self.reject_delivery(trip)
+    def request_delivery(self, trip: Trip):
+        self.requests.put(trip)
 
-    def accept_delivery(self, trip: Trip):
-        # self.collection_distance = self.environment.map.collection_distance(order, self)
-        # self.delivery_distance = self.environment.map.delivery_distance(order)
-        # self.total_distance = self.collection_distance + self.delivery_distance
-        # event = DriverAcceptedDelivery(
-        #     order_id=order.order_id,
-        #     client_id=order.client.client_id,
-        #     restaurant_id=order.restaurant.restaurant_id,
-        #     driver_id=self.driver_id,
-        #     distance=self.total_distance,
-        #     time=self.environment.now
-        # )
-        # self.environment.add_event(event)
+    def process_requests(self):
+        while True:
+            trip = yield self.requests.get()
+            if self.accept_trip_condition(trip):
+                self.accept_trip(trip)
+            else:
+                self.reject_trip(trip)
+
+            timeout = self.time_to_accept_or_reject_trip(trip)
+            yield self.environment.timeout(timeout)
+
+    def accept_trip(self, trip: Trip):
         if self.current_trip is None:
             self.current_trip = trip
+            event = DriverAcceptedTrip(
+                driver_id=self.driver_id,
+                trip_id=self.current_trip.tripe_id,
+                distance=self.current_trip.distance,
+                time=self.environment.now
+            )
+            self.environment.add_event(event)
             self.sequential_processor()
         else:
-            self.current_trip.extend_trip(trip)
+            self.accepted_trip_extension(trip)
+
+    def accepted_trip_extension(self, trip: Trip):
+        old_distance = self.current_trip.distance
+        self.current_trip.extend_trip(trip)
+        event = DriverAcceptedTripExtension(
+            driver_id=self.driver_id,
+            trip_id=self.current_trip.tripe_id,
+            old_distance=old_distance,
+            distance=self.current_trip.distance,
+            time=self.environment.now
+        )
+        self.environment.add_event(event)
 
     def sequential_processor(self):
         if self.current_trip.has_next_route():
@@ -85,17 +105,16 @@ class Driver:
         else:
             self.current_trip = None
 
-    def reject_delivery(self, trip: Trip):
-        pass
-        # event = DriverRejectedDelivery(
-        #     order_id=order.order_id,
-        #     client_id=order.client.client_id,
-        #     restaurant_id=order.restaurant.restaurant_id,
-        #     driver_id=self.driver_id,
-        #     time=self.environment.now
-        # )
-        # self.environment.add_event(event)
-        # self.environment.add_rejected_delivery_order(order)
+    def reject_trip(self, trip: Trip):
+        event = DriverRejectedTrip(
+            driver_id=self.driver_id,
+            trip_id=self.current_trip.tripe_id,
+            distance=self.current_trip.distance,
+            time=self.environment.now
+        )
+        self.environment.add_event(event)
+        for route in trip.routes:
+            self.environment.add_rejected_delivery_order(route.order)
 
     def start_order_collection(self, order):
         self.status = DriverStatus.COLLECTING
@@ -168,7 +187,7 @@ class Driver:
         self.sequential_processor()
 
     def time_to_accept_or_reject_trip(self, trip: Trip):
-        return random.randrange(3, 10)
+        return random.randrange(10, 50)
 
     def time_to_deliver_order(self, order: Order):
         restaurant_coordinates = order.restaurant.coordinates
