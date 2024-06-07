@@ -3,19 +3,19 @@ from enum import Enum, auto
 
 class OrderStatus(Enum):
     CREATED = auto()
-    CLIENT_PLACED = auto()
+    PLACED = auto()
     RESTAURANT_ACCEPTED = auto()
     RESTAURANT_REJECTED = auto()
-    RESTAURANT_PREPARING = auto()
-    RESTAURANT_FINISHED = auto()
+    PREPARING = auto()
+    READY = auto()
     DRIVER_ACCEPTED = auto()
     DRIVER_REJECTED = auto()
-    DRIVER_COLLECTING = auto()
-    DRIVER_COLLECTED = auto()
-    DRIVER_DELIVERING = auto()
+    COLLECTING = auto()
+    COLLECTED = auto()
+    DELIVERING = auto()
     DRIVER_ARRIVED_DELIVERY_LOCATION = auto()
-    CLIENT_RECEIVED = auto()
-    DRIVER_DELIVERED = auto()
+    RECEIVED = auto()
+    DELIVERED = auto()
 
     def __eq__(self, other):
         return self.value == other.value

@@ -28,7 +28,7 @@ class ReactiveDriver(Driver):
 
     def search_order(self):
         while True:
-            if self.available and self.status is DriverStatus.WAITING and self.environment.count_ready_orders() > 0:
+            if self.available and self.status is DriverStatus.AVAILABLE and self.environment.count_ready_orders() > 0:
                 search_timeout = self.environment.timeout(20)
                 order_request = self.environment.ready_orders.get(self.accept_trip_condition)
                 search_result = yield self.environment.any_of([order_request, search_timeout])

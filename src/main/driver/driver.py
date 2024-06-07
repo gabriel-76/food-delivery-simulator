@@ -111,7 +111,7 @@ class Driver:
 
     def start_order_collection(self, order):
         self.status = DriverStatus.COLLECTING
-        order.update_status(OrderStatus.DRIVER_COLLECTING)
+        order.update_status(OrderStatus.COLLECTING)
         event = DriverCollectingOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -138,7 +138,7 @@ class Driver:
 
     def start_order_delivery(self, order: Order):
         self.status = DriverStatus.DELIVERING
-        order.update_status(OrderStatus.DRIVER_DELIVERING)
+        order.update_status(OrderStatus.DELIVERING)
         event = DriverDeliveringOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -174,8 +174,8 @@ class Driver:
         )
         self.coordinates = order.client.coordinates
         self.environment.add_event(event)
-        self.status = DriverStatus.WAITING
-        order.update_status(OrderStatus.DRIVER_DELIVERED)
+        self.status = DriverStatus.AVAILABLE
+        order.update_status(OrderStatus.DELIVERED)
         self.environment.add_delivered_order(order)
         self.sequential_processor()
 

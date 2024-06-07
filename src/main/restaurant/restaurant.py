@@ -100,7 +100,7 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        order.update_status(OrderStatus.RESTAURANT_PREPARING)
+        order.update_status(OrderStatus.PREPARING)
         yield self.environment.timeout(self.time_to_prepare_order(order))
         self.finish_order(order)
 
@@ -112,7 +112,7 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        order.update_status(OrderStatus.RESTAURANT_FINISHED)
+        order.update_status(OrderStatus.READY)
         self.environment.add_ready_order(order)
 
     def time_process_orders(self):

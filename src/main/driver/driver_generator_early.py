@@ -21,7 +21,7 @@ class DriverGeneratorEarly(DriverGenerator):
                 coordinates=self.environment.map.random_point(),
                 capacity=capacity,
                 available=True,
-                status=DriverStatus.WAITING,
+                status=DriverStatus.AVAILABLE,
                 movement_rate=random.uniform(1, 30),
             ) for _ in range(self.num_drivers)
         ]

@@ -26,7 +26,7 @@ class Client:
         )
         self.environment.add_event(event)
         restaurant.receive_orders([order])
-        order.update_status(OrderStatus.CLIENT_PLACED)
+        order.update_status(OrderStatus.PLACED)
 
     def receive_order(self, order: Order, driver: Driver):
         yield self.environment.timeout(self.time_to_receive_order(order))
@@ -38,7 +38,7 @@ class Client:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        order.update_status(OrderStatus.CLIENT_RECEIVED)
+        order.update_status(OrderStatus.RECEIVED)
 
     def time_to_receive_order(self, order: Order):
         return random.randrange(2, 10)

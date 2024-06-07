@@ -2,6 +2,6 @@ from enum import Enum, auto
 
 
 class DriverStatus(Enum):
-    WAITING = auto()
+    AVAILABLE = auto()
     COLLECTING = auto()
     DELIVERING = auto()
