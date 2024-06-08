@@ -10,24 +10,15 @@ class TimeShiftOrderGenerator(TimeShiftGenerator):
         super().__init__(environment, function, time_shift)
 
     def run(self):
-        clients = self.environment.clients
-        restaurants = self.environment.restaurants
-        selected_clients = random.sample(clients, 1)
-        selected_restaurants = random.sample(restaurants, 1)
 
-        for client in selected_clients:
-            restaurant = random.choice(selected_restaurants)
+        orders = []
 
+        for _ in self.range():
+            client = random.choice(self.environment.clients)
+            restaurant = random.choice(self.environment.restaurants)
             items = random.sample(restaurant.catalog.items, 2)
+            order = Order(client, restaurant, self.environment.now, items)
+            orders.append(order)
+            client.place_order(order, restaurant)
 
-            x = self.environment.now
-
-            orders = [
-                Order(client, restaurant, self.environment.now, items)
-                for _ in self.range()
-            ]
-
-            for order in orders:
-                client.place_order(order, restaurant)
-
-            self.environment.orders += orders
+        self.environment.orders += orders
