@@ -13,4 +13,4 @@
 
 ## Run tests
 
-### Execute `python -m unittest discover -s src/teste`
+### Execute `python -m unittest discover -s src/test`

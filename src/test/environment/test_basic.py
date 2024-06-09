@@ -9,7 +9,7 @@ from src.main.map.grid_map import GridMap
 from src.main.optimizer.optimizer import Optimizer
 
 
-class TestSimulator(unittest.TestCase):
+class TestBasic(unittest.TestCase):
 
     def runTest(self):
         environment = FoodDeliveryEnvironment(
