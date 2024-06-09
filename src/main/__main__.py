@@ -1,10 +1,12 @@
+import random
+
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.generator.time_shift_client_generator import TimeShiftClientGenerator
 from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenerator
 from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
 from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
 from src.main.map.grid_map import GridMap
-from src.main.optimizer.optimizer import Optimizer
+from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
 from src.main.statistic.statistic import Statistic
 
 
@@ -15,11 +17,12 @@ def main():
             TimeShiftClientGenerator(lambda time: 3),
             TimeShiftRestaurantGenerator(lambda time: 3),
             TimeShiftDriverGenerator(lambda time: 10),
-            TimeShiftOrderGenerator(lambda time: time * 2)
+            TimeShiftOrderGenerator(lambda time: time * 2 if time <= 100 else 1)
         ],
-        optimizer=Optimizer()
+        optimizer=RandomDriverOptimizer()
     )
-    environment.run(until=100)
+    environment.run(until=200)
+    environment.log_events()
 
     statistic = Statistic(environment)
     statistic.view()

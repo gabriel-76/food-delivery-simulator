@@ -7,6 +7,7 @@ from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerato
 from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
 from src.main.map.grid_map import GridMap
 from src.main.optimizer.optimizer import Optimizer
+from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
 
 
 class TestBasic(unittest.TestCase):
@@ -20,7 +21,7 @@ class TestBasic(unittest.TestCase):
                 TimeShiftDriverGenerator(lambda time: 10),
                 TimeShiftOrderGenerator(lambda time: 2 * time)
             ],
-            optimizer=Optimizer()
+            optimizer=RandomDriverOptimizer()
         )
 
         self.assertEqual(environment.state.drivers, [])

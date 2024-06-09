@@ -46,3 +46,6 @@ class Trip:
         self.routes += other_trip.routes
         self.required_capacity = self.calculate_required_capacity()
         self.distance = self.calculate_total_distance()
+
+    def size(self):
+        return len(self.routes)

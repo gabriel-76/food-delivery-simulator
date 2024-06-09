@@ -1,4 +1,4 @@
-import random
+from abc import ABC, abstractmethod
 
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.generator.time_shift_generator import TimeShiftGenerator
@@ -7,14 +7,14 @@ from src.main.trip.route import Route, RouteType
 from src.main.trip.trip import Trip
 
 
-class Optimizer(TimeShiftGenerator):
+class Optimizer(TimeShiftGenerator, ABC):
 
     def __init__(self, time_shift=1):
         super().__init__(time_shift=time_shift)
 
+    @abstractmethod
     def select_driver(self, env: FoodDeliveryEnvironment, trip: Trip):
-        drivers = env.available_drivers(trip)
-        return random.choice(drivers) if len(drivers) > 0 else None
+        pass
 
     def process_orders(self, env: FoodDeliveryEnvironment, orders: [Order], rejected=False):
         for order in orders:
