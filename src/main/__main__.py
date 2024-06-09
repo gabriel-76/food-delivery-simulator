@@ -8,10 +8,6 @@ from src.main.optimizer.optimizer import Optimizer
 from src.main.statistic.statistic import Statistic
 
 
-a = -4/225
-b = 400
-
-
 def main():
     environment = FoodDeliveryEnvironment(
         map=GridMap(100),
@@ -19,11 +15,11 @@ def main():
             TimeShiftClientGenerator(lambda time: 3),
             TimeShiftRestaurantGenerator(lambda time: 3),
             TimeShiftDriverGenerator(lambda time: 10),
-            TimeShiftOrderGenerator(lambda time: max(2, a * pow(time-250, 2) + b))
+            TimeShiftOrderGenerator(lambda time: time * 2)
         ],
         optimizer=Optimizer()
     )
-    environment.run(until=2000)
+    environment.run(until=100)
 
     statistic = Statistic(environment)
     statistic.view()

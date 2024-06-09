@@ -69,7 +69,7 @@ class Driver:
             self.environment.add_event(event)
             for route in self.current_trip.routes:
                 route.order.update_status(OrderStatus.DRIVER_ACCEPTED)
-            self.sequential_processor()
+            self.environment.process(self.sequential_processor())
         else:
             self.accepted_trip_extension(trip)
 
@@ -91,8 +91,10 @@ class Driver:
         if self.current_trip.has_next_route():
             route = self.current_trip.next_route()
             if route.route_type is RouteType.COLLECT:
+                yield self.environment.timeout(self.time_between_accept_and_start_collection(route.order))
                 self.environment.process(self.start_order_collection(route.order))
             if route.route_type is RouteType.DELIVERY:
+                yield self.environment.timeout(self.time_between_collection_and_start_delivery(route.order))
                 self.environment.process(self.start_order_delivery(route.order))
         else:
             self.current_trip = None
@@ -134,7 +136,7 @@ class Driver:
         )
         self.coordinates = order.restaurant.coordinates
         self.environment.add_event(event)
-        self.sequential_processor()
+        self.environment.process(self.sequential_processor())
 
     def start_order_delivery(self, order: Order):
         self.status = DriverStatus.DELIVERING
@@ -176,21 +178,26 @@ class Driver:
         self.environment.add_event(event)
         self.status = DriverStatus.AVAILABLE
         order.update_status(OrderStatus.DELIVERED)
-        self.sequential_processor()
-
-    def time_to_accept_or_reject_trip(self, trip: Trip):
-        return random.randrange(3, 10)
-
-    def time_to_deliver_order(self, order: Order):
-        restaurant_coordinates = order.restaurant.coordinates
-        client_coordinates = order.client.coordinates
-        return self.environment.map.estimated_time(restaurant_coordinates, client_coordinates, self.movement_rate)
-
-    def time_to_collect_order(self, order: Order):
-        return self.environment.map.estimated_time(self.coordinates, order.restaurant.coordinates, self.movement_rate)
+        self.environment.process(self.sequential_processor())
 
     def accept_trip_condition(self, trip: Trip):
         return self.fits(trip) and self.available
 
     def check_availability(self, trip: Trip):
         return self.fits(trip) and self.available
+
+    def time_to_accept_or_reject_trip(self, trip: Trip):
+        return random.randrange(3, 10)
+    def time_between_accept_and_start_collection(self, order: Order):
+        return random.randrange(0, 3)
+
+    def time_to_collect_order(self, order: Order):
+        return self.environment.map.estimated_time(self.coordinates, order.restaurant.coordinates, self.movement_rate)
+
+    def time_between_collection_and_start_delivery(self, order: Order):
+        return random.randrange(0, 3)
+
+    def time_to_deliver_order(self, order: Order):
+        restaurant_coordinates = order.restaurant.coordinates
+        client_coordinates = order.client.coordinates
+        return self.environment.map.estimated_time(restaurant_coordinates, client_coordinates, self.movement_rate)
