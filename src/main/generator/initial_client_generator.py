@@ -3,18 +3,17 @@ from src.main.environment.food_delivery_environment import FoodDeliveryEnvironme
 from src.main.generator.initial_generator import InitialGenerator
 
 
-class ClientGeneratorEarly(InitialGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, num_clients):
-        super().__init__(environment)
+class InitialClientGenerator(InitialGenerator):
+    def __init__(self, num_clients):
         self.num_clients = num_clients
 
-    def run(self):
+    def run(self, env: FoodDeliveryEnvironment):
         clients = [
             Client(
-                environment=self.environment,
-                coordinates=self.environment.map.random_point(),
+                environment=env,
+                coordinates=env.map.random_point(),
                 available=True
             )
             for _ in range(self.num_clients)
         ]
-        self.environment.add_clients(clients)
+        env.add_clients(clients)

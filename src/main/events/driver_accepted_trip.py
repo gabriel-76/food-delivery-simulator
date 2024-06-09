@@ -1,13 +1,10 @@
 from src.main.events.event_type import EventType
+from src.main.events.trip_event import TripEvent
 
 
-class DriverAcceptedTrip:
+class DriverAcceptedTrip(TripEvent):
     def __init__(self, driver_id, trip_id, distance, time):
-        self.driver_id = driver_id
-        self.trip_id = trip_id
-        self.distance = distance
-        self.time = time
-        self.event_type = EventType.DRIVER_ACCEPTED_TRIP
+        super().__init__(driver_id, trip_id, distance, time, EventType.DRIVER_ACCEPTED_TRIP)
 
     def __str__(self):
         return (f"Driver {self.driver_id} accepted the "

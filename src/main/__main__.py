@@ -1,40 +1,33 @@
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
-from src.main.generator.client_generator import ClientGenerator
-from src.main.generator.client_generator_early import ClientGeneratorEarly
-from src.main.generator.driver_generator_early import DriverGeneratorEarly
-from src.main.generator.order_generator import OrderGenerator
-from src.main.generator.order_generator_early import OrderGeneratorEarly
-from src.main.generator.restaurant_generator_eraly import RestaurantGeneratorEarly
+from src.main.generator.time_shift_client_generator import TimeShiftClientGenerator
+from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenerator
+from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
+from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
 from src.main.map.grid_map import GridMap
 from src.main.optimizer.optimizer import Optimizer
-from src.main.simulator.simulator import Simulator
 from src.main.statistic.statistic import Statistic
 
-NUM_CLIENTS = 10
-NUM_RESTAURANTS = 2000
-NUM_DRIVERS = 200
-SIMULATION_TIME = 100
+
+a = -4/225
+b = 400
 
 
-def simple():
-    environment = FoodDeliveryEnvironment(GridMap(100))
-
-    simulator = Simulator(
-        environment=environment,
+def main():
+    environment = FoodDeliveryEnvironment(
+        map=GridMap(100),
         generators=[
-            ClientGeneratorEarly(environment, 10),
-            RestaurantGeneratorEarly(environment, 10),
-            DriverGeneratorEarly(environment, 10),
-            # OrderGeneratorEarly(environment, 10),
-            OrderGenerator(environment, 10)
+            TimeShiftClientGenerator(lambda time: 3),
+            TimeShiftRestaurantGenerator(lambda time: 3),
+            TimeShiftDriverGenerator(lambda time: 10),
+            TimeShiftOrderGenerator(lambda time: max(2, a * pow(time-250, 2) + b))
         ],
-        optimizer=Optimizer(environment),
-        statistic=Statistic(environment),
-        debug=False,
+        optimizer=Optimizer()
     )
+    environment.run(until=2000)
 
-    simulator.run(until=100)
+    statistic = Statistic(environment)
+    statistic.view()
 
 
 if __name__ == '__main__':
-    simple()
+    main()

@@ -1,12 +1,11 @@
-from src.main.events.event import Event
+from src.main.events.order_event import OrderEvent
 from src.main.events.event_type import EventType
 
 
-class DriverDeliveredOrder(Event):
+class DriverDeliveredOrder(OrderEvent):
     def __init__(self, order_id, client_id, restaurant_id, driver_id, time):
-        super().__init__(order_id, client_id, restaurant_id, time)
+        super().__init__(order_id, client_id, restaurant_id, time, EventType.DRIVER_DELIVERED_ORDER)
         self.driver_id = driver_id
-        self.event_type = EventType.DRIVER_DELIVERED_ORDER
 
     def __str__(self):
         return (f"Driver {self.driver_id} delivered "

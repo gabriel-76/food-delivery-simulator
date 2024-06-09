@@ -1,56 +1,42 @@
 import random
 
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.order import Order
 from src.main.trip.route import Route, RouteType
 from src.main.trip.trip import Trip
 
 
-class Optimizer:
-    def __init__(self, environment: FoodDeliveryEnvironment):
-        self.environment = environment
+class Optimizer(TimeShiftGenerator):
 
-    def select_driver(self, trip: Trip):
-        drivers = self.available_drivers(trip)
-        if len(drivers) > 0:
-            return random.choice(drivers)
-        else:
-            return None
+    def __init__(self, time_shift=1):
+        super().__init__(time_shift=time_shift)
 
-    def available_drivers(self, trip: Trip):
-        return [driver for driver in self.environment.drivers if driver.check_availability(trip)]
+    def select_driver(self, env: FoodDeliveryEnvironment, trip: Trip):
+        drivers = env.available_drivers(trip)
+        return random.choice(drivers) if len(drivers) > 0 else None
 
-    def optimize(self):
-        while True:
-            while self.environment.count_rejected_delivery_orders() > 0:
-                order = yield self.environment.get_rejected_delivery_order()
+    def process_orders(self, env: FoodDeliveryEnvironment, orders: [Order], rejected=False):
+        for order in orders:
+            route_collect = Route(RouteType.COLLECT, order)
+            route_delivery = Route(RouteType.DELIVERY, order)
+            trip = Trip(env, [route_collect, route_delivery])
 
-                route_collect = Route(RouteType.COLLECT, order)
-                route_delivery = Route(RouteType.DELIVERY, order)
-                trip = Trip(self.environment, [route_collect, route_delivery])
+            driver = self.select_driver(env, trip)
 
-                driver = self.select_driver(trip)
+            if driver is not None:
+                driver.request_delivery(trip)
+            elif rejected:
+                env.add_rejected_delivery(order)
+            else:
+                env.add_ready_order(order)
 
-                if driver is not None:
-                    driver.request_delivery(trip)
-                # else:
-                #     self.environment.add_rejected_delivery_order(order)
+    def optimize(self, env: FoodDeliveryEnvironment):
+        orders = yield env.process(env.get_rejected_deliveries())
+        self.process_orders(env, orders, rejected=True)
 
-            while self.environment.count_ready_orders() > 0:
-                order = yield self.environment.get_ready_order()
+        orders = yield env.process(env.get_ready_orders())
+        self.process_orders(env, orders)
 
-                route_collect = Route(RouteType.COLLECT, order)
-                route_delivery = Route(RouteType.DELIVERY, order)
-                trip = Trip(self.environment, [route_collect, route_delivery])
-
-                driver = self.select_driver(trip)
-
-                if driver is not None:
-                    driver.request_delivery(trip)
-                # else:
-                #     self.environment.add_ready_order(order)
-
-            yield self.environment.timeout(self.optimize_time_policy())
-
-    def optimize_time_policy(self):
-        return 1
+    def run(self, env: FoodDeliveryEnvironment):
+        env.process(self.optimize(env))

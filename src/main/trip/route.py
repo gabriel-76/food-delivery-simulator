@@ -1,12 +1,5 @@
-from enum import Enum, auto
-
-from src.main.base.dimensions import Dimensions
 from src.main.order.order import Order
-
-
-class RouteType(Enum):
-    COLLECT = auto()
-    DELIVERY = auto()
+from src.main.trip.route_type import RouteType
 
 
 class Route:
@@ -21,4 +14,3 @@ class Route:
             return self.order.restaurant.coordinates
         if self.route_type is RouteType.DELIVERY:
             return self.order.client.coordinates
-
