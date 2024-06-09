@@ -1,4 +1,5 @@
 import simpy
+from simpy import AllOf
 
 from src.main.environment.food_delivery_state import FoodDeliveryState
 from src.main.map.map import Map
@@ -32,8 +33,12 @@ class FoodDeliveryEnvironment(simpy.Environment):
     def add_ready_order(self, order):
         self.ready_orders.put(order)
 
-    def get_ready_order(self):
-        return self.ready_orders.get()
+    def get_ready_orders(self):
+        read_orders = []
+        while len(self.ready_orders.items) > 0:
+            order = yield self.ready_orders.get()
+            read_orders.append(order)
+        return read_orders
 
     def count_ready_orders(self):
         return len(self.ready_orders.items)
@@ -42,10 +47,11 @@ class FoodDeliveryEnvironment(simpy.Environment):
         self.rejected_deliveries.put(order)
 
     def get_rejected_deliveries(self):
-        return self.rejected_deliveries.get()
-
-    def count_rejected_deliveries(self):
-        return len(self.rejected_deliveries.items)
+        rejected_orders = []
+        while len(self.rejected_deliveries.items) > 0:
+            order = yield self.rejected_deliveries.get()
+            rejected_orders.append(order)
+        return rejected_orders
 
     def add_event(self, event):
         self.events.append(event)
@@ -55,4 +61,4 @@ class FoodDeliveryEnvironment(simpy.Environment):
             self.process(generator.generate(self))
 
         if self.optimizer:
-            self.process(self.optimizer.optimize(self))
+            self.process(self.optimizer.generate(self))
