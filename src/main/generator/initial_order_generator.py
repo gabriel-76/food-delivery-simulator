@@ -7,20 +7,18 @@ from src.main.order.order import Order
 
 
 class InitialOrderGenerator(InitialGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, num_orders):
-        super().__init__(environment)
-        self.environment = environment
+    def __init__(self, num_orders):
         self.num_orders = num_orders
 
-    def run(self):
+    def run(self, env: FoodDeliveryEnvironment):
         for _ in range(self.num_orders):
-            restaurant = random.choice(self.environment.restaurants)
-            client = random.choice(self.environment.clients)
+            restaurant = random.choice(env.restaurants)
+            client = random.choice(env.clients)
 
             items = random.sample(restaurant.catalog.items, 2)
 
-            order = Order(client, restaurant, self.environment.now, items)
+            order = Order(client, restaurant, env.now, items)
 
-            self.environment.orders += [order]
+            env.orders += [order]
 
             client.place_order(order, restaurant)

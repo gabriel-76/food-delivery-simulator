@@ -5,8 +5,5 @@ from src.main.environment.food_delivery_environment import FoodDeliveryEnvironme
 
 class Generator(ABC):
 
-    def __init__(self, environment: FoodDeliveryEnvironment):
-        self.environment = environment
-
     @abstractmethod
-    def generate(self): pass
+    def generate(self, env: FoodDeliveryEnvironment): pass

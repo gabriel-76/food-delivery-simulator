@@ -8,48 +8,48 @@ from src.main.order.order import Order
 
 
 class TimeShiftOrderRestaurantRateGenerator(TimeShiftGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, function, time_shift):
-        super().__init__(environment, function, time_shift)
+    def __init__(self, function, time_shift):
+        super().__init__(function, time_shift)
 
     def is_in_normal_distribution(self, radius):
         value = random.gauss(0, radius)
         return -radius <= value <= radius
 
-    def process_restaurant(self, restaurant):
+    def process_restaurant(self, env: FoodDeliveryEnvironment, restaurant):
         for _ in range(restaurant.order_rate):
 
-            client_coordinates = self.environment.map.random_point_in_circle(
+            client_coordinates = env.map.random_point_in_circle(
                 restaurant.coordinates,
                 restaurant.operating_radius
             )
 
             if not self.is_in_normal_distribution(restaurant.operating_radius):
-                client_coordinates = self.environment.map.random_point_outside_circle(
+                client_coordinates = env.map.random_point_outside_circle(
                     restaurant.coordinates,
                     restaurant.operating_radius
                 )
 
             client = Client(
-                environment=self.environment,
+                environment=env,
                 coordinates=client_coordinates,
                 available=True
             )
 
-            self.environment.clients.append(client)
+            env.clients.append(client)
 
             items = random.sample(restaurant.catalog.items, 2)
 
-            order = Order(client, restaurant, self.environment.now, items)
+            order = Order(client, restaurant, env.now, items)
 
             client.place_order(order, restaurant)
 
-    def run(self):
+    def run(self, env: FoodDeliveryEnvironment):
         start_time = datetime.now()
-        for restaurant in self.environment.restaurants:
-            self.process_restaurant(restaurant)
+        for restaurant in env.restaurants:
+            self.process_restaurant(env, restaurant)
 
         end_time = datetime.now()
-        print(self.environment.now, (end_time - start_time).total_seconds())
+        print(env.now, (end_time - start_time).total_seconds())
         # print("restaurants", len(self.environment.restaurants))
         # print("clients", len(self.environment.clients))
         # print("drivers", len(self.environment.drivers))

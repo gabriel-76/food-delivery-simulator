@@ -9,20 +9,19 @@ from src.main.generator.initial_generator import InitialGenerator
 
 
 class InitialDriverGenerator(InitialGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, num_drivers):
-        super().__init__(environment)
+    def __init__(self, num_drivers):
         self.num_drivers = num_drivers
 
-    def run(self):
+    def run(self, env: FoodDeliveryEnvironment):
         capacity = Capacity(Dimensions(100, 100, 100, 100))
         drivers = [
             Driver(
-                environment=self.environment,
-                coordinates=self.environment.map.random_point(),
+                environment=env,
+                coordinates=env.map.random_point(),
                 capacity=capacity,
                 available=True,
                 status=DriverStatus.AVAILABLE,
                 movement_rate=random.uniform(1, 30),
             ) for _ in range(self.num_drivers)
         ]
-        self.environment.add_drivers(drivers)
+        env.add_drivers(drivers)

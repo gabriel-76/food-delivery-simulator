@@ -6,19 +6,19 @@ from src.main.order.order import Order
 
 
 class TimeShiftOrderGenerator(TimeShiftGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, function, time_shift=1):
-        super().__init__(environment, function, time_shift)
+    def __init__(self, function, time_shift=1):
+        super().__init__(function, time_shift)
 
-    def run(self):
+    def run(self, env: FoodDeliveryEnvironment):
 
         orders = []
 
-        for _ in self.range():
-            client = random.choice(self.environment.clients)
-            restaurant = random.choice(self.environment.restaurants)
+        for _ in self.range(env):
+            client = random.choice(env.clients)
+            restaurant = random.choice(env.restaurants)
             items = random.sample(restaurant.catalog.items, 2)
-            order = Order(client, restaurant, self.environment.now, items)
+            order = Order(client, restaurant, env.now, items)
             orders.append(order)
             client.place_order(order, restaurant)
 
-        self.environment.orders += orders
+        env.orders += orders

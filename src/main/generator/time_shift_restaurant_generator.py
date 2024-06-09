@@ -9,19 +9,19 @@ from src.main.restaurant.restaurant import Restaurant
 
 
 class TimeShiftRestaurantGenerator(TimeShiftGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, function, time_shift=1):
-        super().__init__(environment, function, time_shift)
+    def __init__(self, function, time_shift=1):
+        super().__init__(function, time_shift)
 
-    def run(self):
+    def run(self, env: FoodDeliveryEnvironment):
         dimension = Dimensions(1, 1, 1, 1)
         catalog = Catalog([Item(f"type_{i}", dimension, 4) for i in range(5)])
         restaurants = [
             Restaurant(
-                environment=self.environment,
-                coordinates=self.environment.map.random_point(),
+                environment=env,
+                coordinates=env.map.random_point(),
                 available=True,
                 catalog=catalog
             )
-            for _ in self.range()
+            for _ in self.range(env)
         ]
-        self.environment.add_restaurants(restaurants)
+        env.add_restaurants(restaurants)

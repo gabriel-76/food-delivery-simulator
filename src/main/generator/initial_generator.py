@@ -6,12 +6,9 @@ from src.main.generator.generator import Generator
 
 class InitialGenerator(Generator, ABC):
 
-    def __init__(self, environment: FoodDeliveryEnvironment):
-        super().__init__(environment)
-
     @abstractmethod
-    def run(self): pass
+    def run(self, env: FoodDeliveryEnvironment): pass
 
-    def generate(self):
-        self.run()
-        yield self.environment.timeout(0)
+    def generate(self, env: FoodDeliveryEnvironment):
+        self.run(env)
+        yield env.timeout(0)

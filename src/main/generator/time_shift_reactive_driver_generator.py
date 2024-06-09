@@ -9,20 +9,20 @@ from src.main.driver.driver import DriverStatus
 
 
 class TimeShiftReactiveDriverGenerator(TimeShiftDriverGenerator):
-    def __init__(self, environment: FoodDeliveryEnvironment, function, time_shift=1):
-        super().__init__(environment, function, time_shift)
+    def __init__(self, function, time_shift=1):
+        super().__init__(function, time_shift)
 
-    def run(self):
+    def run(self, env: FoodDeliveryEnvironment):
         capacity = Capacity(Dimensions(10, 10, 10, 10))
         drivers = [
             ReactiveDriver(
-                environment=self.environment,
-                coordinates=self.environment.map.random_point(),
+                environment=env,
+                coordinates=env.map.random_point(),
                 capacity=capacity,
                 available=True,
                 status=DriverStatus.AVAILABLE,
                 movement_rate=random.uniform(1, 30),
                 max_distance=random.randrange(100, 300)
-            ) for _ in self.range()
+            ) for _ in self.range(env)
         ]
-        self.environment.add_drivers(drivers)
+        env.add_drivers(drivers)

@@ -4,7 +4,7 @@ from src.main.map.map import Map
 
 
 class FoodDeliveryEnvironment(simpy.Environment):
-    def __init__(self, map: Map):
+    def __init__(self, map: Map, generators, optimizer):
         super().__init__()
         self.map = map
         self.clients = []
@@ -18,6 +18,10 @@ class FoodDeliveryEnvironment(simpy.Environment):
         self.rejected_delivery_orders = simpy.FilterStore(self)
         # Orders delivered by drivers
         self.delivered_orders = simpy.Store(self)
+
+        self.generators = generators
+        self.optimizer = optimizer
+        self.init()
 
     def add_clients(self, clients):
         self.clients += clients
@@ -63,3 +67,13 @@ class FoodDeliveryEnvironment(simpy.Environment):
 
     def count_event(self):
         return len(self.events.items)
+
+    def init(self):
+        for generator in self.generators:
+            self.process(generator.generate(self))
+
+        if self.optimizer:
+            self.process(self.optimizer.optimize(self))
+
+    # def run(self, *args, **kwargs):
+    #     super().run(*args, **kwargs)
