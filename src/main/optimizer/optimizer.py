@@ -20,8 +20,8 @@ class Optimizer:
 
     def optimize(self, env: FoodDeliveryEnvironment):
         while True:
-            while env.count_rejected_delivery_orders() > 0:
-                order = yield env.get_rejected_delivery_order()
+            while env.count_rejected_deliveries() > 0:
+                order = yield env.get_rejected_deliveries()
 
                 route_collect = Route(RouteType.COLLECT, order)
                 route_delivery = Route(RouteType.DELIVERY, order)

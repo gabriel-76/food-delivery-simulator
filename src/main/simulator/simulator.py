@@ -30,7 +30,7 @@ class Simulator:
             self.log_events()
 
         if self.statistic:
-            self.statistic.log()
+            self.statistic.view()
 
     def initialize(self):
         for generator in self.generators:

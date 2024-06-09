@@ -107,7 +107,7 @@ class Driver:
         self.environment.add_event(event)
         for route in trip.routes:
             route.order.update_status(OrderStatus.DRIVER_REJECTED)
-            self.environment.add_rejected_delivery_order(route.order)
+            self.environment.add_rejected_delivery(route.order)
 
     def start_order_collection(self, order):
         self.status = DriverStatus.COLLECTING
@@ -176,7 +176,6 @@ class Driver:
         self.environment.add_event(event)
         self.status = DriverStatus.AVAILABLE
         order.update_status(OrderStatus.DELIVERED)
-        self.environment.add_delivered_order(order)
         self.sequential_processor()
 
     def time_to_accept_or_reject_trip(self, trip: Trip):

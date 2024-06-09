@@ -22,7 +22,7 @@ def main():
     environment.run(until=100)
 
     statistic = Statistic(environment)
-    statistic.log()
+    statistic.view()
 
 
 if __name__ == '__main__':

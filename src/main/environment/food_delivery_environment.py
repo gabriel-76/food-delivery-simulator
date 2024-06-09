@@ -9,26 +9,25 @@ class FoodDeliveryEnvironment(simpy.Environment):
         super().__init__()
         self.map = map
         self.state = FoodDeliveryState()
-        self.events = simpy.Store(self)
+        self.events = []
+
         # Orders ready for collection
         self.ready_orders = simpy.FilterStore(self)
         # Order deliveries rejected by driver
-        self.rejected_delivery_orders = simpy.FilterStore(self)
-        # Orders delivered by drivers
-        self.delivered_orders = simpy.Store(self)
+        self.rejected_deliveries = simpy.FilterStore(self)
 
         self.generators = generators
         self.optimizer = optimizer
         self.init()
 
     def add_clients(self, clients):
-        self.state.clients += clients
+        self.state.add_clients(clients)
 
     def add_restaurants(self, restaurants):
-        self.state.restaurants += restaurants
+        self.state.add_restaurants(restaurants)
 
     def add_drivers(self, drivers):
-        self.state.drivers += drivers
+        self.state.add_drivers(drivers)
 
     def add_ready_order(self, order):
         self.ready_orders.put(order)
@@ -39,32 +38,17 @@ class FoodDeliveryEnvironment(simpy.Environment):
     def count_ready_orders(self):
         return len(self.ready_orders.items)
 
-    def add_rejected_delivery_order(self, order):
-        self.rejected_delivery_orders.put(order)
+    def add_rejected_delivery(self, order):
+        self.rejected_deliveries.put(order)
 
-    def get_rejected_delivery_order(self):
-        return self.rejected_delivery_orders.get()
+    def get_rejected_deliveries(self):
+        return self.rejected_deliveries.get()
 
-    def count_rejected_delivery_orders(self):
-        return len(self.rejected_delivery_orders.items)
-
-    def add_delivered_order(self, order):
-        self.delivered_orders.put(order)
-
-    def get_delivered_order(self):
-        self.delivered_orders.get()
-
-    def count_delivered_orders(self):
-        return len(self.delivered_orders.items)
+    def count_rejected_deliveries(self):
+        return len(self.rejected_deliveries.items)
 
     def add_event(self, event):
-        self.events.put(event)
-
-    def get_event(self):
-        return self.events.get()
-
-    def count_event(self):
-        return len(self.events.items)
+        self.events.append(event)
 
     def init(self):
         for generator in self.generators:
@@ -72,6 +56,3 @@ class FoodDeliveryEnvironment(simpy.Environment):
 
         if self.optimizer:
             self.process(self.optimizer.optimize(self))
-
-    # def run(self, *args, **kwargs):
-    #     super().run(*args, **kwargs)
