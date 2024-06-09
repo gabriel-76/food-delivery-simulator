@@ -13,16 +13,10 @@ class Optimizer(TimeShiftGenerator):
         super().__init__(time_shift=time_shift)
 
     def select_driver(self, env: FoodDeliveryEnvironment, trip: Trip):
-        drivers = self.available_drivers(env, trip)
-        if len(drivers) > 0:
-            return random.choice(drivers)
-        else:
-            return None
+        drivers = env.available_drivers(trip)
+        return random.choice(drivers) if len(drivers) > 0 else None
 
-    def available_drivers(self, env: FoodDeliveryEnvironment, trip: Trip):
-        return [driver for driver in env.state.drivers if driver.check_availability(trip)]
-
-    def process_orders(self, env: FoodDeliveryEnvironment, orders: [Order]):
+    def process_orders(self, env: FoodDeliveryEnvironment, orders: [Order], rejected=False):
         for order in orders:
             route_collect = Route(RouteType.COLLECT, order)
             route_delivery = Route(RouteType.DELIVERY, order)
@@ -32,12 +26,14 @@ class Optimizer(TimeShiftGenerator):
 
             if driver is not None:
                 driver.request_delivery(trip)
-            else:
+            elif rejected:
                 env.add_rejected_delivery(order)
+            else:
+                env.add_ready_order(order)
 
     def optimize(self, env: FoodDeliveryEnvironment):
         orders = yield env.process(env.get_rejected_deliveries())
-        self.process_orders(env, orders)
+        self.process_orders(env, orders, rejected=True)
 
         orders = yield env.process(env.get_ready_orders())
         self.process_orders(env, orders)
