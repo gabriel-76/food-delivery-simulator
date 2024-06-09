@@ -13,15 +13,15 @@ class Statistic:
 
     def log(self):
         print()
-        print("TOTAL RESTAURANTS", len(self.environment.restaurants))
-        print("TOTAL CLIENTS", len(self.environment.clients))
-        print("TOTAL DRIVERS", len(self.environment.drivers))
-        print("TOTAL ORDERS", len(self.environment.orders))
+        print("TOTAL RESTAURANTS", len(self.environment.state.restaurants))
+        print("TOTAL CLIENTS", len(self.environment.state.clients))
+        print("TOTAL DRIVERS", len(self.environment.state.drivers))
+        print("TOTAL ORDERS", len(self.environment.state.orders))
         print()
 
         print("ORDERS")
         order_status_counts = defaultdict(int)
-        for order in self.environment.orders:
+        for order in self.environment.state.orders:
             order_status_counts[order.status.name] += 1
 
         for status, count in order_status_counts.items():
@@ -31,7 +31,7 @@ class Statistic:
 
         print("DRIVERS")
         drivers_status_counts = defaultdict(int)
-        for driver in self.environment.drivers:
+        for driver in self.environment.state.drivers:
             drivers_status_counts[driver.status.name] += 1
 
         for status, count in drivers_status_counts.items():
@@ -115,7 +115,7 @@ class Statistic:
 
     def orders_graph(self):
         orders_time_counts = defaultdict(int)
-        for order in self.environment.orders:
+        for order in self.environment.state.orders:
             orders_time_counts[order.request_date] += 1
 
         times = list(orders_time_counts.keys())

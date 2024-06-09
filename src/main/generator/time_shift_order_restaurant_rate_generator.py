@@ -35,7 +35,7 @@ class TimeShiftOrderRestaurantRateGenerator(TimeShiftGenerator):
                 available=True
             )
 
-            env.clients.append(client)
+            env.state.clients.append(client)
 
             items = random.sample(restaurant.catalog.items, 2)
 
@@ -45,7 +45,7 @@ class TimeShiftOrderRestaurantRateGenerator(TimeShiftGenerator):
 
     def run(self, env: FoodDeliveryEnvironment):
         start_time = datetime.now()
-        for restaurant in env.restaurants:
+        for restaurant in env.state.restaurants:
             self.process_restaurant(env, restaurant)
 
         end_time = datetime.now()

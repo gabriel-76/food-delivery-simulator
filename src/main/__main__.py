@@ -9,26 +9,19 @@ from src.main.statistic.statistic import Statistic
 
 
 def main():
-    generators = [
-        TimeShiftClientGenerator(lambda time: 3),
-        TimeShiftRestaurantGenerator(lambda time: 3),
-        TimeShiftDriverGenerator(lambda time: 10),
-        TimeShiftOrderGenerator(lambda time: 2 * time)
-    ]
-    optimizer = Optimizer()
-
     environment = FoodDeliveryEnvironment(
         map=GridMap(100),
-        generators=generators,
-        optimizer=optimizer
+        generators=[
+            TimeShiftClientGenerator(lambda time: 3),
+            TimeShiftRestaurantGenerator(lambda time: 3),
+            TimeShiftDriverGenerator(lambda time: 10),
+            TimeShiftOrderGenerator(lambda time: 2 * time)
+        ],
+        optimizer=Optimizer()
     )
-
-
-    statistic = Statistic(environment)
-    debug = False
-
     environment.run(until=100)
 
+    statistic = Statistic(environment)
     statistic.log()
 
 

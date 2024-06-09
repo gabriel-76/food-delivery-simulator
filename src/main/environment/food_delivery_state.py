@@ -1,4 +1,4 @@
-class State:
+class FoodDeliveryState:
     def __init__(self):
         self.clients = []
         self.restaurants = []

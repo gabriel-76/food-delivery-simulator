@@ -1,5 +1,6 @@
 import simpy
 
+from src.main.environment.food_delivery_state import FoodDeliveryState
 from src.main.map.map import Map
 
 
@@ -7,10 +8,7 @@ class FoodDeliveryEnvironment(simpy.Environment):
     def __init__(self, map: Map, generators, optimizer):
         super().__init__()
         self.map = map
-        self.clients = []
-        self.restaurants = []
-        self.drivers = []
-        self.orders = []
+        self.state = FoodDeliveryState()
         self.events = simpy.Store(self)
         # Orders ready for collection
         self.ready_orders = simpy.FilterStore(self)
@@ -24,13 +22,13 @@ class FoodDeliveryEnvironment(simpy.Environment):
         self.init()
 
     def add_clients(self, clients):
-        self.clients += clients
+        self.state.clients += clients
 
     def add_restaurants(self, restaurants):
-        self.restaurants += restaurants
+        self.state.restaurants += restaurants
 
     def add_drivers(self, drivers):
-        self.drivers += drivers
+        self.state.drivers += drivers
 
     def add_ready_order(self, order):
         self.ready_orders.put(order)

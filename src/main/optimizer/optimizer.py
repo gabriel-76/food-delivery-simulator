@@ -16,7 +16,7 @@ class Optimizer:
             return None
 
     def available_drivers(self, env: FoodDeliveryEnvironment, trip: Trip):
-        return [driver for driver in env.drivers if driver.check_availability(trip)]
+        return [driver for driver in env.state.drivers if driver.check_availability(trip)]
 
     def optimize(self, env: FoodDeliveryEnvironment):
         while True:
