@@ -65,3 +65,7 @@ class FoodDeliveryEnvironment(simpy.Environment):
 
         if self.optimizer:
             self.process(self.optimizer.generate(self))
+
+    def log_events(self):
+        for event in self.events:
+            print(event)

@@ -1,32 +1,38 @@
-import random
-
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.generator.time_shift_client_generator import TimeShiftClientGenerator
 from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenerator
 from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
 from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
 from src.main.map.grid_map import GridMap
-from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
+from src.main.optimizer.optimizer import Optimizer
 from src.main.statistic.statistic import Statistic
 
+a = -4/225
+b = 250
+c = 400
 
-def main():
+
+def parable(time):
+    return max(2, int(a * pow(time - b, 2) + c))
+
+
+def run():
     environment = FoodDeliveryEnvironment(
         map=GridMap(100),
         generators=[
             TimeShiftClientGenerator(lambda time: 3),
             TimeShiftRestaurantGenerator(lambda time: 3),
-            TimeShiftDriverGenerator(lambda time: 10),
-            TimeShiftOrderGenerator(lambda time: time * 2 if time <= 100 else 1)
+            TimeShiftDriverGenerator(lambda time: 3),
+            TimeShiftOrderGenerator(lambda time: parable(time))
         ],
-        optimizer=RandomDriverOptimizer()
+        optimizer=Optimizer()
     )
-    environment.run(until=200)
-    environment.log_events()
+
+    environment.run(until=2000)
 
     statistic = Statistic(environment)
     statistic.view()
 
 
 if __name__ == '__main__':
-    main()
+    run()

@@ -1,12 +1,13 @@
-from src.main.environment import FoodDeliveryEnvironment
+import random
+
+from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.optimizer.optimizer import Optimizer
-from src.main.order.order import Order
+from src.main.trip.trip import Trip
 
 
 class FirstDriverOptimizer(Optimizer):
-    def __init__(self, environment: FoodDeliveryEnvironment):
-        super().__init__(environment)
 
-    def select_driver(self, order: Order):
-        drivers = self.available_drivers(order)
-        return drivers[0]
+    def select_driver(self, env: FoodDeliveryEnvironment, trip: Trip):
+        drivers = env.available_drivers(trip)
+        # drivers = list(filter(lambda driver: driver.current_trip is None or driver.current_trip.size() <= 1, drivers))
+        return drivers[0] if len(drivers) > 0 else None

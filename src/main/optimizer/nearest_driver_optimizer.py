@@ -1,17 +1,16 @@
 from src.main.driver.driver import Driver
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.optimizer.optimizer import Optimizer
-from src.main.order.order import Order
+from src.main.trip.trip import Trip
 
 
 class NearestDriverOptimizer(Optimizer):
-    def __init__(self, environment: FoodDeliveryEnvironment):
-        super().__init__(environment)
 
-    def compare_distance(self, driver: Driver, order: Order):
-        return self.environment.map.total_distance(order, driver)
+    def compare_distance(self, env: FoodDeliveryEnvironment, driver: Driver, trip: Trip):
+        return env.map.distance(trip.routes[0].coordinates, driver.coordinates)
 
-    def select_driver(self, order: Order):
-        drivers = self.available_drivers(order)
-        nearest_driver = min(drivers, key=lambda driver: self.compare_distance(driver, order))
+    def select_driver(self, env: FoodDeliveryEnvironment, trip: Trip):
+        drivers = env.available_drivers(trip)
+        # drivers = list(filter(lambda driver: driver.current_trip is None or driver.current_trip.size() <= 1, drivers))
+        nearest_driver = min(drivers, key=lambda driver: self.compare_distance(env, driver, trip))
         return nearest_driver

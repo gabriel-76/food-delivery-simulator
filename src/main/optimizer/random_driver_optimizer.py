@@ -1,14 +1,12 @@
 import random
 
-from src.main.environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.optimizer.optimizer import Optimizer
-from src.main.order.order import Order
+from src.main.trip.trip import Trip
 
 
 class RandomDriverOptimizer(Optimizer):
-    def __init__(self, environment: FoodDeliveryEnvironment):
-        super().__init__(environment)
 
-    def select_driver(self, order: Order):
-        drivers = self.available_drivers(order)
-        return random.choice(drivers)
+    def select_driver(self, env: FoodDeliveryEnvironment, trip: Trip):
+        drivers = env.available_drivers(trip)
+        return random.choice(drivers) if len(drivers) > 0 else None
