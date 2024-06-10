@@ -1,5 +1,7 @@
 # food-delivery-simulator
 
+![](https://github.com/gabriel-76/food-delivery-simulator/blob/main/simulator.gif)
+
 ## Dependencies
 
 ### Use python version 3.6 or higher
