@@ -21,7 +21,7 @@ class InitialDriverGenerator(InitialGenerator):
                 capacity=capacity,
                 available=True,
                 status=DriverStatus.AVAILABLE,
-                movement_rate=random.uniform(1, 30),
+                movement_rate=random.uniform(1, 10),
             ) for _ in range(self.num_drivers)
         ]
         env.add_drivers(drivers)
