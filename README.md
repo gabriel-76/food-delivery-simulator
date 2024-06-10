@@ -14,3 +14,8 @@
 ## Run tests
 
 ### Execute `python -m unittest discover -s src/test`
+
+## Run examples
+
+### Execute `python -m src.examples.parable`
+### Execute `python -m src.examples.grid_map_view`

@@ -1,16 +1,18 @@
 import math
 import random
+from abc import ABC, abstractmethod
 
 
-class Map:
-    def __init__(self, length):
-        self.length = length
+class Map(ABC):
 
-    def distance(self, coord1, coord2):
-        return abs(coord1[0] - coord2[0]) + abs(coord1[1] - coord2[1])
+    @abstractmethod
+    def distance(self, coord1, coord2): pass
 
-    def estimated_time(self, coord1, coord2, rate):
-        return round(self.distance(coord1, coord2) / rate)
+    @abstractmethod
+    def estimated_time(self, coord1, coord2, rate): pass
 
-    def random_point(self):
-        return random.randrange(self.length), random.randrange(self.length)
+    @abstractmethod
+    def random_point(self): pass
+
+    @abstractmethod
+    def move(self, origin, destination, rate): pass

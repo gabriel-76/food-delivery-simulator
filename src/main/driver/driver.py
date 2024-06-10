@@ -38,9 +38,11 @@ class Driver:
         self.status = status
         self.movement_rate = movement_rate
         self.current_trip = None
+        self.current_route = None
         self.requests = simpy.Store(self.environment)
 
         self.environment.process(self.process_requests())
+        self.environment.process(self.move())
 
     def fits(self, trip: Trip):
         return self.capacity.fits(trip.required_capacity)
@@ -90,6 +92,7 @@ class Driver:
     def sequential_processor(self):
         if self.current_trip.has_next_route():
             route = self.current_trip.next_route()
+            self.current_route = route
             if route.route_type is RouteType.COLLECT:
                 yield self.environment.timeout(self.time_between_accept_and_start_collection(route.order))
                 self.environment.process(self.start_order_collection(route.order))
@@ -98,6 +101,7 @@ class Driver:
                 self.environment.process(self.start_order_delivery(route.order))
         else:
             self.current_trip = None
+            self.current_route = None
 
     def reject_trip(self, trip: Trip):
         event = DriverRejectedTrip(
@@ -179,6 +183,16 @@ class Driver:
         self.status = DriverStatus.AVAILABLE
         order.update_status(OrderStatus.DELIVERED)
         self.environment.process(self.sequential_processor())
+
+    def move(self):
+        while True:
+            if self.current_route is not None:
+                self.coordinates = self.environment.map.move(
+                    origin=self.coordinates,
+                    destination=self.current_route.coordinates,
+                    rate=self.movement_rate
+                )
+            yield self.environment.timeout(1)
 
     def accept_trip_condition(self, trip: Trip):
         return self.fits(trip) and self.available
