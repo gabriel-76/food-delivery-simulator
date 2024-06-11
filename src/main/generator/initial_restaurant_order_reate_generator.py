@@ -1,16 +1,17 @@
+import math
 import random
 
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
-from src.main.generator.time_shift_generator import TimeShiftGenerator
+from src.main.generator.initial_generator import InitialGenerator
 from src.main.order.item import Item
 from src.main.restaurant.catalog import Catalog
 from src.main.restaurant.restaurant_order_rate import RestaurantOrderRate
 
 
-class TimeShiftRestaurantOrderRateGenerator(TimeShiftGenerator):
-    def __init__(self, function, time_shift):
-        super().__init__(function, time_shift)
+class InitialRestaurantOrderRateGenerator(InitialGenerator):
+    def __init__(self, num_restaurants):
+        self.num_restaurants = num_restaurants
 
     def run(self, env: FoodDeliveryEnvironment):
         dimension = Dimensions(1, 1, 1, 1)
@@ -21,11 +22,11 @@ class TimeShiftRestaurantOrderRateGenerator(TimeShiftGenerator):
                 coordinates=env.map.random_point(),
                 available=True,
                 catalog=catalog,
-                order_production_capacity=1,
-                order_request_rate=random.randint(1, 10),
-                order_production_rate=random.randint(1, 10),
-                operating_radius=random.randint(10, 30)
+                order_production_capacity=float('inf'),
+                order_request_rate=random.uniform(5.0, 10.0),
+                order_production_rate=random.uniform(5.0, 10.0),
+                operating_radius=random.randint(5, 30),
             )
-            for _ in self.range(env)
+            for _ in range(self.num_restaurants)
         ]
         env.add_restaurants(restaurants)

@@ -1,3 +1,4 @@
+import math
 import random
 import uuid
 
@@ -20,13 +21,17 @@ class Restaurant:
             environment: FoodDeliveryEnvironment,
             coordinates,
             available: bool,
-            catalog: Catalog
+            catalog: Catalog,
+            order_production_capacity=float('inf')
     ):
         self.restaurant_id = uuid.uuid4()
         self.environment = environment
         self.coordinates = coordinates
         self.available = available
         self.catalog = catalog
+        self.order_production_capacity = order_production_capacity
+        self.orders_in_preparation = 0
+
         self.new_orders = simpy.Store(self.environment)
         self.confirmed_orders = simpy.Store(self.environment)
         self.canceled_orders = simpy.Store(self.environment)
@@ -69,7 +74,7 @@ class Restaurant:
             order_id=order.order_id,
             client_id=order.client.client_id,
             restaurant_id=self.restaurant_id,
-            estimated_time=self.time_to_prepare_order(order) + random.randrange(-5, 5),
+            estimated_time=self.time_estimate_to_prepare_order(order),
             time=self.environment.now
         )
         self.environment.add_event(event)
@@ -87,7 +92,8 @@ class Restaurant:
 
     def prepare_orders(self):
         while True:
-            while len(self.confirmed_orders.items) > 0:
+            while len(self.confirmed_orders.items) > 0 and self.orders_in_preparation < self.order_production_capacity:
+                self.orders_in_preparation += 1
                 order = yield self.confirmed_orders.get()
                 self.environment.process(self.prepare_order(order))
             yield self.environment.timeout(self.time_check_orders_ready_for_preparation())
@@ -113,6 +119,7 @@ class Restaurant:
         )
         self.environment.add_event(event)
         order.update_status(OrderStatus.READY)
+        self.orders_in_preparation -= 1
         self.environment.add_ready_order(order)
 
     def time_process_orders(self):
@@ -126,6 +133,9 @@ class Restaurant:
 
     def time_to_prepare_order(self, order):
         return random.randrange(8, 20)
+
+    def time_estimate_to_prepare_order(self, order):
+        return self.time_to_prepare_order(order) + random.randrange(-5, 5)
 
     def accept_order_condition(self, order):
         return self.available
