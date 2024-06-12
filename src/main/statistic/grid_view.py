@@ -19,8 +19,8 @@ class GridView:
         return x, y
 
     def view(self):
-        x_clients, y_clients = self.extract_coordinates(self.environment.state.clients)
         x_restaurants, y_restaurants = self.extract_coordinates(self.environment.state.restaurants)
+        x_clients, y_clients = self.extract_coordinates(self.environment.state.clients)
         x_drivers, y_drivers = self.extract_coordinates(self.environment.state.drivers)
 
         ax.clear()
@@ -34,14 +34,17 @@ class GridView:
                 ax.quiver(x, y, dx, dy, angles='xy', scale_units='xy', scale=scale, color='red', width=0.003)
 
         # Criar o gráfico de dispersão
-        ax.scatter(x_clients, y_clients, color='blue', label='Clients', marker="x", s=6)
-        ax.scatter(x_restaurants, y_restaurants, color='green', label='Restaurants', marker="s", s=6)
-        ax.scatter(x_drivers, y_drivers, color='red', label='Drivers', marker="o", s=4)
+        ax.scatter(x_clients, y_clients, color='blue', label='Clients', marker="x", s=10)
+        ax.scatter(x_restaurants, y_restaurants, color='green', label='Restaurants', marker="s", s=20)
+        ax.scatter(x_drivers, y_drivers, color='red', label='Drivers', marker="o", s=10)
 
         # Adicionar títulos e rótulos
         ax.set_title('Scatter Plot of Coordinates')
         ax.set_xlabel('X coordinates')
         ax.set_ylabel('Y coordinates')
+
+        ax.set_xlim(0, self.environment.map.size)
+        ax.set_ylim(0, self.environment.map.size)
 
         # Mostrar o gráfico
         plt.show()

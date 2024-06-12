@@ -1,6 +1,7 @@
 import random
 from datetime import datetime
 
+from src.main.base.geometry import point_in_gauss_circle
 from src.main.client.client import Client
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.generator.time_shift_generator import TimeShiftGenerator
@@ -8,50 +9,38 @@ from src.main.order.order import Order
 
 
 class TimeShiftOrderRestaurantRateGenerator(TimeShiftGenerator):
-    def __init__(self, function, time_shift):
+    def __init__(self, function, time_shift=1):
         super().__init__(function, time_shift)
-
-    def is_in_normal_distribution(self, radius):
-        value = random.gauss(0, radius)
-        return -radius <= value <= radius
+        self.hash_timeout = {}
 
     def process_restaurant(self, env: FoodDeliveryEnvironment, restaurant):
-        for _ in range(restaurant.order_rate):
 
-            client_coordinates = env.map.random_point_in_circle(
-                restaurant.coordinates,
-                restaurant.operating_radius
-            )
-
-            if not self.is_in_normal_distribution(restaurant.operating_radius):
-                client_coordinates = env.map.random_point_outside_circle(
-                    restaurant.coordinates,
-                    restaurant.operating_radius
-                )
+        if restaurant.restaurant_id not in self.hash_timeout or self.hash_timeout[restaurant.restaurant_id] == env.now:
 
             client = Client(
                 environment=env,
-                coordinates=client_coordinates,
+                coordinates=point_in_gauss_circle(
+                    restaurant.coordinates,
+                    restaurant.operating_radius,
+                    env.map.size
+                ),
                 available=True
             )
-
-            env.state.clients.append(client)
 
             items = random.sample(restaurant.catalog.items, 2)
 
             order = Order(client, restaurant, env.now, items)
 
+            env.state.clients.append(client)
+            env.state.orders.append(order)
+
             client.place_order(order, restaurant)
 
+            timeout = round(random.expovariate(1 / restaurant.order_request_time_rate))
+            # print("generated in time", env.now, timeout)
+
+            self.hash_timeout[restaurant.restaurant_id] = env.now + max(timeout, 1)
+
     def run(self, env: FoodDeliveryEnvironment):
-        start_time = datetime.now()
         for restaurant in env.state.restaurants:
             self.process_restaurant(env, restaurant)
-
-        end_time = datetime.now()
-        print(env.now, (end_time - start_time).total_seconds())
-        # print("restaurants", len(self.environment.restaurants))
-        # print("clients", len(self.environment.clients))
-        # print("drivers", len(self.environment.drivers))
-        # print("orders delivered", len(self.environment.delivered_orders.items))
-        # print("orders waiting", len(self.environment.ready_orders.items))

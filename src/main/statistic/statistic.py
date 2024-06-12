@@ -1,7 +1,6 @@
 from collections import defaultdict
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.events.event_type import EventType
