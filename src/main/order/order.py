@@ -19,6 +19,7 @@ class Order:
         self.request_date = request_date
         self.items = items
         self.status: OrderStatus = OrderStatus.CREATED
+        self.estimated_preparation_time = 0
         self.required_capacity = self.calculate_required_capacity()
 
     def calculate_required_capacity(self):
@@ -29,3 +30,7 @@ class Order:
 
     def update_status(self, status: OrderStatus):
         self.status = status
+
+    def restaurant_accepted(self, estimated_preparation_time: int):
+        self.status = OrderStatus.RESTAURANT_ACCEPTED
+        self.estimated_preparation_time = estimated_preparation_time

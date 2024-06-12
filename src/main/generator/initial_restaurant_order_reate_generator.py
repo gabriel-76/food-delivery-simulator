@@ -23,8 +23,8 @@ class InitialRestaurantOrderRateGenerator(InitialGenerator):
                 available=True,
                 catalog=catalog,
                 order_production_capacity=float('inf'),
-                order_request_rate=random.uniform(5.0, 10.0),
-                order_production_rate=random.uniform(5.0, 10.0),
+                order_request_time_rate=random.uniform(5.0, 10.0),
+                order_production_time_rate=random.uniform(5.0, 10.0),
                 operating_radius=random.randint(5, 30),
             )
             for _ in range(self.num_restaurants)

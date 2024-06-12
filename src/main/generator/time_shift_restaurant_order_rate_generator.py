@@ -22,8 +22,8 @@ class TimeShiftRestaurantOrderRateGenerator(TimeShiftGenerator):
                 available=True,
                 catalog=catalog,
                 order_production_capacity=1,
-                order_request_rate=random.randint(1, 10),
-                order_production_rate=random.randint(1, 10),
+                order_request_time_rate=random.randint(1, 10),
+                order_production_time_rate=random.randint(1, 10),
                 operating_radius=random.randint(10, 30)
             )
             for _ in self.range(env)

@@ -30,6 +30,7 @@ class Restaurant:
         self.catalog = catalog
         self.order_production_capacity = order_production_capacity
         self.orders_in_preparation = 0
+        self.overloaded_until = int(self.environment.now)
 
         self.new_orders = simpy.Store(self.environment)
         self.confirmed_orders = simpy.Store(self.environment)
@@ -64,11 +65,28 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        order.update_status(OrderStatus.RESTAURANT_ACCEPTED)
-        self.estimate_preparation_time(order)
+        estimated_time = self.estimate_preparation_time(order)
+        order.restaurant_accepted(estimated_time)
+        self.update_overload_time(estimated_time)
         self.confirmed_orders.put(order)
 
+    def update_overload_time(self, estimated_time):
+        env_now = self.environment.now
+        if self.orders_in_preparation == 0:
+            self.overloaded_until = max(self.overloaded_until - env_now, env_now)
+        elif self.orders_in_preparation < self.order_production_capacity:
+            self.overloaded_until = env_now + max(self.overloaded_until - env_now, estimated_time)
+        else:
+            batch_size = len(self.confirmed_orders.items) // self.order_production_capacity
+            self.overloaded_until = env_now + max(self.overloaded_until - env_now, batch_size * estimated_time)
+
+        # print(f"{self.environment.now} "
+        #       f"full_until_time = {self.full_until_time} "
+        #       f"orders_in_preparation = {self.orders_in_preparation} "
+        #       f"order_waiting = {len(self.confirmed_orders.items)} ")
+
     def estimate_preparation_time(self, order):
+        estimated_time = self.time_estimate_to_prepare_order(order)
         event = EstimatedOrderPreparationTime(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -77,6 +95,7 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
+        return estimated_time
 
     def reject_order(self, order):
         event = RestaurantRejectedOrder(
@@ -120,6 +139,7 @@ class Restaurant:
         order.update_status(OrderStatus.READY)
         self.orders_in_preparation -= 1
         self.environment.add_ready_order(order)
+        self.update_overload_time(0)
 
     def time_process_orders(self):
         return random.randrange(1, 5)
