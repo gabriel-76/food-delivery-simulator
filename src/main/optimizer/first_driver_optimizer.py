@@ -6,6 +6,8 @@ from src.main.trip.trip import Trip
 
 
 class FirstDriverOptimizer(Optimizer):
+    def __init__(self, use_estimate=False, time_shift=1):
+        super().__init__(use_estimate=use_estimate, time_shift=time_shift)
 
     def select_driver(self, env: FoodDeliveryEnvironment, trip: Trip):
         drivers = env.available_drivers(trip)

@@ -90,7 +90,16 @@ class Driver:
             route.order.update_status(OrderStatus.DRIVER_ACCEPTED)
 
     def sequential_processor(self):
-        if self.current_trip.has_next_route():
+        if self.current_route is not None and self.current_route.order.status < OrderStatus.READY:
+            # print(f"Driver {self.coordinates} is waiting for "
+            #       f"order {self.current_route.coordinates} "
+            #       f"status {self.current_route.order.status.name} "
+            #       f"estimated time {self.current_route.order.estimated_time_to_ready} "
+            #       f"ready time {self.current_route.order.time_it_was_ready} "
+            #       f"current time {self.environment.now}")
+            yield self.environment.timeout(1)
+            self.environment.process(self.sequential_processor())
+        elif self.current_trip.has_next_route():
             route = self.current_trip.next_route()
             self.current_route = route
             if route.route_type is RouteType.COLLECT:

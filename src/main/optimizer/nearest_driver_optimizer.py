@@ -5,6 +5,8 @@ from src.main.trip.trip import Trip
 
 
 class NearestDriverOptimizer(Optimizer):
+    def __init__(self, use_estimate=False, time_shift=1):
+        super().__init__(use_estimate=use_estimate, time_shift=time_shift)
 
     def compare_distance(self, env: FoodDeliveryEnvironment, driver: Driver, trip: Trip):
         return env.map.distance(trip.routes[0].coordinates, driver.coordinates)

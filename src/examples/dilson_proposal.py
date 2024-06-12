@@ -18,7 +18,7 @@ def run():
             InitialDriverGenerator(20),
             TimeShiftOrderRestaurantRateGenerator(lambda time: 1),
         ],
-        optimizer=RandomDriverOptimizer()
+        optimizer=RandomDriverOptimizer(use_estimate=True)
     )
 
     grid_view = GridView(environment)

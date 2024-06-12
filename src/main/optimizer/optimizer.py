@@ -9,8 +9,9 @@ from src.main.trip.trip import Trip
 
 class Optimizer(TimeShiftGenerator, ABC):
 
-    def __init__(self, time_shift=1):
+    def __init__(self, use_estimate=False, time_shift=1):
         super().__init__(time_shift=time_shift)
+        self.use_estimate = use_estimate
 
     @abstractmethod
     def select_driver(self, env: FoodDeliveryEnvironment, trip: Trip):
@@ -28,6 +29,8 @@ class Optimizer(TimeShiftGenerator, ABC):
                 driver.request_delivery(trip)
             elif rejected:
                 env.add_rejected_delivery(order)
+            elif self.use_estimate:
+                env.add_estimated_order(order)
             else:
                 env.add_ready_order(order)
 
@@ -35,8 +38,12 @@ class Optimizer(TimeShiftGenerator, ABC):
         orders = yield env.process(env.get_rejected_deliveries())
         self.process_orders(env, orders, rejected=True)
 
-        orders = yield env.process(env.get_ready_orders())
-        self.process_orders(env, orders)
+        if self.use_estimate:
+            orders = yield env.process(env.get_estimated_orders())
+            self.process_orders(env, orders)
+        else:
+            orders = yield env.process(env.get_ready_orders())
+            self.process_orders(env, orders)
 
     def run(self, env: FoodDeliveryEnvironment):
         env.process(self.optimize(env))

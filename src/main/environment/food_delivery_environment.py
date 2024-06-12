@@ -16,6 +16,8 @@ class FoodDeliveryEnvironment(simpy.Environment):
         self.ready_orders = simpy.FilterStore(self)
         # Order deliveries rejected by driver
         self.rejected_deliveries = simpy.FilterStore(self)
+        # Order preparation estimate
+        self.estimated_orders = simpy.FilterStore(self)
 
         self.generators = generators
         self.optimizer = optimizer
@@ -55,6 +57,16 @@ class FoodDeliveryEnvironment(simpy.Environment):
             order = yield self.rejected_deliveries.get()
             rejected_orders.append(order)
         return rejected_orders
+
+    def add_estimated_order(self, order):
+        self.estimated_orders.put(order)
+
+    def get_estimated_orders(self):
+        estimated_orders = []
+        while len(self.estimated_orders.items) > 0:
+            order = yield self.estimated_orders.get()
+            estimated_orders.append(order)
+        return estimated_orders
 
     def add_event(self, event):
         self.events.append(event)
