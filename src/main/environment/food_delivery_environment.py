@@ -1,16 +1,19 @@
 import simpy
-from simpy import AllOf
 
 from src.main.environment.food_delivery_state import FoodDeliveryState
 from src.main.map.map import Map
+from src.main.view.food_delivery_view import FoodDeliveryView
 
 
 class FoodDeliveryEnvironment(simpy.Environment):
-    def __init__(self, map: Map, generators, optimizer):
+    def __init__(self, map: Map, generators, optimizer, view: FoodDeliveryView = None):
         super().__init__()
         self.map = map
+        self.generators = generators
+        self.optimizer = optimizer
         self.state = FoodDeliveryState()
         self.events = []
+        self.view = view
 
         # Orders ready for collection
         self.ready_orders = simpy.FilterStore(self)
@@ -19,8 +22,6 @@ class FoodDeliveryEnvironment(simpy.Environment):
         # Order preparation estimate
         self.estimated_orders = simpy.FilterStore(self)
 
-        self.generators = generators
-        self.optimizer = optimizer
         self.init()
 
     def add_clients(self, clients):
@@ -81,3 +82,14 @@ class FoodDeliveryEnvironment(simpy.Environment):
     def log_events(self):
         for event in self.events:
             print(event)
+
+    def run(self, *args, **kwargs):
+        if 'until' in kwargs and self.view is not None:
+            until = kwargs['until']
+            running = True
+            while self.now < until and running:
+                running = self.view.render(self)
+                super().run(until=self.now + 1)
+            self.view.quit()
+        else:
+            super().run(*args, **kwargs)

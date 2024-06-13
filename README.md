@@ -8,6 +8,7 @@
 
 ### Execute `pip install simpy`
 ### Execute `pip install matplotlib`
+### Execute `pip install pygame`
 
 ## Run project
 

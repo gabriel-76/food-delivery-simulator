@@ -7,7 +7,7 @@ from src.main.generator.initial_order_generator import InitialOrderGenerator
 from src.main.generator.initial_restaurant_generator import InitialRestaurantGenerator
 from src.main.map.grid_map import GridMap
 from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
-from src.main.statistic.grid_view import GridView
+from src.main.view.grid_view_matplotlib import GridViewMatplotlib
 
 
 def main():
@@ -19,18 +19,10 @@ def main():
             InitialDriverGenerator(10),
             InitialOrderGenerator(10)
         ],
-        optimizer=RandomDriverOptimizer()
+        optimizer=RandomDriverOptimizer(),
+        view=GridViewMatplotlib()
     )
-
-    grid_view = GridView(environment)
-
-    for util in range(1, 100):
-        environment.run(until=util)
-        grid_view.view()
-        plt.pause(0.5)
-
-    plt.ioff()
-    plt.show()
+    environment.run(100)
 
 
 if __name__ == '__main__':
