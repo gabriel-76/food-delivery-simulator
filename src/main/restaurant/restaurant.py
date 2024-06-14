@@ -3,7 +3,7 @@ import uuid
 
 import simpy
 
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.estimated_order_preparation_time import EstimatedOrderPreparationTime
 from src.main.events.restaurant_accepted_order import RestaurantAcceptedOrder
 from src.main.events.restaurant_finished_order import RestaurantFinishedOrder
@@ -17,7 +17,7 @@ from src.main.restaurant.catalog import Catalog
 class Restaurant:
     def __init__(
             self,
-            environment: FoodDeliveryEnvironment,
+            environment: FoodDeliverySimpyEnv,
             coordinates,
             available: bool,
             catalog: Catalog,

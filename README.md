@@ -9,6 +9,7 @@
 ### Execute `pip install simpy`
 ### Execute `pip install matplotlib`
 ### Execute `pip install pygame`
+### Execute `pip install gymnasium`
 
 ## Run project
 
@@ -23,3 +24,4 @@
 ### Execute `python -m src.examples.parable`
 ### Execute `python -m src.examples.grid_map_view`
 ### Execute `python -m src.examples.dilson_proposal`
+### Execute `python -m src.examples.gymnasium_env`

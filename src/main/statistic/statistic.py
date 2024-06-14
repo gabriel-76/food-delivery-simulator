@@ -2,12 +2,12 @@ from collections import defaultdict
 
 import matplotlib.pyplot as plt
 
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.event_type import EventType
 
 
 class Statistic:
-    def __init__(self, environment: FoodDeliveryEnvironment):
+    def __init__(self, environment: FoodDeliverySimpyEnv):
         self.environment = environment
 
     def view(self):

@@ -1,7 +1,7 @@
 import random
 from datetime import datetime
 
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_generator import InitialGenerator
 from src.main.order.order import Order
 
@@ -10,7 +10,7 @@ class InitialOrderGenerator(InitialGenerator):
     def __init__(self, num_orders):
         self.num_orders = num_orders
 
-    def run(self, env: FoodDeliveryEnvironment):
+    def run(self, env: FoodDeliverySimpyEnv):
         for _ in range(self.num_orders):
             restaurant = random.choice(env.state.restaurants)
             client = random.choice(env.state.clients)

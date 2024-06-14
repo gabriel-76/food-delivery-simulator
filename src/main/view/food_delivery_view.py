@@ -10,6 +10,7 @@ class FoodDeliveryView(ABC):
         self.max_x = 100
         self.min_y = 0
         self.max_y = 100
+        self.quited = False
 
     @abstractmethod
     def render(self, environment) -> bool: pass

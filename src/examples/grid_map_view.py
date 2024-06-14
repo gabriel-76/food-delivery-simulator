@@ -1,4 +1,4 @@
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_client_generator import InitialClientGenerator
 from src.main.generator.initial_driver_generator import InitialDriverGenerator
 from src.main.generator.initial_order_generator import InitialOrderGenerator
@@ -9,7 +9,7 @@ from src.main.view.grid_view_matplotlib import GridViewMatplotlib
 
 
 def main():
-    environment = FoodDeliveryEnvironment(
+    environment = FoodDeliverySimpyEnv(
         map=GridMap(100),
         generators=[
             InitialClientGenerator(10),
@@ -20,7 +20,7 @@ def main():
         optimizer=RandomDriverOptimizer(),
         view=GridViewMatplotlib()
     )
-    environment.run(100)
+    environment.run(100, render_mode='human')
 
 
 if __name__ == '__main__':

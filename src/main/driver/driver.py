@@ -5,7 +5,7 @@ import simpy
 
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver_status import DriverStatus
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.driver_accepted_trip import DriverAcceptedTrip
 from src.main.events.driver_accepted_trip_extension import DriverAcceptedTripExtension
 from src.main.events.driver_arrived_delivery_location import DriverArrivedDeliveryLocation
@@ -23,7 +23,7 @@ from src.main.trip.trip import Trip
 class Driver:
     def __init__(
             self,
-            environment: FoodDeliveryEnvironment,
+            environment: FoodDeliverySimpyEnv,
             coordinates,
             capacity: Capacity,
             available: bool,

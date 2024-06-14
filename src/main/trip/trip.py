@@ -2,13 +2,13 @@ import uuid
 from functools import reduce
 
 from src.main.base.dimensions import Dimensions
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.order.order import Order
 from src.main.trip.route import Route, RouteType
 
 
 class Trip:
-    def __init__(self, environment: FoodDeliveryEnvironment, routes: [Route]):
+    def __init__(self, environment: FoodDeliverySimpyEnv, routes: [Route]):
         self.tripe_id = uuid.uuid4()
         self.environment = environment
         self.routes = routes
