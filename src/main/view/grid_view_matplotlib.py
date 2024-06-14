@@ -17,12 +17,14 @@ class GridViewMatplotlib(FoodDeliveryView):
         super().__init__()
         plt.ion()
         self.fig, self.ax = plt.subplots()
+        self.rendering = True
 
     def render(self, environment):
         x_restaurants, y_restaurants = extract_coordinates(environment.state.restaurants)
         x_clients, y_clients = extract_coordinates(environment.state.clients)
         x_drivers, y_drivers = extract_coordinates(environment.state.drivers)
 
+        self.fig.canvas.mpl_connect('close_event', lambda evt: self.quit())
         self.ax.clear()
         circles = []
         for restaurant in environment.state.restaurants:
@@ -57,7 +59,8 @@ class GridViewMatplotlib(FoodDeliveryView):
         plt.pause(self.fps / 1000)
 
         plt.show()
-        return True
+        return self.rendering
 
     def quit(self):
+        self.rendering = False
         plt.ioff()

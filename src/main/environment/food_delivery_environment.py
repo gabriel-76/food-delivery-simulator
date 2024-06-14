@@ -1,4 +1,8 @@
+from typing import Optional, Union
+
 import simpy
+from simpy import Event
+from simpy.core import SimTime
 
 from src.main.environment.food_delivery_state import FoodDeliveryState
 from src.main.map.map import Map
@@ -83,13 +87,13 @@ class FoodDeliveryEnvironment(simpy.Environment):
         for event in self.events:
             print(event)
 
-    def run(self, *args, **kwargs):
-        if 'until' in kwargs and self.view is not None:
-            until = kwargs['until']
+    def run(self, until: Optional[Union[SimTime, Event]] = None):
+        if not isinstance(until, Event) and self.view is not None:
+            until = until if isinstance(until, int) else float(until)
             running = True
             while self.now < until and running:
                 running = self.view.render(self)
                 super().run(until=self.now + 1)
             self.view.quit()
         else:
-            super().run(*args, **kwargs)
+            super().run(until=until)

@@ -66,7 +66,6 @@ class Statistic:
             status_series[status] = (times, counts)
 
         # Plotar os dados
-        plt.figure(figsize=(30, 30))
         plt.figure()
         for status, (times, counts) in status_series.items():
             plt.plot(times, counts, label=status.name.lower())

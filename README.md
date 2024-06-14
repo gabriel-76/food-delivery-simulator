@@ -22,3 +22,4 @@
 
 ### Execute `python -m src.examples.parable`
 ### Execute `python -m src.examples.grid_map_view`
+### Execute `python -m src.examples.dilson_proposal`

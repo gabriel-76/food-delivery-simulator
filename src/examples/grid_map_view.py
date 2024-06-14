@@ -1,5 +1,3 @@
-from matplotlib import pyplot as plt
-
 from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
 from src.main.generator.initial_client_generator import InitialClientGenerator
 from src.main.generator.initial_driver_generator import InitialDriverGenerator

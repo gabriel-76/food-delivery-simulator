@@ -4,7 +4,7 @@ from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenera
 from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
 from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
 from src.main.map.grid_map import GridMap
-from src.main.optimizer.optimizer import Optimizer
+from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
 from src.main.statistic.statistic import Statistic
 
 a = -4/225
@@ -25,7 +25,7 @@ def run():
             TimeShiftDriverGenerator(lambda time: 3),
             TimeShiftOrderGenerator(lambda time: parable(time))
         ],
-        optimizer=Optimizer()
+        optimizer=RandomDriverOptimizer(use_estimate=True)
     )
 
     environment.run(until=2000)
