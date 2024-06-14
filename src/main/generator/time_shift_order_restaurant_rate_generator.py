@@ -1,5 +1,4 @@
 import random
-from datetime import datetime
 
 from src.main.base.geometry import point_in_gauss_circle
 from src.main.client.client import Client
