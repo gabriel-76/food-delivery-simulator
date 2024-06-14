@@ -53,6 +53,7 @@ class FoodDeliveryGymEnv(Env):
         return observation, reward, terminated, truncated, info
 
     def run(self, action):
+        self.simpy_env.run(until=self.simpy_env.now + 1)
         terminated = False
         truncated = False
         observation = self._get_obs()
@@ -63,7 +64,6 @@ class FoodDeliveryGymEnv(Env):
 
         reward = 1 if terminated else 0
 
-        self.simpy_env.run(until=self.simpy_env.now + 1)
         return observation, reward, terminated, truncated, info
 
     def render(self):
