@@ -2,7 +2,7 @@ import random
 import uuid
 
 from src.main.driver.driver import Driver
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.client_placed_order import ClientPlacedOrder
 from src.main.events.client_received_order import ClientReceivedOrder
 from src.main.order.order import Order
@@ -11,7 +11,7 @@ from src.main.restaurant.restaurant import Restaurant
 
 
 class Client:
-    def __init__(self, environment: FoodDeliveryEnvironment, coordinates, available: bool):
+    def __init__(self, environment: FoodDeliverySimpyEnv, coordinates, available: bool):
         self.client_id = uuid.uuid4()
         self.environment = environment
         self.coordinates = coordinates

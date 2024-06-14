@@ -2,14 +2,14 @@ import random
 
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver import Driver, DriverStatus
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.trip.trip import Trip
 
 
 class ReactiveDriver(Driver):
     def __init__(
             self,
-            environment: FoodDeliveryEnvironment,
+            environment: FoodDeliverySimpyEnv,
             coordinates, capacity: Capacity,
             available: bool,
             status: DriverStatus,

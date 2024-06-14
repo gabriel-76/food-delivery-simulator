@@ -1,6 +1,6 @@
 import random
 
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.restaurant.catalog import Catalog
 from src.main.restaurant.restaurant import Restaurant
 
@@ -8,7 +8,7 @@ from src.main.restaurant.restaurant import Restaurant
 class RestaurantOrderRate(Restaurant):
     def __init__(
             self,
-            environment: FoodDeliveryEnvironment,
+            environment: FoodDeliverySimpyEnv,
             coordinates,
             available: bool,
             catalog: Catalog,

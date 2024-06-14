@@ -1,6 +1,6 @@
 import unittest
 
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_client_generator import TimeShiftClientGenerator
 from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenerator
 from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
@@ -13,7 +13,7 @@ from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
 class TestBasic(unittest.TestCase):
 
     def runTest(self):
-        environment = FoodDeliveryEnvironment(
+        environment = FoodDeliverySimpyEnv(
             map=GridMap(100),
             generators=[
                 TimeShiftClientGenerator(lambda time: 3),

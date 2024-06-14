@@ -1,7 +1,6 @@
 from typing import Optional, Union
 
-import simpy
-from simpy import Event
+from simpy import Environment, Event, FilterStore
 from simpy.core import SimTime
 
 from src.main.environment.food_delivery_state import FoodDeliveryState
@@ -9,22 +8,23 @@ from src.main.map.map import Map
 from src.main.view.food_delivery_view import FoodDeliveryView
 
 
-class FoodDeliveryEnvironment(simpy.Environment):
+class FoodDeliverySimpyEnv(Environment):
     def __init__(self, map: Map, generators, optimizer, view: FoodDeliveryView = None):
         super().__init__()
         self.map = map
         self.generators = generators
         self.optimizer = optimizer
+
         self.state = FoodDeliveryState()
         self.events = []
         self.view = view
 
         # Orders ready for collection
-        self.ready_orders = simpy.FilterStore(self)
+        self.ready_orders = FilterStore(self)
         # Order deliveries rejected by driver
-        self.rejected_deliveries = simpy.FilterStore(self)
+        self.rejected_deliveries = FilterStore(self)
         # Order preparation estimate
-        self.estimated_orders = simpy.FilterStore(self)
+        self.estimated_orders = FilterStore(self)
 
         self.init()
 
@@ -87,13 +87,25 @@ class FoodDeliveryEnvironment(simpy.Environment):
         for event in self.events:
             print(event)
 
-    def run(self, until: Optional[Union[SimTime, Event]] = None):
-        if not isinstance(until, Event) and self.view is not None:
-            until = until if isinstance(until, int) else float(until)
-            running = True
-            while self.now < until and running:
-                running = self.view.render(self)
-                super().run(until=self.now + 1)
-            self.view.quit()
+    def run(self, until: Optional[Union[SimTime, Event]] = None, render_mode=None):
+        if render_mode == "human" and self.view is not None:
+            if not isinstance(until, Event):
+                until = until if isinstance(until, int) else float(until)
+                while self.now < until and not self.view.quited:
+                    self.view.render(self)
+                    super().run(until=self.now + 1)
+                if self.view.quited:
+                    self.view.quit()
         else:
             super().run(until=until)
+
+        if self.view is not None and self.view.quited:
+            self.view.quit()
+
+    def render(self):
+        if self.view is not None and not self.view.quited:
+            self.view.render(self)
+
+    def close(self):
+        if self.view is not None and not self.view.quited:
+            self.view.quit()

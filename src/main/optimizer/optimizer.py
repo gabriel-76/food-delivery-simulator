@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.order import Order
 from src.main.trip.route import Route, RouteType
@@ -14,10 +14,10 @@ class Optimizer(TimeShiftGenerator, ABC):
         self.use_estimate = use_estimate
 
     @abstractmethod
-    def select_driver(self, env: FoodDeliveryEnvironment, trip: Trip):
+    def select_driver(self, env: FoodDeliverySimpyEnv, trip: Trip):
         pass
 
-    def process_orders(self, env: FoodDeliveryEnvironment, orders: [Order], rejected=False):
+    def process_orders(self, env: FoodDeliverySimpyEnv, orders: [Order], rejected=False):
         for order in orders:
             route_collect = Route(RouteType.COLLECT, order)
             route_delivery = Route(RouteType.DELIVERY, order)
@@ -34,7 +34,7 @@ class Optimizer(TimeShiftGenerator, ABC):
             else:
                 env.add_ready_order(order)
 
-    def optimize(self, env: FoodDeliveryEnvironment):
+    def optimize(self, env: FoodDeliverySimpyEnv):
         orders = yield env.process(env.get_rejected_deliveries())
         self.process_orders(env, orders, rejected=True)
 
@@ -45,5 +45,5 @@ class Optimizer(TimeShiftGenerator, ABC):
             orders = yield env.process(env.get_ready_orders())
             self.process_orders(env, orders)
 
-    def run(self, env: FoodDeliveryEnvironment):
+    def run(self, env: FoodDeliverySimpyEnv):
         env.process(self.optimize(env))

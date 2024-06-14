@@ -20,6 +20,7 @@ class GridViewPygame(FoodDeliveryView):
     def __init__(self, window_size=(800, 600), fps=30):
         super().__init__(window_size, fps)
         pygame.init()
+        pygame.display.init()
         self.screen = pygame.display.set_mode(window_size)
         self.clock = pygame.time.Clock()
         pygame.display.set_caption('Mapa de Restaurantes, Clientes e Motoristas')
@@ -30,34 +31,43 @@ class GridViewPygame(FoodDeliveryView):
 
     def render(self, environment):
 
+        self.quited = False
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return False
+                self.quited = True
 
-        self.screen.fill(WHITE)
+        if self.quited:
+            return
+
+        canvas = pygame.Surface(self.window_size)
+
+        canvas.fill(WHITE)
 
         for client in environment.state.clients:
             mapped_x, mapped_y = self.coordinates(client.coordinates)
-            pygame.draw.circle(self.screen, BLUE, (int(mapped_x), int(mapped_y)), 5)
+            pygame.draw.circle(canvas, BLUE, (int(mapped_x), int(mapped_y)), 5)
 
         for restaurant in environment.state.restaurants:
             mapped_x, mapped_y = self.coordinates(restaurant.coordinates)
-            pygame.draw.circle(self.screen, GREEN, (int(mapped_x), int(mapped_y)), 5)
+            pygame.draw.circle(canvas, GREEN, (int(mapped_x), int(mapped_y)), 5)
 
             if hasattr(restaurant, "operating_radius"):
                 operating_radius_mapped = map_coordinates(restaurant.operating_radius, 0, 100, 0, min(self.window_size))
-                pygame.draw.circle(self.screen, GREEN, (int(mapped_x), int(mapped_y)), int(operating_radius_mapped), 1)
+                pygame.draw.circle(canvas, GREEN, (int(mapped_x), int(mapped_y)), int(operating_radius_mapped), 1)
 
         for driver in environment.state.drivers:
             mapped_x, mapped_y = self.coordinates(driver.coordinates)
-            pygame.draw.circle(self.screen, RED, (int(mapped_x), int(mapped_y)), 5)
+            pygame.draw.circle(canvas, RED, (int(mapped_x), int(mapped_y)), 5)
             if driver.status in [DriverStatus.COLLECTING, DriverStatus.DELIVERING]:
                 target_mapped_x, target_mapped_y = self.coordinates(driver.current_route.coordinates)
-                pygame.draw.line(self.screen, RED, (mapped_x, mapped_y), (target_mapped_x, target_mapped_y), 2)
+                pygame.draw.line(canvas, RED, (mapped_x, mapped_y), (target_mapped_x, target_mapped_y), 2)
 
-        pygame.display.flip()
+        self.screen.blit(canvas, canvas.get_rect())
+        # pygame.event.pump()
+        pygame.display.update()
         self.clock.tick(self.fps)
-        return True
 
     def quit(self):
+        pygame.display.quit()
         pygame.quit()
