@@ -1,5 +1,3 @@
-import random
-
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.optimizer.optimizer import Optimizer
 from src.main.trip.trip import Trip

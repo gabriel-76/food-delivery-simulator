@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from src.main.coast.cost_function import CostFunction
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.order import Order
@@ -9,9 +10,10 @@ from src.main.trip.trip import Trip
 
 class Optimizer(TimeShiftGenerator, ABC):
 
-    def __init__(self, use_estimate=False, time_shift=1):
+    def __init__(self, cost_function: CostFunction | None = None, use_estimate=False, time_shift=1):
         super().__init__(time_shift=time_shift)
         self.use_estimate = use_estimate
+        self.cost_function = cost_function
 
     @abstractmethod
     def select_driver(self, env: FoodDeliverySimpyEnv, trip: Trip):

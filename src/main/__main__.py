@@ -1,5 +1,6 @@
 import random
 
+from src.main.coast.simple_cost_function import SimpleCostFunction
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_client_generator import TimeShiftClientGenerator
 from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenerator
@@ -22,7 +23,7 @@ def main():
             TimeShiftDriverGenerator(lambda time: 10),
             TimeShiftOrderGenerator(lambda time: time * 2 if time <= 100 else 1)
         ],
-        optimizer=NearestDriverOptimizer(),
+        optimizer=NearestDriverOptimizer(SimpleCostFunction()),
         # view=GridViewMatplotlib()
     )
     environment.run(until=200)
