@@ -6,6 +6,7 @@ import simpy
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver_status import DriverStatus
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.events.driver_accepted_delivery import DriverAcceptedDelivery
 from src.main.events.driver_accepted_trip import DriverAcceptedTrip
 from src.main.events.driver_accepted_trip_extension import DriverAcceptedTripExtension
 from src.main.events.driver_arrived_delivery_location import DriverArrivedDeliveryLocation
@@ -13,6 +14,7 @@ from src.main.events.driver_collected_order import DriverCollectedOrder
 from src.main.events.driver_collecting_order import DriverCollectingOrder
 from src.main.events.driver_delivered_order import DriverDeliveredOrder
 from src.main.events.driver_delivering_order import DriverDeliveringOrder
+from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
 from src.main.events.driver_rejected_trip import DriverRejectedTrip
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
@@ -70,6 +72,15 @@ class Driver:
             )
             self.environment.add_event(event)
             for route in self.current_trip.routes:
+                event = DriverAcceptedDelivery(
+                    driver_id=self.driver_id,
+                    order_id=route.order.order_id,
+                    client_id=route.order.client.client_id,
+                    restaurant_id=route.order.restaurant.restaurant_id,
+                    distance=self.current_trip.distance,
+                    time=self.environment.now
+                )
+                self.environment.add_event(event)
                 route.order.update_status(OrderStatus.DRIVER_ACCEPTED)
             self.environment.process(self.sequential_processor())
         else:
@@ -88,6 +99,16 @@ class Driver:
         self.environment.add_event(event)
         for route in self.current_trip.routes:
             route.order.update_status(OrderStatus.DRIVER_ACCEPTED)
+        for route in trip.routes:
+            event = DriverAcceptedDelivery(
+                driver_id=self.driver_id,
+                order_id=route.order.order_id,
+                client_id=route.order.client.client_id,
+                restaurant_id=route.order.restaurant.restaurant_id,
+                distance=self.current_trip.distance,
+                time=self.environment.now
+            )
+            self.environment.add_event(event)
 
     def sequential_processor(self):
         if self.current_route is not None and self.current_route.order.status < OrderStatus.READY:
@@ -121,6 +142,14 @@ class Driver:
         )
         self.environment.add_event(event)
         for route in trip.routes:
+            event = DriverRejectedDelivery(
+                driver_id=self.driver_id,
+                order_id=route.order.order_id,
+                client_id=route.order.client.client_id,
+                restaurant_id=route.order.restaurant.restaurant_id,
+                time=self.environment.now
+            )
+            self.environment.add_event(event)
             route.order.update_status(OrderStatus.DRIVER_REJECTED)
             self.environment.add_rejected_delivery(route.order)
 

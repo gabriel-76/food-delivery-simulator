@@ -9,6 +9,7 @@ from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaura
 from src.main.map.grid_map import GridMap
 from src.main.optimizer.nearest_driver_optimizer import NearestDriverOptimizer
 from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
+from src.main.statistic.delay_metric import DelayMetric
 from src.main.statistic.statistic import Statistic
 from src.main.view.grid_view_matplotlib import GridViewMatplotlib
 from src.main.view.grid_view_pygame import GridViewPygame
@@ -29,8 +30,11 @@ def main():
     environment.run(until=200)
     # environment.log_events()
 
-    statistic = Statistic(environment)
-    statistic.view()
+    # statistic = Statistic(environment)
+    # statistic.view()
+
+    delay_metric = DelayMetric(environment)
+    delay_metric.metric()
 
 
 if __name__ == '__main__':
