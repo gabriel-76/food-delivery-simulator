@@ -1,3 +1,4 @@
+from src.main.coast.cost_function import cost
 from src.main.driver.driver import Driver
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.optimizer.optimizer import Optimizer
@@ -9,7 +10,7 @@ class NearestDriverOptimizer(Optimizer):
         super().__init__(use_estimate=use_estimate, time_shift=time_shift)
 
     def compare_distance(self, env: FoodDeliverySimpyEnv, driver: Driver, trip: Trip):
-        return env.map.distance(trip.routes[0].coordinates, driver.coordinates)
+        return cost(env.map, driver, trip.routes[0])
 
     def select_driver(self, env: FoodDeliverySimpyEnv, trip: Trip):
         drivers = env.available_drivers(trip)
