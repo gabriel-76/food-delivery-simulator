@@ -41,6 +41,7 @@ class Driver:
         self.movement_rate = movement_rate
         self.current_trip = None
         self.current_route = None
+        self.total_distance = 0
         self.requests = simpy.Store(self.environment)
 
         self.environment.process(self.process_requests())
@@ -156,6 +157,7 @@ class Driver:
     def start_order_collection(self, order):
         self.status = DriverStatus.COLLECTING
         order.update_status(OrderStatus.COLLECTING)
+        self.total_distance += self.environment.map.distance(self.coordinates, order.restaurant.coordinates)
         event = DriverCollectingOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
@@ -183,6 +185,7 @@ class Driver:
     def start_order_delivery(self, order: Order):
         self.status = DriverStatus.DELIVERING
         order.update_status(OrderStatus.DELIVERING)
+        self.total_distance += self.environment.map.distance(self.coordinates, order.client.coordinates)
         event = DriverDeliveringOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,

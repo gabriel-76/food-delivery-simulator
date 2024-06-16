@@ -10,9 +10,10 @@ from src.main.map.grid_map import GridMap
 from src.main.optimizer.nearest_driver_optimizer import NearestDriverOptimizer
 from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
 from src.main.statistic.delay_metric import DelayMetric
+from src.main.statistic.distance_metric import DistanceMetric
 from src.main.statistic.statistic import Statistic
 from src.main.view.grid_view_matplotlib import GridViewMatplotlib
-from src.main.view.grid_view_pygame import GridViewPygame
+# from src.main.view.grid_view_pygame import GridViewPygame
 
 
 def main():
@@ -25,7 +26,7 @@ def main():
             TimeShiftOrderGenerator(lambda time: time * 2 if time <= 100 else 1)
         ],
         optimizer=NearestDriverOptimizer(SimpleCostFunction()),
-        # view=GridViewMatplotlib()
+        view=GridViewMatplotlib()
     )
     environment.run(until=200)
     # environment.log_events()
@@ -35,6 +36,11 @@ def main():
 
     delay_metric = DelayMetric(environment)
     delay_metric.metric()
+
+    print()
+
+    distance_metric = DistanceMetric(environment)
+    distance_metric.metric()
 
 
 if __name__ == '__main__':

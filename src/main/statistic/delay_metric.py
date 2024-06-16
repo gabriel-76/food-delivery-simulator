@@ -15,6 +15,7 @@ class DelayMetric:
             EventType.DRIVER_ACCEPTED_DELIVERY,
             EventType.DRIVER_DELIVERED_ORDER
         ], self.environment.events))
+
         # Dicionário para armazenar os tempos de cada evento por order_id
         order_events = defaultdict(dict)
 
@@ -37,13 +38,22 @@ class DelayMetric:
         # for order_id, time_difference in time_differences.items():
         #     print(f"Order ID: {order_id} - Time Difference: {time_difference}")
 
-        p1 = np.percentile(list(time_differences.values()), 1)
-        p10 = np.percentile(list(time_differences.values()), 10)
-        p50 = np.percentile(list(time_differences.values()), 50)
-        p90 = np.percentile(list(time_differences.values()), 90)
-        p99 = np.percentile(list(time_differences.values()), 99)
+        times = time_differences.values()
+
+        min_time = min(times)
+        p1 = np.percentile(list(times), 1)
+        p10 = np.percentile(list(times), 10)
+        p50 = np.percentile(list(times), 50)
+        p90 = np.percentile(list(times), 90)
+        p95 = np.percentile(list(times), 95)
+        p99 = np.percentile(list(times), 99)
+        max_time = max(times)
+
+        print(f"Min time: {min_time}")
         print(f"01th percentile: {p1}")
         print(f"10th percentile: {p10}")
         print(f"50th percentile: {p50}")
         print(f"90th percentile: {p90}")
+        print(f"95th percentile: {p95}")
         print(f"99th percentile: {p99}")
+        print(f"Max time: {max_time}")
