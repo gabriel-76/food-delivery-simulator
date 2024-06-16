@@ -3,7 +3,7 @@ import uuid
 
 import simpy
 
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.estimated_order_preparation_time import EstimatedOrderPreparationTime
 from src.main.events.restaurant_accepted_order import RestaurantAcceptedOrder
 from src.main.events.restaurant_finished_order import RestaurantFinishedOrder
@@ -17,7 +17,7 @@ from src.main.restaurant.catalog import Catalog
 class Restaurant:
     def __init__(
             self,
-            environment: FoodDeliveryEnvironment,
+            environment: FoodDeliverySimpyEnv,
             coordinates,
             available: bool,
             catalog: Catalog,
@@ -66,7 +66,7 @@ class Restaurant:
         )
         self.environment.add_event(event)
         estimated_time = self.estimate_preparation_time(order)
-        order.restaurant_accepted(estimated_time)
+        order.restaurant_accepted(self.environment.now + estimated_time)
         self.update_overload_time(estimated_time)
         self.confirmed_orders.put(order)
 
@@ -95,6 +95,7 @@ class Restaurant:
             time=self.environment.now
         )
         self.environment.add_event(event)
+        self.environment.add_estimated_order(order)
         return estimated_time
 
     def reject_order(self, order):
@@ -125,7 +126,9 @@ class Restaurant:
         )
         self.environment.add_event(event)
         order.update_status(OrderStatus.PREPARING)
-        yield self.environment.timeout(self.time_to_prepare_order(order))
+        time_to_prepare = self.time_to_prepare_order(order)
+        order.time_it_was_ready = self.environment.now + time_to_prepare
+        yield self.environment.timeout(time_to_prepare)
         self.finish_order(order)
 
     def finish_order(self, order):

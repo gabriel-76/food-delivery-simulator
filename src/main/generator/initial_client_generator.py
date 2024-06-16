@@ -1,5 +1,5 @@
 from src.main.client.client import Client
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_generator import InitialGenerator
 
 
@@ -7,7 +7,7 @@ class InitialClientGenerator(InitialGenerator):
     def __init__(self, num_clients):
         self.num_clients = num_clients
 
-    def run(self, env: FoodDeliveryEnvironment):
+    def run(self, env: FoodDeliverySimpyEnv):
         clients = [
             Client(
                 environment=env,

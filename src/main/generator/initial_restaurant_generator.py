@@ -1,5 +1,5 @@
 from src.main.base.dimensions import Dimensions
-from src.main.environment.food_delivery_environment import FoodDeliveryEnvironment
+from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_generator import InitialGenerator
 from src.main.order.item import Item
 from src.main.restaurant.catalog import Catalog
@@ -10,7 +10,7 @@ class InitialRestaurantGenerator(InitialGenerator):
     def __init__(self, num_restaurants):
         self.num_restaurants = num_restaurants
 
-    def run(self, env: FoodDeliveryEnvironment):
+    def run(self, env: FoodDeliverySimpyEnv):
         dimension = Dimensions(1, 1, 1, 1)
         catalog = Catalog([Item(f"type_{i}", dimension, 4) for i in range(5)])
         restaurants = [
