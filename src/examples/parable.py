@@ -5,7 +5,10 @@ from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerato
 from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
 from src.main.map.grid_map import GridMap
 from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
-from src.main.statistic.statistic import Statistic
+from src.main.statistic.custom_board import CustomBoard
+from src.main.statistic.driver_status_metric import DriverStatusMetric
+from src.main.statistic.order_curve_metric import OrderCurveMetric
+from src.main.statistic.order_status_metric import OrderStatusMetric
 
 a = -4/225
 b = 250
@@ -27,11 +30,14 @@ def run():
         ],
         optimizer=RandomDriverOptimizer(use_estimate=True)
     )
-
     environment.run(until=2000)
 
-    statistic = Statistic(environment)
-    statistic.view()
+    custom_board = CustomBoard(metrics=[
+        DriverStatusMetric(environment),
+        OrderStatusMetric(environment),
+        OrderCurveMetric(environment)
+    ])
+    custom_board.view()
 
 
 if __name__ == '__main__':

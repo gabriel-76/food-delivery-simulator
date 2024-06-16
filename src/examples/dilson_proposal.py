@@ -4,7 +4,10 @@ from src.main.generator.initial_restaurant_order_reate_generator import InitialR
 from src.main.generator.time_shift_order_restaurant_rate_generator import TimeShiftOrderRestaurantRateGenerator
 from src.main.map.grid_map import GridMap
 from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
-from src.main.statistic.statistic import Statistic
+from src.main.statistic.custom_board import CustomBoard
+from src.main.statistic.driver_status_metric import DriverStatusMetric
+from src.main.statistic.order_curve_metric import OrderCurveMetric
+from src.main.statistic.order_status_metric import OrderStatusMetric
 
 
 def run():
@@ -19,8 +22,12 @@ def run():
     )
     environment.run(100)
 
-    statistic = Statistic(environment)
-    statistic.view()
+    custom_board = CustomBoard(metrics=[
+        DriverStatusMetric(environment),
+        OrderStatusMetric(environment),
+        OrderCurveMetric(environment)
+    ])
+    custom_board.view()
 
 
 if __name__ == '__main__':
