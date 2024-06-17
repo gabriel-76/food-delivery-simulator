@@ -1,1 +1,5 @@
 simpy
+matplotlib
+pygame
+gymnasium
+numpy
