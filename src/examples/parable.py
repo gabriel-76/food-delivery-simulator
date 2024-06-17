@@ -6,9 +6,12 @@ from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaura
 from src.main.map.grid_map import GridMap
 from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
 from src.main.statistic.custom_board import CustomBoard
+from src.main.statistic.delay_metric import DelayMetric
+from src.main.statistic.distance_metric import DistanceMetric
 from src.main.statistic.driver_status_metric import DriverStatusMetric
 from src.main.statistic.order_curve_metric import OrderCurveMetric
 from src.main.statistic.order_status_metric import OrderStatusMetric
+from src.main.statistic.total_metric import TotalMetric
 
 a = -4/225
 b = 250
@@ -33,9 +36,12 @@ def run():
     environment.run(until=2000)
 
     custom_board = CustomBoard(metrics=[
+        OrderCurveMetric(environment),
+        TotalMetric(environment),
+        DistanceMetric(environment),
+        DelayMetric(environment),
         DriverStatusMetric(environment),
         OrderStatusMetric(environment),
-        OrderCurveMetric(environment)
     ])
     custom_board.view()
 
