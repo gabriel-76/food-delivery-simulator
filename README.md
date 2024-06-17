@@ -10,6 +10,7 @@
 ### Execute `pip install matplotlib`
 ### Execute `pip install pygame`
 ### Execute `pip install gymnasium`
+### Execute `pip install numpy`
 
 ## Run project
 

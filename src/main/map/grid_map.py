@@ -7,15 +7,21 @@ from src.main.map.map import Map
 class GridMap(Map):
     def __init__(self, size):
         super().__init__(size)
+        self.generated_points = {}
 
     def distance(self, coord1, coord2):
-        return abs(coord1[0] - coord2[0]) + abs(coord1[1] - coord2[1])
+        return max(abs(coord1[0] - coord2[0]) + abs(coord1[1] - coord2[1]), 1)
 
     def estimated_time(self, coord1, coord2, rate):
         return round(self.distance(coord1, coord2) / rate)
 
-    def random_point(self):
-        return random.randrange(self.size), random.randrange(self.size)
+    def random_point(self, not_repeated=False):
+        point = random.randrange(self.size), random.randrange(self.size)
+        if not_repeated:
+            while point in self.generated_points:
+                point = random.randrange(self.size), random.randrange(self.size)
+            self.generated_points[point] = True
+        return point
 
     def move(self, origin, destination, rate):
 
