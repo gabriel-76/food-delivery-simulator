@@ -37,9 +37,9 @@ class OrderCurveMetric(Metric):
             ax.plot(times, counts, label=status.name.lower())
 
         # Configurações do gráfico
-        ax.set_xlabel('Tempo')
-        ax.set_ylabel('Quantidade')
-        ax.set_title('Quantidade por Status ao Longo do Tempo')
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Number of orders')
+        ax.set_title('Number of orders by state over time')
         ax.legend(title='Status')
         ax.grid(False)
         # plt.show()

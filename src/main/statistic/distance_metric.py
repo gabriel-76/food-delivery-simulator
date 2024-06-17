@@ -4,14 +4,16 @@ import numpy as np
 
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.event_type import EventType
+from src.main.statistic.metric import Metric
 
 
-class DistanceMetric:
+class DistanceMetric(Metric):
 
-    def __init__(self, environment: FoodDeliverySimpyEnv):
-        self.environment = environment
+    def __init__(self, environment: FoodDeliverySimpyEnv, table=False):
+        super().__init__(environment)
+        self.table = table
 
-    def metric(self):
+    def view(self, ax) -> None:
         events = list(filter(lambda env: env.event_type in [
             EventType.DRIVER_COLLECTING_ORDER,
             EventType.DRIVER_DELIVERING_ORDER,
@@ -76,3 +78,21 @@ class DistanceMetric:
         print(f"95th percentile: {p95}")
         print(f"99th percentile: {p99}")
         print(f"Max distance: {max_distance}")
+
+        labels = ['Min ', '01th', '10th', '50th', '90th', '95th', '99th', 'Max']
+        values = [min_distance, p1, p10, p50, p90, p95, p99, max_distance]
+
+        ax.set_title('Total distance traveled percentile')
+
+        if self.table:
+            ax.axis('tight')
+            ax.axis('off')
+            table_data = [[label, value] for label, value in zip(labels, values)]
+            table = ax.table(cellText=table_data, colLabels=['Entities', 'Total'], cellLoc='center', loc='center')
+            # table.auto_set_font_size(False)
+            # table.set_fontsize(12)
+            # table.scale(1.2, 1.2)
+        else:
+            ax.barh(labels, values, align='center')
+            ax.set_xlabel('Percentile')
+            ax.set_ylabel('Entities')

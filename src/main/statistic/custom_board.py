@@ -13,7 +13,7 @@ class CustomBoard(Board):
 
     def view(self) -> None:
         fig = plt.figure(figsize=(10, 8))
-        gs = fig.add_gridspec(ceil(len(self.metrics) / 2), 2)
+        gs = fig.add_gridspec(ceil(len(self.metrics) / 2) + 1, 2)
 
         # Primeiro gráfico ocupa todas as colunas da primeira linha
         ax1 = fig.add_subplot(gs[0, :])
@@ -25,6 +25,15 @@ class CustomBoard(Board):
 
         ax3 = fig.add_subplot(gs[1, 1])
         self.metrics[2].view(ax3)
+
+        ax4 = fig.add_subplot(gs[2, 0])
+        self.metrics[3].view(ax4)
+
+        ax5 = fig.add_subplot(gs[2, 1])
+        self.metrics[4].view(ax5)
+
+        ax6 = fig.add_subplot(gs[3, 0])
+        self.metrics[5].view(ax6)
 
         # Ajustar o layout para evitar sobreposição
         plt.tight_layout()

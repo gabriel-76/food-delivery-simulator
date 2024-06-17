@@ -30,13 +30,13 @@ class TotalMetric(Metric):
             ax.axis('off')
             table_data = [[label, value] for label, value in zip(labels, values)]
             table = ax.table(cellText=table_data, colLabels=['Entities', 'Total'], cellLoc='center', loc='center')
-            table.auto_set_font_size(False)
-            table.set_fontsize(12)
-            table.scale(1.2, 1.2)
+            # table.auto_set_font_size(False)
+            # table.set_fontsize(12)
+            # table.scale(1.2, 1.2)
         else:
             ax.barh(labels, values, align='center')
-            ax.set_xlabel('Entities')
-            ax.set_ylabel('Total')
+            ax.set_xlabel('Total')
+            ax.set_ylabel('Entities')
 
 
 
