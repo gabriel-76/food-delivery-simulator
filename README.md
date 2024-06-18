@@ -11,6 +11,7 @@
 ### Execute `pip install pygame`
 ### Execute `pip install gymnasium`
 ### Execute `pip install numpy`
+### Execute `pip install ortools`
 
 ## Run project
 
