@@ -19,7 +19,7 @@ class FoodDeliverySimpyEnv(Environment):
         self.events = []
         self.view = view
 
-        # Orders ready for collection
+        # Orders ready for picking up
         self.ready_orders = FilterStore(self)
         # Order deliveries rejected by driver
         self.rejected_deliveries = FilterStore(self)

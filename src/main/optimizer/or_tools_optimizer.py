@@ -37,7 +37,7 @@ class OrToolsOptimizer(Optimizer):
             distance_matrix.append(row)
 
         # Índices de restaurantes, clientes e motoristas
-        collect_indices = list(range(num_pickups))
+        pickup_indices = list(range(num_pickups))
         delivery_indices = list(range(num_pickups, num_pickups + num_deliveries))
         driver_indices = list(range(num_pickups + num_deliveries, num_locations))
 
@@ -65,15 +65,15 @@ class OrToolsOptimizer(Optimizer):
         distance_dimension = routing.GetDimensionOrDie(dimension_name)
 
         # Restrições de coleta e entrega
-        for collect_index, delivery_index in zip(collect_indices, delivery_indices):
-            collect_node = manager.NodeToIndex(collect_index)
+        for pickup_index, delivery_index in zip(pickup_indices, delivery_indices):
+            pickup_node = manager.NodeToIndex(pickup_index)
             delivery_node = manager.NodeToIndex(delivery_index)
-            routing.AddPickupAndDelivery(collect_node, delivery_node)
+            routing.AddPickupAndDelivery(pickup_node, delivery_node)
             routing.solver().Add(
-                routing.VehicleVar(collect_node) == routing.VehicleVar(delivery_node)
+                routing.VehicleVar(pickup_node) == routing.VehicleVar(delivery_node)
             )
             routing.solver().Add(
-                distance_dimension.CumulVar(collect_node) <= distance_dimension.CumulVar(delivery_node)
+                distance_dimension.CumulVar(pickup_node) <= distance_dimension.CumulVar(delivery_node)
             )
 
         # # Tempo máximo para cada rota (opcional)

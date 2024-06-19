@@ -15,7 +15,7 @@ class SimpleCostFunction(CostFunction):
     def penalty(self, segment: Segment):
         if segment.segment_type is SegmentType.PICKUP and segment.order.status <= OrderStatus.DRIVER_ACCEPTED:
             return 0
-        if segment.segment_type is SegmentType.DELIVERY and segment.order.status <= OrderStatus.COLLECTED:
+        if segment.segment_type is SegmentType.DELIVERY and segment.order.status <= OrderStatus.PICKED_UP:
             return 0
         return self.MAX_PENALTY
 

@@ -10,8 +10,8 @@ from src.main.events.driver_accepted_delivery import DriverAcceptedDelivery
 from src.main.events.driver_accepted_route import DriverAcceptedRoute
 from src.main.events.driver_accepted_route_extension import DriverAcceptedRouteExtension
 from src.main.events.driver_arrived_delivery_location import DriverArrivedDeliveryLocation
-from src.main.events.driver_collected_order import DriverCollectedOrder
-from src.main.events.driver_collecting_order import DriverCollectingOrder
+from src.main.events.driver_picked_up_order import DriverPickedUpOrder
+from src.main.events.driver_picking_up_order import DriverPickingUpOrder
 from src.main.events.driver_delivered_order import DriverDeliveredOrder
 from src.main.events.driver_delivering_order import DriverDeliveringOrder
 from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
@@ -125,10 +125,10 @@ class Driver:
             segment = self.current_route.next_segments()
             self.current_segment = segment
             if segment.segment_type is SegmentType.PICKUP:
-                yield self.environment.timeout(self.time_between_accept_and_start_collection(segment.order))
-                self.environment.process(self.start_order_collection(segment.order))
+                yield self.environment.timeout(self.time_between_accept_and_start_picking_up(segment.order))
+                self.environment.process(self.start_picking_up_order(segment.order))
             if segment.segment_type is SegmentType.DELIVERY:
-                yield self.environment.timeout(self.time_between_collection_and_start_delivery(segment.order))
+                yield self.environment.timeout(self.time_between_pickup_and_start_delivery(segment.order))
                 self.environment.process(self.start_order_delivery(segment.order))
         else:
             self.current_route = None
@@ -154,11 +154,11 @@ class Driver:
             segment.order.update_status(OrderStatus.DRIVER_REJECTED)
             self.environment.add_rejected_delivery(segment.order)
 
-    def start_order_collection(self, order):
-        self.status = DriverStatus.COLLECTING
-        order.update_status(OrderStatus.COLLECTING)
+    def start_picking_up_order(self, order):
+        self.status = DriverStatus.PICKING_UP
+        order.update_status(OrderStatus.PICKING_UP)
         self.total_distance += self.environment.map.distance(self.coordinates, order.restaurant.coordinates)
-        event = DriverCollectingOrder(
+        event = DriverPickingUpOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
             restaurant_id=order.restaurant.restaurant_id,
@@ -167,11 +167,11 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        yield self.environment.timeout(self.time_to_collect_order(order))
-        self.finish_order_collection(order)
+        yield self.environment.timeout(self.time_to_picking_up_order(order))
+        self.finish_order_pickup(order)
 
-    def finish_order_collection(self, order):
-        event = DriverCollectedOrder(
+    def finish_order_pickup(self, order):
+        event = DriverPickedUpOrder(
             order_id=order.order_id,
             client_id=order.client.client_id,
             restaurant_id=order.restaurant.restaurant_id,
@@ -243,13 +243,13 @@ class Driver:
 
     def time_to_accept_or_reject_route(self, route: Route):
         return random.randrange(3, 10)
-    def time_between_accept_and_start_collection(self, order: Order):
+    def time_between_accept_and_start_picking_up(self, order: Order):
         return random.randrange(0, 3)
 
-    def time_to_collect_order(self, order: Order):
+    def time_to_picking_up_order(self, order: Order):
         return self.environment.map.estimated_time(self.coordinates, order.restaurant.coordinates, self.movement_rate)
 
-    def time_between_collection_and_start_delivery(self, order: Order):
+    def time_between_pickup_and_start_delivery(self, order: Order):
         return random.randrange(0, 3)
 
     def time_to_deliver_order(self, order: Order):

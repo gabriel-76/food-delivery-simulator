@@ -37,7 +37,7 @@ class GridViewMatplotlib(FoodDeliveryView):
                 circles.append(circle)
 
         for driver in environment.state.drivers:
-            if driver.status in [DriverStatus.COLLECTING, DriverStatus.DELIVERING]:
+            if driver.status in [DriverStatus.PICKING_UP, DriverStatus.DELIVERING]:
                 x, y = driver.coordinates
                 segment_x, segment_y = driver.current_segment.coordinates
                 dx, dy = segment_x - x, segment_y - y

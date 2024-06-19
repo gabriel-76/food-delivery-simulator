@@ -15,9 +15,9 @@ class DistanceMetric(Metric):
 
     def view(self, ax) -> None:
         events = list(filter(lambda env: env.event_type in [
-            EventType.DRIVER_COLLECTING_ORDER,
+            EventType.DRIVER_PICKING_UP_ORDER,
             EventType.DRIVER_DELIVERING_ORDER,
-            EventType.DRIVER_COLLECTED_ORDER,
+            EventType.DRIVER_PICKED_UP_ORDER,
             EventType.DRIVER_DELIVERED_ORDER
         ], self.environment.events))
 
@@ -43,11 +43,11 @@ class DistanceMetric(Metric):
         # Calculando a diferença de tempo para cada order_id
         distances = {}
         for (driver_id, order_id), total_distances in driver_events.items():
-            if EventType.DRIVER_COLLECTING_ORDER in total_distances and EventType.DRIVER_COLLECTED_ORDER in total_distances:
+            if EventType.DRIVER_PICKING_UP_ORDER in total_distances and EventType.DRIVER_PICKED_UP_ORDER in total_distances:
                 if driver_id in distances:
-                    distances[driver_id] += total_distances[EventType.DRIVER_COLLECTING_ORDER]
+                    distances[driver_id] += total_distances[EventType.DRIVER_PICKING_UP_ORDER]
                 else:
-                    distances[driver_id] = total_distances[EventType.DRIVER_COLLECTING_ORDER]
+                    distances[driver_id] = total_distances[EventType.DRIVER_PICKING_UP_ORDER]
             if EventType.DRIVER_DELIVERING_ORDER in total_distances and EventType.DRIVER_DELIVERED_ORDER in total_distances:
                 if driver_id in distances:
                     distances[driver_id] += total_distances[EventType.DRIVER_DELIVERING_ORDER]

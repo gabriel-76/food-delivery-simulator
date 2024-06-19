@@ -59,7 +59,7 @@ class GridViewPygame(FoodDeliveryView):
         for driver in environment.state.drivers:
             mapped_x, mapped_y = self.coordinates(driver.coordinates)
             pygame.draw.circle(canvas, RED, (int(mapped_x), int(mapped_y)), 5)
-            if driver.status in [DriverStatus.COLLECTING, DriverStatus.DELIVERING]:
+            if driver.status in [DriverStatus.PICKING_UP, DriverStatus.DELIVERING]:
                 target_mapped_x, target_mapped_y = self.coordinates(driver.current_segment.coordinates)
                 pygame.draw.line(canvas, RED, (mapped_x, mapped_y), (target_mapped_x, target_mapped_y), 2)
 
