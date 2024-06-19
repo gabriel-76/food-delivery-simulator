@@ -41,5 +41,6 @@ class TimeShiftOrderRestaurantRateGenerator(TimeShiftGenerator):
             self.hash_timeout[restaurant.restaurant_id] = env.now + max(timeout, 1)
 
     def run(self, env: FoodDeliverySimpyEnv):
-        for restaurant in env.state.restaurants:
-            self.process_restaurant(env, restaurant)
+        for _ in self.range(env):
+            for restaurant in env.state.restaurants:
+                self.process_restaurant(env, restaurant)
