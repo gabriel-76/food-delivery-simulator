@@ -39,8 +39,8 @@ class GridViewMatplotlib(FoodDeliveryView):
         for driver in environment.state.drivers:
             if driver.status in [DriverStatus.COLLECTING, DriverStatus.DELIVERING]:
                 x, y = driver.coordinates
-                route_x, route_y = driver.current_route.coordinates
-                dx, dy = route_x - x, route_y - y
+                segment_x, segment_y = driver.current_segment.coordinates
+                dx, dy = segment_x - x, segment_y - y
                 scale = tanh(driver.movement_rate)
                 self.ax.quiver(x, y, dx, dy, angles='xy', scale_units='xy', scale=scale, color='red', width=0.003)
 

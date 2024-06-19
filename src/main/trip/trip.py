@@ -4,48 +4,48 @@ from functools import reduce
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.order.order import Order
-from src.main.trip.route import Route, RouteType
+from src.main.trip.segment import Segment, SegmentType
 
 
 class Trip:
-    def __init__(self, environment: FoodDeliverySimpyEnv, routes: [Route]):
+    def __init__(self, environment: FoodDeliverySimpyEnv, segments: [Segment]):
         self.tripe_id = uuid.uuid4()
         self.environment = environment
-        self.routes = routes
+        self.segments = segments
         self.required_capacity = self.calculate_required_capacity()
         self.distance = self.calculate_total_distance()
 
     def calculate_required_capacity(self):
         dimensions = Dimensions(0, 0, 0, 0)
-        for route in self.routes:
-            dimensions += route.required_capacity
+        for segment in self.segments:
+            dimensions += segment.required_capacity
         return dimensions
 
-    def has_next_route(self):
-        return len(self.routes) > 0
+    def has_next_segments(self):
+        return len(self.segments) > 0
 
-    def next_route(self):
+    def next_segments(self):
         self.required_capacity = self.calculate_required_capacity()
         self.distance = self.calculate_total_distance()
-        return self.routes.pop(0)
+        return self.segments.pop(0)
 
     def calculate_total_distance(self):
         distance = 0
 
-        if len(self.routes) <= 1:
+        if len(self.segments) <= 1:
             return distance
 
-        previous_route = self.routes[0]
-        for route in self.routes[1:]:
-            distance += self.environment.map.distance(previous_route.coordinates, route.coordinates)
-            previous_route = route
+        previous_segments = self.segments[0]
+        for segment in self.segments[1:]:
+            distance += self.environment.map.distance(previous_segments.coordinates, segment.coordinates)
+            previous_segments = segment
 
         return distance
 
     def extend_trip(self, other_trip):
-        self.routes += other_trip.routes
+        self.segments += other_trip.segments
         self.required_capacity = self.calculate_required_capacity()
         self.distance = self.calculate_total_distance()
 
     def size(self):
-        return len(self.routes)
+        return len(self.segments)

@@ -18,7 +18,7 @@ from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
 from src.main.events.driver_rejected_trip import DriverRejectedTrip
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
-from src.main.trip.route import RouteType
+from src.main.trip.segment import SegmentType
 from src.main.trip.trip import Trip
 
 
@@ -40,7 +40,7 @@ class Driver:
         self.status = status
         self.movement_rate = movement_rate
         self.current_trip = None
-        self.current_route = None
+        self.current_segment = None
         self.total_distance = 0
         self.requests = simpy.Store(self.environment)
 
@@ -72,17 +72,17 @@ class Driver:
                 time=self.environment.now
             )
             self.environment.add_event(event)
-            for route in self.current_trip.routes:
+            for segment in self.current_trip.segments:
                 event = DriverAcceptedDelivery(
                     driver_id=self.driver_id,
-                    order_id=route.order.order_id,
-                    client_id=route.order.client.client_id,
-                    restaurant_id=route.order.restaurant.restaurant_id,
+                    order_id=segment.order.order_id,
+                    client_id=segment.order.client.client_id,
+                    restaurant_id=segment.order.restaurant.restaurant_id,
                     distance=self.current_trip.distance,
                     time=self.environment.now
                 )
                 self.environment.add_event(event)
-                route.order.update_status(OrderStatus.DRIVER_ACCEPTED)
+                segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
             self.environment.process(self.sequential_processor())
         else:
             self.accepted_trip_extension(trip)
@@ -98,41 +98,41 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        for route in self.current_trip.routes:
-            route.order.update_status(OrderStatus.DRIVER_ACCEPTED)
-        for route in trip.routes:
+        for segment in self.current_trip.segments:
+            segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
+        for segment in trip.segments:
             event = DriverAcceptedDelivery(
                 driver_id=self.driver_id,
-                order_id=route.order.order_id,
-                client_id=route.order.client.client_id,
-                restaurant_id=route.order.restaurant.restaurant_id,
+                order_id=segment.order.order_id,
+                client_id=segment.order.client.client_id,
+                restaurant_id=segment.order.restaurant.restaurant_id,
                 distance=self.current_trip.distance,
                 time=self.environment.now
             )
             self.environment.add_event(event)
 
     def sequential_processor(self):
-        if self.current_route is not None and self.current_route.order.status < OrderStatus.READY:
+        if self.current_segment is not None and self.current_segment.order.status < OrderStatus.READY:
             # print(f"Driver {self.coordinates} is waiting for "
-            #       f"order {self.current_route.coordinates} "
-            #       f"status {self.current_route.order.status.name} "
-            #       f"estimated time {self.current_route.order.estimated_time_to_ready} "
-            #       f"ready time {self.current_route.order.time_it_was_ready} "
+            #       f"order {self.current_segment.coordinates} "
+            #       f"status {self.current_segment.order.status.name} "
+            #       f"estimated time {self.current_segment.order.estimated_time_to_ready} "
+            #       f"ready time {self.current_segments.order.time_it_was_ready} "
             #       f"current time {self.environment.now}")
             yield self.environment.timeout(1)
             self.environment.process(self.sequential_processor())
-        elif self.current_trip.has_next_route():
-            route = self.current_trip.next_route()
-            self.current_route = route
-            if route.route_type is RouteType.COLLECT:
-                yield self.environment.timeout(self.time_between_accept_and_start_collection(route.order))
-                self.environment.process(self.start_order_collection(route.order))
-            if route.route_type is RouteType.DELIVERY:
-                yield self.environment.timeout(self.time_between_collection_and_start_delivery(route.order))
-                self.environment.process(self.start_order_delivery(route.order))
+        elif self.current_trip.has_next_segments():
+            segment = self.current_trip.next_segments()
+            self.current_segment = segment
+            if segment.segment_type is SegmentType.PICKUP:
+                yield self.environment.timeout(self.time_between_accept_and_start_collection(segment.order))
+                self.environment.process(self.start_order_collection(segment.order))
+            if segment.segment_type is SegmentType.DELIVERY:
+                yield self.environment.timeout(self.time_between_collection_and_start_delivery(segment.order))
+                self.environment.process(self.start_order_delivery(segment.order))
         else:
             self.current_trip = None
-            self.current_route = None
+            self.current_segment = None
 
     def reject_trip(self, trip: Trip):
         event = DriverRejectedTrip(
@@ -142,17 +142,17 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        for route in trip.routes:
+        for segment in trip.segments:
             event = DriverRejectedDelivery(
                 driver_id=self.driver_id,
-                order_id=route.order.order_id,
-                client_id=route.order.client.client_id,
-                restaurant_id=route.order.restaurant.restaurant_id,
+                order_id=segment.order.order_id,
+                client_id=segment.order.client.client_id,
+                restaurant_id=segment.order.restaurant.restaurant_id,
                 time=self.environment.now
             )
             self.environment.add_event(event)
-            route.order.update_status(OrderStatus.DRIVER_REJECTED)
-            self.environment.add_rejected_delivery(route.order)
+            segment.order.update_status(OrderStatus.DRIVER_REJECTED)
+            self.environment.add_rejected_delivery(segment.order)
 
     def start_order_collection(self, order):
         self.status = DriverStatus.COLLECTING
@@ -227,10 +227,10 @@ class Driver:
 
     def move(self):
         while True:
-            if self.current_route is not None:
+            if self.current_segment is not None:
                 self.coordinates = self.environment.map.move(
                     origin=self.coordinates,
-                    destination=self.current_route.coordinates,
+                    destination=self.current_segment.coordinates,
                     rate=self.movement_rate
                 )
             yield self.environment.timeout(1)

@@ -20,7 +20,7 @@ class ReactiveDriver(Driver):
 
     def accept_trip_condition(self, trip: Trip):
         default_condition = super().accept_trip_condition(trip)
-        order = trip.routes[0].order
+        order = trip.segments[0].order
         collection_coordinate = self.environment.map.distance(self.coordinates, order.restaurant.coordinates)
         return default_condition and collection_coordinate <= self.max_distance
 

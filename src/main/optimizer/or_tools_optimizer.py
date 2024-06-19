@@ -2,8 +2,8 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from src.main.coast.cost_function import CostFunction
 from src.main.optimizer.optimizer import Optimizer
-from src.main.trip.route import Route
-from src.main.trip.route_type import RouteType
+from src.main.trip.segment import Segment
+from src.main.trip.segment_type import SegmentType
 from src.main.trip.trip import Trip
 
 
@@ -18,14 +18,14 @@ class OrToolsOptimizer(Optimizer):
         if len(orders) == 0:
             return
 
-        collect_routes = list(map(lambda order: Route(RouteType.COLLECT, order), orders))
-        delivery_routes = list(map(lambda order: Route(RouteType.DELIVERY, order), orders))
+        pickup_segments = list(map(lambda order: Segment(SegmentType.PICKUP, order), orders))
+        delivery_segments = list(map(lambda order: Segment(SegmentType.DELIVERY, order), orders))
         drivers = list(filter(lambda d: d.available, env.state.drivers))
 
-        num_collects = len(collect_routes)
-        num_deliveries = len(delivery_routes)
+        num_pickups = len(pickup_segments)
+        num_deliveries = len(delivery_segments)
         num_drivers = len(drivers)
-        all_locations = collect_routes + delivery_routes + drivers
+        all_locations = pickup_segments + delivery_segments + drivers
         num_locations = len(all_locations)
 
         # Matriz de distâncias
@@ -37,9 +37,9 @@ class OrToolsOptimizer(Optimizer):
             distance_matrix.append(row)
 
         # Índices de restaurantes, clientes e motoristas
-        collect_indices = list(range(num_collects))
-        delivery_indices = list(range(num_collects, num_collects + num_deliveries))
-        driver_indices = list(range(num_collects + num_deliveries, num_locations))
+        collect_indices = list(range(num_pickups))
+        delivery_indices = list(range(num_pickups, num_pickups + num_deliveries))
+        driver_indices = list(range(num_pickups + num_deliveries, num_locations))
 
         # Modelo do roteamento
         manager = pywrapcp.RoutingIndexManager(num_locations, num_drivers, driver_indices, driver_indices)
@@ -108,7 +108,7 @@ class OrToolsOptimizer(Optimizer):
                 plan_output = 'Rota do motorista {}:\n'.format(vehicle_id)
                 route_distance = 0
                 first = True
-                routes = []
+                segments = []
                 driver = None
                 while not routing.IsEnd(index):
                     node_index = manager.IndexToNode(index)
@@ -121,7 +121,7 @@ class OrToolsOptimizer(Optimizer):
                     if first:
                         driver = all_locations[node_index]
                     else:
-                        routes.append(all_locations[node_index])
+                        segments.append(all_locations[node_index])
 
                     first = False
 
@@ -129,8 +129,8 @@ class OrToolsOptimizer(Optimizer):
                 plan_output += 'Distância da rota: {}\n'.format(route_distance)
                 # print(plan_output)
 
-                if driver is not None and len(routes) > 0:
-                    trip = Trip(env, routes)
+                if driver is not None and len(segments) > 0:
+                    trip = Trip(env, segments)
                     driver.request_delivery(trip)
         else:
             print('Nenhuma solução encontrada!')
