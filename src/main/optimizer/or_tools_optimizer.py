@@ -7,7 +7,7 @@ from src.main.trip.route_type import RouteType
 from src.main.trip.trip import Trip
 
 
-class OptOther(Optimizer):
+class OrToolsOptimizer(Optimizer):
     def __init__(self, cost_function: CostFunction, use_estimate=False, time_shift=1):
         super().__init__(cost_function, use_estimate, time_shift)
 
@@ -17,20 +17,14 @@ class OptOther(Optimizer):
     def process_orders(self, env, orders, rejected=False):
         if len(orders) > 0:
 
-            # customers = list(map(lambda order: order.client, orders))
-            # restaurants = list(map(lambda order: order.restaurant, orders))
+            collect_routes = list(map(lambda order: Route(RouteType.COLLECT, order), orders))
+            delivery_routes = list(map(lambda order: Route(RouteType.DELIVERY, order), orders))
+            drivers = list(filter(lambda d: d.available, env.state.drivers))
 
-            # collect_routes = list(map(lambda order: Route(RouteType.COLLECT, order), orders))
-            # delivery_routes = list(map(lambda order: Route(RouteType.DELIVERY, order), orders))
-
-            restaurants = list(map(lambda order: Route(RouteType.COLLECT, order), orders))
-            customers = list(map(lambda order: Route(RouteType.DELIVERY, order), orders))
-
-
-            num_restaurants = len(restaurants)
-            num_customers = len(customers)
-            num_drivers = len(env.state.drivers)
-            all_locations = restaurants + customers + env.state.drivers
+            num_collects = len(collect_routes)
+            num_deliveries = len(delivery_routes)
+            num_drivers = len(drivers)
+            all_locations = collect_routes + delivery_routes + drivers
             num_locations = len(all_locations)
 
             # Matriz de distâncias
@@ -42,9 +36,9 @@ class OptOther(Optimizer):
                 distance_matrix.append(row)
 
             # Índices de restaurantes, clientes e motoristas
-            restaurant_indices = list(range(num_restaurants))
-            customer_indices = list(range(num_restaurants, num_restaurants + num_customers))
-            driver_indices = list(range(num_restaurants + num_customers, num_locations))
+            collect_indices = list(range(num_collects))
+            delivery_indices = list(range(num_collects, num_collects + num_deliveries))
+            driver_indices = list(range(num_collects + num_deliveries, num_locations))
 
             # Modelo do roteamento
             manager = pywrapcp.RoutingIndexManager(num_locations, num_drivers, driver_indices, driver_indices)
@@ -70,15 +64,15 @@ class OptOther(Optimizer):
             distance_dimension = routing.GetDimensionOrDie(dimension_name)
 
             # Restrições de coleta e entrega
-            for restaurant_index, customer_index in zip(restaurant_indices, customer_indices):
-                restaurant_node = manager.NodeToIndex(restaurant_index)
-                customer_node = manager.NodeToIndex(customer_index)
-                routing.AddPickupAndDelivery(restaurant_node, customer_node)
+            for collect_index, delivery_index in zip(collect_indices, delivery_indices):
+                collect_node = manager.NodeToIndex(collect_index)
+                delivery_node = manager.NodeToIndex(delivery_index)
+                routing.AddPickupAndDelivery(collect_node, delivery_node)
                 routing.solver().Add(
-                    routing.VehicleVar(restaurant_node) == routing.VehicleVar(customer_node)
+                    routing.VehicleVar(collect_node) == routing.VehicleVar(delivery_node)
                 )
                 routing.solver().Add(
-                    distance_dimension.CumulVar(restaurant_node) <= distance_dimension.CumulVar(customer_node)
+                    distance_dimension.CumulVar(collect_node) <= distance_dimension.CumulVar(delivery_node)
                 )
 
             # # Tempo máximo para cada rota (opcional)
@@ -101,7 +95,7 @@ class OptOther(Optimizer):
             search_parameters = pywrapcp.DefaultRoutingSearchParameters()
             # search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
             search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC)
-            search_parameters.time_limit.seconds = 30
+            search_parameters.time_limit.FromSeconds(30)
 
             # Solução
             solution = routing.SolveWithParameters(search_parameters)
