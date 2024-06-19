@@ -1,5 +1,5 @@
 from src.main.order.order import Order
-from src.main.trip.segment_type import SegmentType
+from src.main.route.segment_type import SegmentType
 
 
 class Segment:

@@ -7,19 +7,19 @@ from src.main.driver.capacity import Capacity
 from src.main.driver.driver_status import DriverStatus
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.driver_accepted_delivery import DriverAcceptedDelivery
-from src.main.events.driver_accepted_trip import DriverAcceptedTrip
-from src.main.events.driver_accepted_trip_extension import DriverAcceptedTripExtension
+from src.main.events.driver_accepted_route import DriverAcceptedRoute
+from src.main.events.driver_accepted_route_extension import DriverAcceptedRouteExtension
 from src.main.events.driver_arrived_delivery_location import DriverArrivedDeliveryLocation
 from src.main.events.driver_collected_order import DriverCollectedOrder
 from src.main.events.driver_collecting_order import DriverCollectingOrder
 from src.main.events.driver_delivered_order import DriverDeliveredOrder
 from src.main.events.driver_delivering_order import DriverDeliveringOrder
 from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
-from src.main.events.driver_rejected_trip import DriverRejectedTrip
+from src.main.events.driver_rejected_route import DriverRejectedRoute
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
-from src.main.trip.segment import SegmentType
-from src.main.trip.trip import Trip
+from src.main.route.segment import SegmentType
+from src.main.route.route import Route
 
 
 class Driver:
@@ -39,7 +39,7 @@ class Driver:
         self.available = available
         self.status = status
         self.movement_rate = movement_rate
-        self.current_trip = None
+        self.current_route = None
         self.current_segment = None
         self.total_distance = 0
         self.requests = simpy.Store(self.environment)
@@ -47,66 +47,66 @@ class Driver:
         self.environment.process(self.process_requests())
         self.environment.process(self.move())
 
-    def fits(self, trip: Trip):
-        return self.capacity.fits(trip.required_capacity)
+    def fits(self, route: Route):
+        return self.capacity.fits(route.required_capacity)
 
-    def request_delivery(self, trip: Trip):
-        self.requests.put(trip)
+    def request_delivery(self, route: Route):
+        self.requests.put(route)
 
     def process_requests(self):
         while True:
-            trip = yield self.requests.get()
-            self.process_trip(trip)
-            yield self.environment.timeout(self.time_to_accept_or_reject_trip(trip))
+            route = yield self.requests.get()
+            self.process_route(route)
+            yield self.environment.timeout(self.time_to_accept_or_reject_route(route))
 
-    def process_trip(self, trip: Trip):
-        self.accept_trip(trip) if self.accept_trip_condition(trip) else self.reject_trip(trip)
+    def process_route(self, route: Route):
+        self.accept_route(route) if self.accept_route_condition(route) else self.reject_route(route)
 
-    def accept_trip(self, trip: Trip):
-        if self.current_trip is None:
-            self.current_trip = trip
-            event = DriverAcceptedTrip(
+    def accept_route(self, route: Route):
+        if self.current_route is None:
+            self.current_route = route
+            event = DriverAcceptedRoute(
                 driver_id=self.driver_id,
-                trip_id=self.current_trip.tripe_id,
-                distance=self.current_trip.distance,
+                route_id=self.current_route.route_id,
+                distance=self.current_route.distance,
                 time=self.environment.now
             )
             self.environment.add_event(event)
-            for segment in self.current_trip.segments:
+            for segment in self.current_route.segments:
                 event = DriverAcceptedDelivery(
                     driver_id=self.driver_id,
                     order_id=segment.order.order_id,
                     client_id=segment.order.client.client_id,
                     restaurant_id=segment.order.restaurant.restaurant_id,
-                    distance=self.current_trip.distance,
+                    distance=self.current_route.distance,
                     time=self.environment.now
                 )
                 self.environment.add_event(event)
                 segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
             self.environment.process(self.sequential_processor())
         else:
-            self.accepted_trip_extension(trip)
+            self.accepted_route_extension(route)
 
-    def accepted_trip_extension(self, trip: Trip):
-        old_distance = self.current_trip.distance
-        self.current_trip.extend_trip(trip)
-        event = DriverAcceptedTripExtension(
+    def accepted_route_extension(self, route: Route):
+        old_distance = self.current_route.distance
+        self.current_route.extend_route(route)
+        event = DriverAcceptedRouteExtension(
             driver_id=self.driver_id,
-            trip_id=self.current_trip.tripe_id,
+            route_id=self.current_route.route_id,
             old_distance=old_distance,
-            distance=self.current_trip.distance,
+            distance=self.current_route.distance,
             time=self.environment.now
         )
         self.environment.add_event(event)
-        for segment in self.current_trip.segments:
+        for segment in self.current_route.segments:
             segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
-        for segment in trip.segments:
+        for segment in route.segments:
             event = DriverAcceptedDelivery(
                 driver_id=self.driver_id,
                 order_id=segment.order.order_id,
                 client_id=segment.order.client.client_id,
                 restaurant_id=segment.order.restaurant.restaurant_id,
-                distance=self.current_trip.distance,
+                distance=self.current_route.distance,
                 time=self.environment.now
             )
             self.environment.add_event(event)
@@ -121,8 +121,8 @@ class Driver:
             #       f"current time {self.environment.now}")
             yield self.environment.timeout(1)
             self.environment.process(self.sequential_processor())
-        elif self.current_trip.has_next_segments():
-            segment = self.current_trip.next_segments()
+        elif self.current_route.has_next_segments():
+            segment = self.current_route.next_segments()
             self.current_segment = segment
             if segment.segment_type is SegmentType.PICKUP:
                 yield self.environment.timeout(self.time_between_accept_and_start_collection(segment.order))
@@ -131,18 +131,18 @@ class Driver:
                 yield self.environment.timeout(self.time_between_collection_and_start_delivery(segment.order))
                 self.environment.process(self.start_order_delivery(segment.order))
         else:
-            self.current_trip = None
+            self.current_route = None
             self.current_segment = None
 
-    def reject_trip(self, trip: Trip):
-        event = DriverRejectedTrip(
+    def reject_route(self, route: Route):
+        event = DriverRejectedRoute(
             driver_id=self.driver_id,
-            trip_id=self.current_trip.tripe_id,
-            distance=self.current_trip.distance,
+            route_id=self.current_route.route_id,
+            distance=self.current_route.distance,
             time=self.environment.now
         )
         self.environment.add_event(event)
-        for segment in trip.segments:
+        for segment in route.segments:
             event = DriverRejectedDelivery(
                 driver_id=self.driver_id,
                 order_id=segment.order.order_id,
@@ -235,13 +235,13 @@ class Driver:
                 )
             yield self.environment.timeout(1)
 
-    def accept_trip_condition(self, trip: Trip):
-        return self.fits(trip) and self.available
+    def accept_route_condition(self, route: Route):
+        return self.fits(route) and self.available
 
-    def check_availability(self, trip: Trip):
-        return self.fits(trip) and self.available
+    def check_availability(self, route: Route):
+        return self.fits(route) and self.available
 
-    def time_to_accept_or_reject_trip(self, trip: Trip):
+    def time_to_accept_or_reject_route(self, route: Route):
         return random.randrange(3, 10)
     def time_between_accept_and_start_collection(self, order: Order):
         return random.randrange(0, 3)

@@ -2,8 +2,8 @@ from src.main.coast.cost_function import CostFunction
 from src.main.driver.driver import Driver
 from src.main.map.map import Map
 from src.main.order.order_status import OrderStatus
-from src.main.trip.segment import Segment
-from src.main.trip.segment_type import SegmentType
+from src.main.route.segment import Segment
+from src.main.route.segment_type import SegmentType
 
 
 class SimpleCostFunction(CostFunction):

@@ -2,16 +2,16 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from src.main.coast.cost_function import CostFunction
 from src.main.optimizer.optimizer import Optimizer
-from src.main.trip.segment import Segment
-from src.main.trip.segment_type import SegmentType
-from src.main.trip.trip import Trip
+from src.main.route.segment import Segment
+from src.main.route.segment_type import SegmentType
+from src.main.route.route import Route
 
 
 class OrToolsOptimizer(Optimizer):
     def __init__(self, cost_function: CostFunction, use_estimate=False, time_shift=1):
         super().__init__(cost_function, use_estimate, time_shift)
 
-    def select_driver(self, env, trip):
+    def select_driver(self, env, route):
         pass
 
     def process_orders(self, env, orders, rejected=False):
@@ -130,8 +130,8 @@ class OrToolsOptimizer(Optimizer):
                 # print(plan_output)
 
                 if driver is not None and len(segments) > 0:
-                    trip = Trip(env, segments)
-                    driver.request_delivery(trip)
+                    route = Route(env, segments)
+                    driver.request_delivery(route)
         else:
             print('Nenhuma solução encontrada!')
             for order in orders:

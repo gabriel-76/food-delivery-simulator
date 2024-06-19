@@ -4,8 +4,8 @@ from src.main.coast.cost_function import CostFunction
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.order import Order
-from src.main.trip.segment import Segment, SegmentType
-from src.main.trip.trip import Trip
+from src.main.route.segment import Segment, SegmentType
+from src.main.route.route import Route
 
 
 class Optimizer(TimeShiftGenerator, ABC):
@@ -16,19 +16,19 @@ class Optimizer(TimeShiftGenerator, ABC):
         self.cost_function = cost_function
 
     @abstractmethod
-    def select_driver(self, env: FoodDeliverySimpyEnv, trip: Trip):
+    def select_driver(self, env: FoodDeliverySimpyEnv, route: Route):
         pass
 
     def process_orders(self, env: FoodDeliverySimpyEnv, orders: [Order], rejected=False):
         for order in orders:
             segment_pickup = Segment(SegmentType.PICKUP, order)
             segment_delivery = Segment(SegmentType.DELIVERY, order)
-            trip = Trip(env, [segment_pickup, segment_delivery])
+            route = Route(env, [segment_pickup, segment_delivery])
 
-            driver = self.select_driver(env, trip)
+            driver = self.select_driver(env, route)
 
             if driver is not None:
-                driver.request_delivery(trip)
+                driver.request_delivery(route)
             elif rejected:
                 env.add_rejected_delivery(order)
             elif self.use_estimate:

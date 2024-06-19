@@ -4,12 +4,12 @@ from functools import reduce
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.order.order import Order
-from src.main.trip.segment import Segment, SegmentType
+from src.main.route.segment import Segment, SegmentType
 
 
-class Trip:
+class Route:
     def __init__(self, environment: FoodDeliverySimpyEnv, segments: [Segment]):
-        self.tripe_id = uuid.uuid4()
+        self.route_id = uuid.uuid4()
         self.environment = environment
         self.segments = segments
         self.required_capacity = self.calculate_required_capacity()
@@ -42,8 +42,8 @@ class Trip:
 
         return distance
 
-    def extend_trip(self, other_trip):
-        self.segments += other_trip.segments
+    def extend_route(self, other_route):
+        self.segments += other_route.segments
         self.required_capacity = self.calculate_required_capacity()
         self.distance = self.calculate_total_distance()
 
