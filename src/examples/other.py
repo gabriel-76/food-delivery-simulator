@@ -8,6 +8,7 @@ from src.main.generator.initial_restaurant_order_reate_generator import InitialR
 from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
 from src.main.generator.time_shift_order_restaurant_rate_generator import TimeShiftOrderRestaurantRateGenerator
 from src.main.map.grid_map import GridMap
+from src.main.optimizer.lowest_cost_driver_optimizer import LowestCostDriverOptimizer
 from src.main.optimizer.ortools_optimizer import OptOther
 from src.main.statistic.custom_board import CustomBoard
 from src.main.statistic.delay_metric import DelayMetric
@@ -23,15 +24,16 @@ def run():
     environment = FoodDeliverySimpyEnv(
         map=GridMap(100),
         generators=[
-            InitialRestaurantGenerator(3),
-            InitialClientGenerator(3),
-            InitialDriverGenerator(3),
-            TimeShiftOrderGenerator(lambda time: 20),
+            InitialRestaurantOrderRateGenerator(10),
+            # InitialClientGenerator(30),
+            InitialDriverGenerator(10),
+            TimeShiftOrderRestaurantRateGenerator(lambda time: 1 if time < 400 else 0),
         ],
-        optimizer=OptOther(cost_function=SimpleCostFunction()),
+        optimizer=OptOther(cost_function=SimpleCostFunction(), use_estimate=True),
+        # optimizer=LowestCostDriverOptimizer(cost_function=SimpleCostFunction()),
         view=GridViewPygame()
     )
-    environment.run(100, render_mode='human')
+    environment.run(500, render_mode='human')
 
     custom_board = CustomBoard(metrics=[
         OrderCurveMetric(environment),

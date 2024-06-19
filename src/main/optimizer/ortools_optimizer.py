@@ -23,8 +23,8 @@ class OptOther(Optimizer):
             # collect_routes = list(map(lambda order: Route(RouteType.COLLECT, order), orders))
             # delivery_routes = list(map(lambda order: Route(RouteType.DELIVERY, order), orders))
 
-            customers = list(map(lambda order: Route(RouteType.COLLECT, order), orders))
-            restaurants = list(map(lambda order: Route(RouteType.DELIVERY, order), orders))
+            restaurants = list(map(lambda order: Route(RouteType.COLLECT, order), orders))
+            customers = list(map(lambda order: Route(RouteType.DELIVERY, order), orders))
 
 
             num_restaurants = len(restaurants)
@@ -63,7 +63,7 @@ class OptOther(Optimizer):
             routing.AddDimension(
                 transit_callback_index,
                 0,  # no slack
-                50,  # vehicle maximum travel distance
+                2000,  # vehicle maximum travel distance
                 True,  # start cumul to zero
                 dimension_name,
             )
@@ -81,26 +81,27 @@ class OptOther(Optimizer):
                     distance_dimension.CumulVar(restaurant_node) <= distance_dimension.CumulVar(customer_node)
                 )
 
-            # Tempo máximo para cada rota (opcional)
-            dimension_name = "time"
-            routing.AddDimension(
-                transit_callback_index,
-                0,  # Sem tempo de espera
-                30,  # Tempo máximo por rota
-                True,  # Tempo acumulado
-                dimension_name
-            )
-            time_dimension = routing.GetDimensionOrDie(dimension_name)
+            # # Tempo máximo para cada rota (opcional)
+            # dimension_name = "time"
+            # routing.AddDimension(
+            #     transit_callback_index,
+            #     0,  # Sem tempo de espera
+            #     30,  # Tempo máximo por rota
+            #     True,  # Tempo acumulado
+            #     dimension_name
+            # )
+            # time_dimension = routing.GetDimensionOrDie(dimension_name)
 
-            # Restrições de tempo nas entregas e coletas
-            for node in range(num_locations):
-                index = manager.NodeToIndex(node)
-                time_dimension.CumulVar(index).SetRange(0, 30)
+            # # Restrições de tempo nas entregas e coletas
+            # for node in range(num_locations):
+            #     index = manager.NodeToIndex(node)
+            #     time_dimension.CumulVar(index).SetRange(0, 30)
 
             # Configuração da pesquisa
             search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-            search_parameters.first_solution_strategy = (
-                routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
+            # search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
+            search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC)
+            search_parameters.time_limit.seconds = 30
 
             # Solução
             solution = routing.SolveWithParameters(search_parameters)
