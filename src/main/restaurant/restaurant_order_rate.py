@@ -2,7 +2,7 @@ import random
 
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.restaurant.catalog import Catalog
-from src.main.actors.restaurant import Restaurant
+from src.main.restaurant.restaurant import Restaurant
 
 
 class RestaurantOrderRate(Restaurant):

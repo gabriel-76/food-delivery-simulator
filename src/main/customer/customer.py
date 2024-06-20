@@ -4,14 +4,14 @@ import uuid
 from simpy.events import ProcessGenerator
 
 from src.main.actors.map_actor import MapActor
-from src.main.actors.restaurant import Restaurant
 from src.main.base.types import Coordinates
-from src.main.actors.driver import Driver
+from src.main.driver.driver import Driver
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.customer_placed_order import CustomerPlacedOrder
 from src.main.events.customer_received_order import CustomerReceivedOrder
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
+from src.main.restaurant.restaurant import Restaurant
 
 
 class Customer(MapActor):

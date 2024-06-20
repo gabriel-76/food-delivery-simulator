@@ -1,7 +1,7 @@
 import random
 
 from src.main.base.geometry import point_in_gauss_circle
-from src.main.actors.customer import Customer
+from src.main.customer.customer import Customer
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.order import Order

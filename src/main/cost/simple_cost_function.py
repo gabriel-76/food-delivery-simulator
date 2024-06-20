@@ -1,5 +1,5 @@
 from src.main.cost.cost_function import CostFunction
-from src.main.actors.driver import Driver
+from src.main.driver.driver import Driver
 from src.main.map.map import Map
 from src.main.order.order_status import OrderStatus
 from src.main.route.route_segment import RouteSegment

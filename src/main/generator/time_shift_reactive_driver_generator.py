@@ -2,8 +2,8 @@ import random
 
 from src.main.base.dimensions import Dimensions
 from src.main.driver.capacity import Capacity
-from src.main.actors.driver import DriverStatus
-from src.main.actors.reactive_driver import ReactiveDriver
+from src.main.driver.driver import DriverStatus
+from src.main.driver.reactive_driver import ReactiveDriver
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenerator
 
