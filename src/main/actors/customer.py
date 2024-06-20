@@ -24,7 +24,7 @@ class Customer(MapActor):
             restaurant_id=restaurant.restaurant_id,
             time=self.now
         ))
-        restaurant.receive_orders([order])
+        restaurant.receive_order_requests([order])
         order.update_status(OrderStatus.PLACED)
 
     def receive_order(self, order: Order, driver: Driver):

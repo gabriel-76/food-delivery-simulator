@@ -1,7 +1,6 @@
 import random
 import uuid
-
-import simpy
+from typing import List
 
 from src.main.actors.map_actor import MapActor
 from src.main.base.types import Coordinates
@@ -32,21 +31,20 @@ class Restaurant(MapActor):
         self.orders_in_preparation = 0
         self.overloaded_until = int(self.now)
 
-        self.new_orders = simpy.Store(self.environment)
-        self.confirmed_orders = simpy.Store(self.environment)
-        self.canceled_orders = simpy.Store(self.environment)
+        self.order_requests: List[Order] = []
+        self.orders_accepted: List[Order] = []
+        self.rejected_orders: List[Order] = []
 
         self.process(self.process_orders())
         self.process(self.prepare_orders())
 
-    def receive_orders(self, orders):
-        for order in orders:
-            self.new_orders.put(order)
+    def receive_order_requests(self, orders):
+        self.order_requests += orders
 
     def process_orders(self):
         while True:
-            while len(self.new_orders.items) > 0:
-                order = yield self.new_orders.get()
+            while len(self.order_requests) > 0:
+                order = self.order_requests.pop(0)
                 self.process(self.process_order(order))
             yield self.timeout(self.time_process_orders())
 
@@ -67,7 +65,7 @@ class Restaurant(MapActor):
         estimated_time = self.estimate_preparation_time(order)
         order.restaurant_accepted(self.now + estimated_time)
         self.update_overload_time(estimated_time)
-        self.confirmed_orders.put(order)
+        self.orders_accepted.append(order)
 
     def update_overload_time(self, estimated_time):
         env_now = self.now
@@ -76,7 +74,7 @@ class Restaurant(MapActor):
         elif self.orders_in_preparation < self.order_production_capacity:
             self.overloaded_until = env_now + max(self.overloaded_until - env_now, estimated_time)
         else:
-            batch_size = len(self.confirmed_orders.items) // self.order_production_capacity
+            batch_size = len(self.orders_accepted) // self.order_production_capacity
             self.overloaded_until = env_now + max(self.overloaded_until - env_now, batch_size * estimated_time)
 
         # print(f"{self.now} "
@@ -104,13 +102,13 @@ class Restaurant(MapActor):
             time=self.now
         ))
         order.update_status(OrderStatus.RESTAURANT_REJECTED)
-        self.canceled_orders.put(order)
+        self.rejected_orders.append(order)
 
     def prepare_orders(self):
         while True:
-            while len(self.confirmed_orders.items) > 0 and self.orders_in_preparation < self.order_production_capacity:
+            while len(self.orders_accepted) > 0 and self.orders_in_preparation < self.order_production_capacity:
                 self.orders_in_preparation += 1
-                order = yield self.confirmed_orders.get()
+                order = self.orders_accepted.pop(0)
                 self.process(self.prepare_order(order))
             yield self.timeout(self.time_check_orders_ready_for_preparation())
 
