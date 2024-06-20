@@ -1,6 +1,8 @@
 import random
 import uuid
 
+from simpy.events import ProcessGenerator
+
 from src.main.actors.map_actor import MapActor
 from src.main.actors.restaurant import Restaurant
 from src.main.base.types import Coordinates
@@ -13,11 +15,11 @@ from src.main.order.order_status import OrderStatus
 
 
 class Customer(MapActor):
-    def __init__(self, environment: FoodDeliverySimpyEnv, coordinates: Coordinates, available: bool):
+    def __init__(self, environment: FoodDeliverySimpyEnv, coordinates: Coordinates, available: bool) -> None:
         self.customer_id = uuid.uuid4()
         super().__init__(environment, coordinates, available)
 
-    def place_order(self, order: Order, restaurant: Restaurant):
+    def place_order(self, order: Order, restaurant: Restaurant) -> None:
         self.publish_event(CustomerPlacedOrder(
             order_id=order.order_id,
             customer_id=self.customer_id,
@@ -27,7 +29,7 @@ class Customer(MapActor):
         restaurant.receive_order_requests([order])
         order.update_status(OrderStatus.PLACED)
 
-    def receive_order(self, order: Order, driver: Driver):
+    def receive_order(self, order: Order, driver: Driver) -> ProcessGenerator:
         yield self.timeout(self.time_to_receive_order(order))
         self.publish_event(CustomerReceivedOrder(
             order_id=order.order_id,
