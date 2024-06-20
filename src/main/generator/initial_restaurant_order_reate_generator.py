@@ -1,4 +1,3 @@
-import math
 import random
 
 from src.main.base.dimensions import Dimensions

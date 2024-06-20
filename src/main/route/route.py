@@ -1,10 +1,8 @@
 import uuid
-from functools import reduce
 
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.order.order import Order
-from src.main.route.route_segment import RouteSegment, RouteSegmentType
+from src.main.route.route_segment import RouteSegment
 
 
 class Route:

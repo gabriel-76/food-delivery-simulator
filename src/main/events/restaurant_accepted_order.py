@@ -1,5 +1,5 @@
-from src.main.events.order_event import OrderEvent
 from src.main.events.event_type import EventType
+from src.main.events.order_event import OrderEvent
 
 
 class RestaurantAcceptedOrder(OrderEvent):

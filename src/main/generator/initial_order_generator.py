@@ -1,5 +1,4 @@
 import random
-from datetime import datetime
 
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_generator import InitialGenerator

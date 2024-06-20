@@ -6,7 +6,6 @@ from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenera
 from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
 from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
 from src.main.map.grid_map import GridMap
-from src.main.optimizer.optimizer import Optimizer
 from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
 
 
