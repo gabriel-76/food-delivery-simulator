@@ -1,5 +1,5 @@
 from src.main.cost.cost_function import CostFunction
-from src.main.driver.driver import Driver
+from src.main.actors.driver import Driver
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.optimizer.optimizer import Optimizer
 from src.main.route.route import Route

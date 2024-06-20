@@ -3,7 +3,7 @@ from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.item import Item
 from src.main.restaurant.catalog import Catalog
-from src.main.restaurant.restaurant import Restaurant
+from src.main.actors.restaurant import Restaurant
 
 
 class TimeShiftRestaurantGenerator(TimeShiftGenerator):

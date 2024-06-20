@@ -5,7 +5,7 @@ from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_generator import InitialGenerator
 from src.main.order.item import Item
 from src.main.restaurant.catalog import Catalog
-from src.main.restaurant.restaurant_order_rate import RestaurantOrderRate
+from src.main.actors.restaurant_order_rate import RestaurantOrderRate
 
 
 class InitialRestaurantOrderRateGenerator(InitialGenerator):
