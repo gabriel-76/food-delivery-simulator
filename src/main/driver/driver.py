@@ -1,9 +1,11 @@
 import random
 import uuid
+from typing import Union, Optional, List
 
-import simpy
+from simpy.events import ProcessGenerator
 
 from src.main.actors.map_actor import MapActor
+from src.main.base.types import Coordinates
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver_status import DriverStatus
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
@@ -20,47 +22,53 @@ from src.main.events.driver_rejected_route import DriverRejectedRoute
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
 from src.main.route.route import Route
+from src.main.route.route_segment import RouteSegment
 
 
 class Driver(MapActor):
     def __init__(
             self,
             environment: FoodDeliverySimpyEnv,
-            coordinates,
+            coordinates: Coordinates,
             available: bool,
             capacity: Capacity,
             status: DriverStatus,
-            movement_rate
+            movement_rate: Union[int, float]
     ):
         self.driver_id = uuid.uuid4()
         super().__init__(environment, coordinates, available)
         self.capacity = capacity
         self.status = status
         self.movement_rate = movement_rate
-        self.current_route = None
-        self.current_route_segment = None
-        self.total_distance = 0
-        self.delivery_requests = simpy.Store(self.environment)
 
-        self.process(self.process_delivery_requests())
+        self.current_route: Optional[Route] = None
+        self.current_route_segment: Optional[RouteSegment] = None
+        self.total_distance: Union[int, float] = 0
+        self.route_requests: List[Route] = []
+
+        self.process(self.process_route_requests())
         self.process(self.move())
 
-    def fits(self, route: Route):
+    def fits(self, route: Route) -> bool:
         return self.capacity.fits(route.required_capacity)
 
-    def request_delivery(self, route: Route):
-        self.delivery_requests.put(route)
+    def receive_route_requests(self, route: Route) -> None:
+        self.route_requests.append(route)
 
-    def process_delivery_requests(self):
+    def process_route_requests(self) -> ProcessGenerator:
         while True:
-            route = yield self.delivery_requests.get()
-            self.process_route(route)
-            yield self.timeout(self.time_to_accept_or_reject_route(route))
+            if len(self.route_requests) > 0:
+                route = self.route_requests.pop(0)
+                self.process_route_request(route)
+                yield self.timeout(self.time_to_accept_or_reject_route(route))
+            else:
+                yield self.timeout(1)
 
-    def process_route(self, route: Route):
-        self.accept_route(route) if self.accept_route_condition(route) else self.reject_route(route)
+    def process_route_request(self, route: Route) -> None:
+        accept = self.accept_route_condition(route)
+        self.accept_route(route) if accept else self.reject_route(route)
 
-    def accept_route(self, route: Route):
+    def accept_route(self, route: Route) -> None:
         if self.current_route is None:
             self.current_route = route
             self.publish_event(DriverAcceptedRoute(
@@ -69,21 +77,27 @@ class Driver(MapActor):
                 distance=self.current_route.distance,
                 time=self.now
             ))
-            for route_segment in self.current_route.route_segments:
-                self.publish_event(DriverAcceptedDelivery(
-                    driver_id=self.driver_id,
-                    order_id=route_segment.order.order_id,
-                    customer_id=route_segment.order.customer.customer_id,
-                    restaurant_id=route_segment.order.restaurant.restaurant_id,
-                    distance=self.current_route.distance,
-                    time=self.now
-                ))
-                route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
+            self.accept_route_segments(self.current_route.route_segments)
             self.process(self.sequential_processor())
         else:
             self.accepted_route_extension(route)
 
-    def accepted_route_extension(self, route: Route):
+    def accept_route_segments(self, route_segments: List[RouteSegment]) -> None:
+        for route_segment in route_segments:
+            self.accept_route_segment(route_segment)
+
+    def accept_route_segment(self, route_segment: RouteSegment) -> None:
+        self.publish_event(DriverAcceptedDelivery(
+            driver_id=self.driver_id,
+            order_id=route_segment.order.order_id,
+            customer_id=route_segment.order.customer.customer_id,
+            restaurant_id=route_segment.order.restaurant.restaurant_id,
+            distance=self.current_route.distance,
+            time=self.now
+        ))
+        route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
+
+    def accepted_route_extension(self, route: Route) -> None:
         old_distance = self.current_route.distance
         self.current_route.extend_route(route)
         self.publish_event(DriverAcceptedRouteExtension(
@@ -93,19 +107,9 @@ class Driver(MapActor):
             distance=self.current_route.distance,
             time=self.now
         ))
-        for route_segment in self.current_route.route_segments:
-            route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
-        for route_segment in route.route_segments:
-            self.publish_event(DriverAcceptedDelivery(
-                driver_id=self.driver_id,
-                order_id=route_segment.order.order_id,
-                customer_id=route_segment.order.customer.customer_id,
-                restaurant_id=route_segment.order.restaurant.restaurant_id,
-                distance=self.current_route.distance,
-                time=self.now
-            ))
+        self.accept_route_segments(route.route_segments)
 
-    def sequential_processor(self):
+    def sequential_processor(self) -> ProcessGenerator:
         if self.current_route_segment is not None and self.current_route_segment.order.status < OrderStatus.READY:
             # print(f"Driver {self.coordinates} is waiting for "
             #       f"order {self.current_segment.coordinates} "
@@ -119,34 +123,42 @@ class Driver(MapActor):
             route_segment = self.current_route.next_segments()
             self.current_route_segment = route_segment
             if route_segment.is_pickup():
-                yield self.timeout(self.time_between_accept_and_start_picking_up(route_segment.order))
-                self.process(self.start_picking_up_order(route_segment.order))
+                timeout = self.time_between_accept_and_start_picking_up(route_segment.order)
+                yield self.timeout(timeout)
+                self.process(self.picking_up(route_segment.order))
             if route_segment.is_delivery():
-                yield self.timeout(self.time_between_pickup_and_start_delivery(route_segment.order))
-                self.process(self.start_order_delivery(route_segment.order))
+                timeout = self.time_between_picked_up_and_start_delivery(route_segment.order)
+                yield self.timeout(timeout)
+                self.process(self.delivering(route_segment.order))
         else:
             self.current_route = None
             self.current_route_segment = None
 
-    def reject_route(self, route: Route):
+    def reject_route(self, route: Route) -> None:
         self.publish_event(DriverRejectedRoute(
             driver_id=self.driver_id,
             route_id=self.current_route.route_id,
             distance=self.current_route.distance,
             time=self.now
         ))
-        for route_segment in route.route_segments:
-            self.publish_event(DriverRejectedDelivery(
-                driver_id=self.driver_id,
-                order_id=route_segment.order.order_id,
-                customer_id=route_segment.order.customer.customer_id,
-                restaurant_id=route_segment.order.restaurant.restaurant_id,
-                time=self.now
-            ))
-            route_segment.order.update_status(OrderStatus.DRIVER_REJECTED)
-            self.environment.add_rejected_delivery(route_segment.order)
+        self.reject_route_segments(route.route_segments)
 
-    def start_picking_up_order(self, order):
+    def reject_route_segments(self, route_segments: List[RouteSegment]) -> None:
+        for route_segment in route_segments:
+            self.reject_route_segment(route_segment)
+
+    def reject_route_segment(self, route_segment: RouteSegment) -> None:
+        self.publish_event(DriverRejectedDelivery(
+            driver_id=self.driver_id,
+            order_id=route_segment.order.order_id,
+            customer_id=route_segment.order.customer.customer_id,
+            restaurant_id=route_segment.order.restaurant.restaurant_id,
+            time=self.now
+        ))
+        route_segment.order.update_status(OrderStatus.DRIVER_REJECTED)
+        self.environment.add_rejected_delivery(route_segment.order)
+
+    def picking_up(self, order: Order) -> ProcessGenerator:
         self.status = DriverStatus.PICKING_UP
         order.update_status(OrderStatus.PICKING_UP)
         self.total_distance += self.environment.map.distance(self.coordinates, order.restaurant.coordinates)
@@ -159,9 +171,9 @@ class Driver(MapActor):
             time=self.now
         ))
         yield self.timeout(self.time_to_picking_up_order(order))
-        self.finish_order_pickup(order)
+        self.picked_up(order)
 
-    def finish_order_pickup(self, order):
+    def picked_up(self, order: Order) -> None:
         self.publish_event(DriverPickedUpOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
@@ -172,7 +184,7 @@ class Driver(MapActor):
         self.coordinates = order.restaurant.coordinates
         self.process(self.sequential_processor())
 
-    def start_order_delivery(self, order: Order):
+    def delivering(self, order: Order) -> ProcessGenerator:
         self.status = DriverStatus.DELIVERING
         order.update_status(OrderStatus.DELIVERING)
         self.total_distance += self.environment.map.distance(self.coordinates, order.customer.coordinates)
@@ -187,7 +199,7 @@ class Driver(MapActor):
         yield self.timeout(self.time_to_deliver_order(order))
         self.process(self.wait_customer_pick_up_order(order))
 
-    def wait_customer_pick_up_order(self, order: Order):
+    def wait_customer_pick_up_order(self, order: Order) -> ProcessGenerator:
         order.update_status(OrderStatus.DRIVER_ARRIVED_DELIVERY_LOCATION)
         self.publish_event(DriverArrivedDeliveryLocation(
             order_id=order.order_id,
@@ -197,9 +209,9 @@ class Driver(MapActor):
             time=self.now
         ))
         yield self.process(order.customer.receive_order(order, self))
-        self.finish_order_delivery(order)
+        self.delivered(order)
 
-    def finish_order_delivery(self, order: Order):
+    def delivered(self, order: Order) -> None:
         self.coordinates = order.customer.coordinates
         self.publish_event(DriverDeliveredOrder(
             order_id=order.order_id,
@@ -212,7 +224,7 @@ class Driver(MapActor):
         order.update_status(OrderStatus.DELIVERED)
         self.process(self.sequential_processor())
 
-    def move(self):
+    def move(self) -> ProcessGenerator:
         while True:
             if self.current_route_segment is not None:
                 self.coordinates = self.environment.map.move(
@@ -222,25 +234,25 @@ class Driver(MapActor):
                 )
             yield self.timeout(1)
 
-    def accept_route_condition(self, route: Route):
+    def accept_route_condition(self, route: Route) -> bool:
         return self.fits(route) and self.available
 
-    def check_availability(self, route: Route):
+    def check_availability(self, route: Route) -> bool:
         return self.fits(route) and self.available
 
-    def time_to_accept_or_reject_route(self, route: Route):
+    def time_to_accept_or_reject_route(self, route: Route) -> int:
         return random.randrange(3, 10)
 
-    def time_between_accept_and_start_picking_up(self, order: Order):
+    def time_between_accept_and_start_picking_up(self, order: Order) -> int:
         return random.randrange(0, 3)
 
     def time_to_picking_up_order(self, order: Order):
         return self.environment.map.estimated_time(self.coordinates, order.restaurant.coordinates, self.movement_rate)
 
-    def time_between_pickup_and_start_delivery(self, order: Order):
+    def time_between_picked_up_and_start_delivery(self, order: Order) -> int:
         return random.randrange(0, 3)
 
-    def time_to_deliver_order(self, order: Order):
+    def time_to_deliver_order(self, order: Order) -> int:
         restaurant_coordinates = order.restaurant.coordinates
         customer_coordinates = order.customer.coordinates
         return self.environment.map.estimated_time(restaurant_coordinates, customer_coordinates, self.movement_rate)
