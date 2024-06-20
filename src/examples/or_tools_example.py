@@ -1,4 +1,4 @@
-from src.main.coast.simple_cost_function import SimpleCostFunction
+from src.main.cost.simple_cost_function import SimpleCostFunction
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_driver_generator import InitialDriverGenerator
 from src.main.generator.initial_restaurant_order_reate_generator import InitialRestaurantOrderRateGenerator

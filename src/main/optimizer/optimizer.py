@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.main.coast.cost_function import CostFunction
+from src.main.cost.cost_function import CostFunction
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.order import Order

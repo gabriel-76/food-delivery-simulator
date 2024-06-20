@@ -1,6 +1,6 @@
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
-from src.main.coast.cost_function import CostFunction
+from src.main.cost.cost_function import CostFunction
 from src.main.optimizer.optimizer import Optimizer
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
 from src.main.route.pickup_route_segment import PickupRouteSegment
