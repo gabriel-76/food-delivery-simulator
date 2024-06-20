@@ -40,7 +40,7 @@ class Driver:
         self.status = status
         self.movement_rate = movement_rate
         self.current_route = None
-        self.current_segment = None
+        self.current_route_segment = None
         self.total_distance = 0
         self.requests = simpy.Store(self.environment)
 
@@ -112,7 +112,7 @@ class Driver:
             self.environment.add_event(event)
 
     def sequential_processor(self):
-        if self.current_segment is not None and self.current_segment.order.status < OrderStatus.READY:
+        if self.current_route_segment is not None and self.current_route_segment.order.status < OrderStatus.READY:
             # print(f"Driver {self.coordinates} is waiting for "
             #       f"order {self.current_segment.coordinates} "
             #       f"status {self.current_segment.order.status.name} "
@@ -123,7 +123,7 @@ class Driver:
             self.environment.process(self.sequential_processor())
         elif self.current_route.has_next_segments():
             route_segment = self.current_route.next_segments()
-            self.current_segment = route_segment
+            self.current_route_segment = route_segment
             if route_segment.route_segment_type is RouteSegmentType.PICKUP:
                 yield self.environment.timeout(self.time_between_accept_and_start_picking_up(route_segment.order))
                 self.environment.process(self.start_picking_up_order(route_segment.order))
@@ -132,7 +132,7 @@ class Driver:
                 self.environment.process(self.start_order_delivery(route_segment.order))
         else:
             self.current_route = None
-            self.current_segment = None
+            self.current_route_segment = None
 
     def reject_route(self, route: Route):
         event = DriverRejectedRoute(
@@ -227,10 +227,10 @@ class Driver:
 
     def move(self):
         while True:
-            if self.current_segment is not None:
+            if self.current_route_segment is not None:
                 self.coordinates = self.environment.map.move(
                     origin=self.coordinates,
-                    destination=self.current_segment.coordinates,
+                    destination=self.current_route_segment.coordinates,
                     rate=self.movement_rate
                 )
             yield self.environment.timeout(1)

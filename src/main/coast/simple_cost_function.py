@@ -21,10 +21,10 @@ class SimpleCostFunction(CostFunction):
 
     def delay(self, map: Map, driver: Driver, route_segment: RouteSegment):
         current_delay = 0
-        if driver.current_segment is not None:
+        if driver.current_route_segment is not None:
             current_delay = map.estimated_time(
                 driver.coordinates,
-                driver.current_segment.coordinates,
+                driver.current_route_segment.coordinates,
                 driver.movement_rate
             )
         new_segment_delay = map.estimated_time(
@@ -36,10 +36,10 @@ class SimpleCostFunction(CostFunction):
 
     def distance(self, map: Map, driver: Driver, route_segment: RouteSegment):
         current_distance = 0
-        if driver.current_segment is not None:
+        if driver.current_route_segment is not None:
             current_distance = map.distance(
                 driver.coordinates,
-                driver.current_segment.coordinates
+                driver.current_route_segment.coordinates
             )
         new_segment_distance = map.distance(
             driver.coordinates,
