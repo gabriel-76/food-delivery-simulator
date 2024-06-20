@@ -10,7 +10,7 @@ class LowestCostDriverOptimizer(Optimizer):
         super().__init__(cost_function, use_estimate, time_shift)
 
     def compare_distance(self, env: FoodDeliverySimpyEnv, driver: Driver, route: Route):
-        return self.cost_function.cost(env.map, driver, route.segments[0])
+        return self.cost_function.cost(env.map, driver, route.route_segments[0])
 
     def select_driver(self, env: FoodDeliverySimpyEnv, route: Route):
         drivers = env.available_drivers(route)

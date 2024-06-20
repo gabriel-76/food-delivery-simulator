@@ -18,7 +18,7 @@ from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
 from src.main.events.driver_rejected_route import DriverRejectedRoute
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
-from src.main.route.segment import SegmentType
+from src.main.route.route_segment import RouteSegmentType
 from src.main.route.route import Route
 
 
@@ -72,17 +72,17 @@ class Driver:
                 time=self.environment.now
             )
             self.environment.add_event(event)
-            for segment in self.current_route.segments:
+            for route_segment in self.current_route.route_segments:
                 event = DriverAcceptedDelivery(
                     driver_id=self.driver_id,
-                    order_id=segment.order.order_id,
-                    client_id=segment.order.client.client_id,
-                    restaurant_id=segment.order.restaurant.restaurant_id,
+                    order_id=route_segment.order.order_id,
+                    client_id=route_segment.order.client.client_id,
+                    restaurant_id=route_segment.order.restaurant.restaurant_id,
                     distance=self.current_route.distance,
                     time=self.environment.now
                 )
                 self.environment.add_event(event)
-                segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
+                route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
             self.environment.process(self.sequential_processor())
         else:
             self.accepted_route_extension(route)
@@ -98,14 +98,14 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        for segment in self.current_route.segments:
-            segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
-        for segment in route.segments:
+        for route_segment in self.current_route.route_segments:
+            route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
+        for route_segment in route.route_segments:
             event = DriverAcceptedDelivery(
                 driver_id=self.driver_id,
-                order_id=segment.order.order_id,
-                client_id=segment.order.client.client_id,
-                restaurant_id=segment.order.restaurant.restaurant_id,
+                order_id=route_segment.order.order_id,
+                client_id=route_segment.order.client.client_id,
+                restaurant_id=route_segment.order.restaurant.restaurant_id,
                 distance=self.current_route.distance,
                 time=self.environment.now
             )
@@ -122,14 +122,14 @@ class Driver:
             yield self.environment.timeout(1)
             self.environment.process(self.sequential_processor())
         elif self.current_route.has_next_segments():
-            segment = self.current_route.next_segments()
-            self.current_segment = segment
-            if segment.segment_type is SegmentType.PICKUP:
-                yield self.environment.timeout(self.time_between_accept_and_start_picking_up(segment.order))
-                self.environment.process(self.start_picking_up_order(segment.order))
-            if segment.segment_type is SegmentType.DELIVERY:
-                yield self.environment.timeout(self.time_between_pickup_and_start_delivery(segment.order))
-                self.environment.process(self.start_order_delivery(segment.order))
+            route_segment = self.current_route.next_segments()
+            self.current_segment = route_segment
+            if route_segment.route_segment_type is RouteSegmentType.PICKUP:
+                yield self.environment.timeout(self.time_between_accept_and_start_picking_up(route_segment.order))
+                self.environment.process(self.start_picking_up_order(route_segment.order))
+            if route_segment.route_segment_type is RouteSegmentType.DELIVERY:
+                yield self.environment.timeout(self.time_between_pickup_and_start_delivery(route_segment.order))
+                self.environment.process(self.start_order_delivery(route_segment.order))
         else:
             self.current_route = None
             self.current_segment = None
@@ -142,17 +142,17 @@ class Driver:
             time=self.environment.now
         )
         self.environment.add_event(event)
-        for segment in route.segments:
+        for route_segment in route.route_segments:
             event = DriverRejectedDelivery(
                 driver_id=self.driver_id,
-                order_id=segment.order.order_id,
-                client_id=segment.order.client.client_id,
-                restaurant_id=segment.order.restaurant.restaurant_id,
+                order_id=route_segment.order.order_id,
+                client_id=route_segment.order.client.client_id,
+                restaurant_id=route_segment.order.restaurant.restaurant_id,
                 time=self.environment.now
             )
             self.environment.add_event(event)
-            segment.order.update_status(OrderStatus.DRIVER_REJECTED)
-            self.environment.add_rejected_delivery(segment.order)
+            route_segment.order.update_status(OrderStatus.DRIVER_REJECTED)
+            self.environment.add_rejected_delivery(route_segment.order)
 
     def start_picking_up_order(self, order):
         self.status = DriverStatus.PICKING_UP

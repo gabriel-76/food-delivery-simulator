@@ -20,7 +20,7 @@ class ReactiveDriver(Driver):
 
     def accept_route_condition(self, route: Route):
         default_condition = super().accept_route_condition(route)
-        order = route.segments[0].order
+        order = route.route_segments[0].order
         pickup_coordinate = self.environment.map.distance(self.coordinates, order.restaurant.coordinates)
         return default_condition and pickup_coordinate <= self.max_distance
 
