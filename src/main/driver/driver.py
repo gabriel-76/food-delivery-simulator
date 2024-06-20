@@ -112,10 +112,10 @@ class Driver(MapActor):
     def sequential_processor(self) -> ProcessGenerator:
         if self.current_route_segment is not None and self.current_route_segment.order.status < OrderStatus.READY:
             # print(f"Driver {self.coordinates} is waiting for "
-            #       f"order {self.current_segment.coordinates} "
-            #       f"status {self.current_segment.order.status.name} "
-            #       f"estimated time {self.current_segment.order.estimated_time_to_ready} "
-            #       f"ready time {self.current_segments.order.time_it_was_ready} "
+            #       f"order {self.current_route_segment.coordinates} "
+            #       f"status {self.current_route_segment.order.status.name} "
+            #       f"estimated time {self.current_route_segment.order.estimated_time_to_ready} "
+            #       f"ready time {self.current_route_segment.order.time_it_was_ready} "
             #       f"current time {self.now}")
             yield self.timeout(1)
             self.process(self.sequential_processor())
