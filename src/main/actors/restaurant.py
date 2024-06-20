@@ -1,6 +1,9 @@
 import random
 import uuid
-from typing import List
+from typing import List, Union
+
+from simpy.core import SimTime
+from simpy.events import ProcessGenerator
 
 from src.main.actors.map_actor import MapActor
 from src.main.base.types import Coordinates
@@ -22,40 +25,38 @@ class Restaurant(MapActor):
             coordinates: Coordinates,
             available: bool,
             catalog: Catalog,
-            order_production_capacity=float('inf')
-    ):
+            production_capacity: Union[int, float] = float('inf')
+    ) -> None:
         self.restaurant_id = uuid.uuid4()
         super().__init__(environment, coordinates, available)
         self.catalog = catalog
-        self.order_production_capacity = order_production_capacity
-        self.orders_in_preparation = 0
-        self.overloaded_until = int(self.now)
+        self.production_capacity = production_capacity
+        self.orders_in_preparation: int = 0
+        self.overloaded_until: SimTime = int(self.now)
 
         self.order_requests: List[Order] = []
         self.orders_accepted: List[Order] = []
         self.rejected_orders: List[Order] = []
 
-        self.process(self.process_orders())
-        self.process(self.prepare_orders())
+        self.process(self.process_order_requests())
+        self.process(self.process_accepted_orders())
 
-    def receive_order_requests(self, orders):
+    def receive_order_requests(self, orders: List[Order]) -> None:
         self.order_requests += orders
 
-    def process_orders(self):
+    def process_order_requests(self) -> ProcessGenerator:
         while True:
             while len(self.order_requests) > 0:
                 order = self.order_requests.pop(0)
-                self.process(self.process_order(order))
-            yield self.timeout(self.time_process_orders())
+                self.process(self.process_order_request(order))
+            yield self.timeout(self.time_to_process_order_requests())
 
-    def process_order(self, order):
+    def process_order_request(self, order) -> ProcessGenerator:
         yield self.timeout(self.time_to_accept_or_reject_order(order))
-        if self.accept_order_condition(order):
-            self.accept_order(order)
-        else:
-            self.reject_order(order)
+        accept = self.condition_to_accept(order)
+        self.accept_order(order) if accept else self.reject_order(order)
 
-    def accept_order(self, order):
+    def accept_order(self, order) -> None:
         self.publish_event(RestaurantAcceptedOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
@@ -67,14 +68,14 @@ class Restaurant(MapActor):
         self.update_overload_time(estimated_time)
         self.orders_accepted.append(order)
 
-    def update_overload_time(self, estimated_time):
+    def update_overload_time(self, estimated_time) -> None:
         env_now = self.now
-        if self.orders_in_preparation == 0:
+        if self.is_empty():
             self.overloaded_until = max(self.overloaded_until - env_now, env_now)
-        elif self.orders_in_preparation < self.order_production_capacity:
+        elif self.is_within_capacity():
             self.overloaded_until = env_now + max(self.overloaded_until - env_now, estimated_time)
         else:
-            batch_size = len(self.orders_accepted) // self.order_production_capacity
+            batch_size = len(self.orders_accepted) // self.production_capacity
             self.overloaded_until = env_now + max(self.overloaded_until - env_now, batch_size * estimated_time)
 
         # print(f"{self.now} "
@@ -82,7 +83,7 @@ class Restaurant(MapActor):
         #       f"orders_in_preparation = {self.orders_in_preparation} "
         #       f"order_waiting = {len(self.confirmed_orders.items)} ")
 
-    def estimate_preparation_time(self, order):
+    def estimate_preparation_time(self, order) -> SimTime:
         estimated_time = self.time_estimate_to_prepare_order(order)
         self.publish_event(EstimatedOrderPreparationTime(
             order_id=order.order_id,
@@ -94,7 +95,7 @@ class Restaurant(MapActor):
         self.environment.add_estimated_order(order)
         return estimated_time
 
-    def reject_order(self, order):
+    def reject_order(self, order) -> None:
         self.publish_event(RestaurantRejectedOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
@@ -104,15 +105,15 @@ class Restaurant(MapActor):
         order.update_status(OrderStatus.RESTAURANT_REJECTED)
         self.rejected_orders.append(order)
 
-    def prepare_orders(self):
+    def process_accepted_orders(self) -> ProcessGenerator:
         while True:
-            while len(self.orders_accepted) > 0 and self.orders_in_preparation < self.order_production_capacity:
+            while len(self.orders_accepted) > 0 and self.is_within_capacity():
                 self.orders_in_preparation += 1
                 order = self.orders_accepted.pop(0)
                 self.process(self.prepare_order(order))
-            yield self.timeout(self.time_check_orders_ready_for_preparation())
+            yield self.timeout(self.time_check_to_start_preparation())
 
-    def prepare_order(self, order):
+    def prepare_order(self, order) -> ProcessGenerator:
         self.publish_event(RestaurantPreparingOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
@@ -125,7 +126,7 @@ class Restaurant(MapActor):
         yield self.timeout(time_to_prepare)
         self.finish_order(order)
 
-    def finish_order(self, order):
+    def finish_order(self, order) -> None:
         self.publish_event(RestaurantFinishedOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
@@ -137,20 +138,29 @@ class Restaurant(MapActor):
         self.environment.add_ready_order(order)
         self.update_overload_time(0)
 
-    def time_process_orders(self):
+    def is_empty(self) -> bool:
+        return self.orders_in_preparation == 0
+
+    def is_within_capacity(self) -> bool:
+        return self.orders_in_preparation < self.production_capacity
+
+    def is_full(self) -> bool:
+        return self.orders_in_preparation >= self.production_capacity
+
+    def time_to_process_order_requests(self) -> SimTime:
         return random.randrange(1, 5)
 
-    def time_check_orders_ready_for_preparation(self):
+    def time_to_accept_or_reject_order(self, order: Order) -> SimTime:
         return random.randrange(1, 5)
 
-    def time_to_accept_or_reject_order(self, order: Order):
+    def time_check_to_start_preparation(self) -> SimTime:
         return random.randrange(1, 5)
 
-    def time_to_prepare_order(self, order):
+    def time_to_prepare_order(self, order) -> SimTime:
         return random.randrange(8, 20)
 
-    def time_estimate_to_prepare_order(self, order):
+    def time_estimate_to_prepare_order(self, order) -> SimTime:
         return self.time_to_prepare_order(order) + random.randrange(-5, 5)
 
-    def accept_order_condition(self, order):
+    def condition_to_accept(self, order) -> bool:
         return self.available

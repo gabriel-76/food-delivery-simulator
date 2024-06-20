@@ -21,7 +21,7 @@ class InitialRestaurantOrderRateGenerator(InitialGenerator):
                 coordinates=env.map.random_point(),
                 available=True,
                 catalog=catalog,
-                order_production_capacity=float('inf'),
+                production_capacity=float('inf'),
                 order_request_time_rate=random.uniform(5.0, 10.0),
                 order_production_time_rate=random.uniform(5.0, 10.0),
                 operating_radius=random.randint(5, 30),
