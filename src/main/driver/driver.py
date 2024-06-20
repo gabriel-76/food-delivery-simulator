@@ -10,15 +10,14 @@ from src.main.events.driver_accepted_delivery import DriverAcceptedDelivery
 from src.main.events.driver_accepted_route import DriverAcceptedRoute
 from src.main.events.driver_accepted_route_extension import DriverAcceptedRouteExtension
 from src.main.events.driver_arrived_delivery_location import DriverArrivedDeliveryLocation
-from src.main.events.driver_picked_up_order import DriverPickedUpOrder
-from src.main.events.driver_picking_up_order import DriverPickingUpOrder
 from src.main.events.driver_delivered_order import DriverDeliveredOrder
 from src.main.events.driver_delivering_order import DriverDeliveringOrder
+from src.main.events.driver_picked_up_order import DriverPickedUpOrder
+from src.main.events.driver_picking_up_order import DriverPickingUpOrder
 from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
 from src.main.events.driver_rejected_route import DriverRejectedRoute
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
-from src.main.route.route_segment import RouteSegmentType
 from src.main.route.route import Route
 
 
@@ -124,10 +123,10 @@ class Driver:
         elif self.current_route.has_next_segments():
             route_segment = self.current_route.next_segments()
             self.current_route_segment = route_segment
-            if route_segment.route_segment_type is RouteSegmentType.PICKUP:
+            if route_segment.is_pickup():
                 yield self.environment.timeout(self.time_between_accept_and_start_picking_up(route_segment.order))
                 self.environment.process(self.start_picking_up_order(route_segment.order))
-            if route_segment.route_segment_type is RouteSegmentType.DELIVERY:
+            if route_segment.is_delivery():
                 yield self.environment.timeout(self.time_between_pickup_and_start_delivery(route_segment.order))
                 self.environment.process(self.start_order_delivery(route_segment.order))
         else:

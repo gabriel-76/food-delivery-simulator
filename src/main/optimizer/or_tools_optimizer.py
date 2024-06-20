@@ -2,6 +2,8 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from src.main.coast.cost_function import CostFunction
 from src.main.optimizer.optimizer import Optimizer
+from src.main.route.delivery_route_segment import DeliveryRouteSegment
+from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route_segment import RouteSegment
 from src.main.route.route_segment_type import RouteSegmentType
 from src.main.route.route import Route
@@ -18,8 +20,8 @@ class OrToolsOptimizer(Optimizer):
         if len(orders) == 0:
             return
 
-        pickup_segments = list(map(lambda order: RouteSegment(RouteSegmentType.PICKUP, order), orders))
-        delivery_segments = list(map(lambda order: RouteSegment(RouteSegmentType.DELIVERY, order), orders))
+        pickup_segments = list(map(lambda order: PickupRouteSegment(order), orders))
+        delivery_segments = list(map(lambda order: DeliveryRouteSegment(order), orders))
         drivers = list(filter(lambda d: d.available, env.state.drivers))
 
         num_pickups = len(pickup_segments)

@@ -4,7 +4,8 @@ from src.main.coast.cost_function import CostFunction
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.order import Order
-from src.main.route.route_segment import RouteSegment, RouteSegmentType
+from src.main.route.delivery_route_segment import DeliveryRouteSegment
+from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route import Route
 
 
@@ -21,8 +22,8 @@ class Optimizer(TimeShiftGenerator, ABC):
 
     def process_orders(self, env: FoodDeliverySimpyEnv, orders: [Order], rejected=False):
         for order in orders:
-            segment_pickup = RouteSegment(RouteSegmentType.PICKUP, order)
-            segment_delivery = RouteSegment(RouteSegmentType.DELIVERY, order)
+            segment_pickup = PickupRouteSegment(order)
+            segment_delivery = DeliveryRouteSegment(order)
             route = Route(env, [segment_pickup, segment_delivery])
 
             driver = self.select_driver(env, route)

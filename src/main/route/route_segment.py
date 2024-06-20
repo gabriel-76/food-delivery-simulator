@@ -10,7 +10,12 @@ class RouteSegment:
         self.required_capacity = self.order.required_capacity
 
     def init_coordinates(self):
-        if self.route_segment_type is RouteSegmentType.PICKUP:
+        if self.is_pickup():
             return self.order.restaurant.coordinates
-        if self.route_segment_type is RouteSegmentType.DELIVERY:
-            return self.order.customer.coordinates
+        return self.order.customer.coordinates
+
+    def is_pickup(self) -> bool:
+        return self.route_segment_type == RouteSegmentType.PICKUP
+
+    def is_delivery(self) -> bool:
+        return self.route_segment_type == RouteSegmentType.DELIVERY
