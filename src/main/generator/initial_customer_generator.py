@@ -1,19 +1,19 @@
-from src.main.client.client import Client
+from src.main.customer.customer import Customer
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_generator import InitialGenerator
 
 
-class InitialClientGenerator(InitialGenerator):
-    def __init__(self, num_clients):
-        self.num_clients = num_clients
+class InitialCustomerGenerator(InitialGenerator):
+    def __init__(self, num_customers):
+        self.num_customer = num_customers
 
     def run(self, env: FoodDeliverySimpyEnv):
-        clients = [
-            Client(
+        customers = [
+            Customer(
                 environment=env,
                 coordinates=env.map.random_point(),
                 available=True
             )
-            for _ in range(self.num_clients)
+            for _ in range(self.num_customer)
         ]
-        env.add_clients(clients)
+        env.add_customers(customers)

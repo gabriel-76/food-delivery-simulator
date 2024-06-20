@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
 
-class RouteType(Enum):
-    COLLECT = auto()
+class RouteSegmentType(Enum):
+    PICKUP = auto()
     DELIVERY = auto()

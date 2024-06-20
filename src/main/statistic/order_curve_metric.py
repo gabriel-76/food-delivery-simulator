@@ -12,7 +12,7 @@ class OrderCurveMetric(Metric):
     def view(self, ax) -> None:
         events = filter(
             lambda event: event.event_type in [
-                EventType.CLIENT_PLACED_ORDER,
+                EventType.CUSTOMER_PLACED_ORDER,
                 EventType.DRIVER_DELIVERED_ORDER,
                 EventType.RESTAURANT_FINISHED_ORDER,
             ],

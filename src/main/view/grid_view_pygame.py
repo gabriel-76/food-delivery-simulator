@@ -23,7 +23,7 @@ class GridViewPygame(FoodDeliveryView):
         pygame.display.init()
         self.screen = pygame.display.set_mode(window_size)
         self.clock = pygame.time.Clock()
-        pygame.display.set_caption('Mapa de Restaurantes, Clientes e Motoristas')
+        pygame.display.set_caption('Map of Restaurants, Customers and Drivers')
 
     def coordinates(self, coordinates):
         return (map_coordinates(coordinates[0], self.min_x, self.max_x, 0, self.window_size[0]),
@@ -44,8 +44,8 @@ class GridViewPygame(FoodDeliveryView):
 
         canvas.fill(WHITE)
 
-        for client in environment.state.clients:
-            mapped_x, mapped_y = self.coordinates(client.coordinates)
+        for customer in environment.state.customers:
+            mapped_x, mapped_y = self.coordinates(customer.coordinates)
             pygame.draw.circle(canvas, BLUE, (int(mapped_x), int(mapped_y)), 5)
 
         for restaurant in environment.state.restaurants:
@@ -59,8 +59,8 @@ class GridViewPygame(FoodDeliveryView):
         for driver in environment.state.drivers:
             mapped_x, mapped_y = self.coordinates(driver.coordinates)
             pygame.draw.circle(canvas, RED, (int(mapped_x), int(mapped_y)), 5)
-            if driver.status in [DriverStatus.COLLECTING, DriverStatus.DELIVERING]:
-                target_mapped_x, target_mapped_y = self.coordinates(driver.current_route.coordinates)
+            if driver.status in [DriverStatus.PICKING_UP, DriverStatus.DELIVERING]:
+                target_mapped_x, target_mapped_y = self.coordinates(driver.current_route_segment.coordinates)
                 pygame.draw.line(canvas, RED, (mapped_x, mapped_y), (target_mapped_x, target_mapped_y), 2)
 
         self.screen.blit(canvas, canvas.get_rect())

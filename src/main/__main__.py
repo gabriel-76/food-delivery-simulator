@@ -1,5 +1,5 @@
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.generator.time_shift_client_generator import TimeShiftClientGenerator
+from src.main.generator.time_shift_customer_generator import TimeShiftCustomerGenerator
 from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenerator
 from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
 from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
@@ -18,7 +18,7 @@ def main():
     environment = FoodDeliverySimpyEnv(
         map=GridMap(100),
         generators=[
-            TimeShiftClientGenerator(lambda time: 3),
+            TimeShiftCustomerGenerator(lambda time: 3),
             TimeShiftRestaurantGenerator(lambda time: 3),
             TimeShiftDriverGenerator(lambda time: 10),
             TimeShiftOrderGenerator(lambda time: time * 2 if time <= 100 else 1)

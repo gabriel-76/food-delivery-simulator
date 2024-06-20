@@ -1,6 +1,6 @@
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
-from src.main.generator.initial_client_generator import InitialClientGenerator
+from src.main.generator.initial_customer_generator import InitialCustomerGenerator
 from src.main.generator.initial_driver_generator import InitialDriverGenerator
 from src.main.generator.initial_order_generator import InitialOrderGenerator
 from src.main.generator.initial_restaurant_generator import InitialRestaurantGenerator
@@ -14,7 +14,7 @@ def main():
     environment = FoodDeliverySimpyEnv(
         map=GridMap(100),
         generators=[
-            InitialClientGenerator(100),
+            InitialCustomerGenerator(100),
             InitialRestaurantGenerator(100),
             InitialDriverGenerator(100),
             InitialOrderGenerator(1000)

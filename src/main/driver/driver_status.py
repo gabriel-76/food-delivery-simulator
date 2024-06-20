@@ -3,5 +3,5 @@ from enum import Enum, auto
 
 class DriverStatus(Enum):
     AVAILABLE = auto()
-    COLLECTING = auto()
+    PICKING_UP = auto()
     DELIVERING = auto()

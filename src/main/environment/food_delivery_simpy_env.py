@@ -19,7 +19,7 @@ class FoodDeliverySimpyEnv(Environment):
         self.events = []
         self.view = view
 
-        # Orders ready for collection
+        # Orders ready for picking up
         self.ready_orders = FilterStore(self)
         # Order deliveries rejected by driver
         self.rejected_deliveries = FilterStore(self)
@@ -28,8 +28,8 @@ class FoodDeliverySimpyEnv(Environment):
 
         self.init()
 
-    def add_clients(self, clients):
-        self.state.add_clients(clients)
+    def add_customers(self, customers):
+        self.state.add_customers(customers)
 
     def add_restaurants(self, restaurants):
         self.state.add_restaurants(restaurants)
@@ -37,8 +37,8 @@ class FoodDeliverySimpyEnv(Environment):
     def add_drivers(self, drivers):
         self.state.add_drivers(drivers)
 
-    def available_drivers(self, trip):
-        return [driver for driver in self.state.drivers if driver.check_availability(trip)]
+    def available_drivers(self, route):
+        return [driver for driver in self.state.drivers if driver.check_availability(route)]
 
     def add_ready_order(self, order):
         self.ready_orders.put(order)

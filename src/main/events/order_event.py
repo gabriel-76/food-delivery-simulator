@@ -2,10 +2,10 @@ from src.main.events.event import Event
 
 
 class OrderEvent(Event):
-    def __init__(self, order_id, client_id, restaurant_id, time, event_type):
+    def __init__(self, order_id, customer_id, restaurant_id, time, event_type):
         super().__init__(time, event_type)
         self.order_id = order_id
-        self.client_id = client_id
+        self.customer_id = customer_id
         self.restaurant_id = restaurant_id
 
     # def __lt__(self, other):
