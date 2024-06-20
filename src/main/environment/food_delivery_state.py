@@ -1,12 +1,12 @@
 class FoodDeliveryState:
     def __init__(self):
-        self.clients = []
+        self.customers = []
         self.restaurants = []
         self.drivers = []
         self.orders = []
 
-    def add_clients(self, clients):
-        self.clients += clients
+    def add_customers(self, customer):
+        self.customers += customer
 
     def add_restaurants(self, restaurants):
         self.restaurants += restaurants

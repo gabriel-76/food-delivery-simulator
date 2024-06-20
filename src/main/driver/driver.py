@@ -42,20 +42,20 @@ class Driver:
         self.current_route = None
         self.current_route_segment = None
         self.total_distance = 0
-        self.requests = simpy.Store(self.environment)
+        self.delivery_requests = simpy.Store(self.environment)
 
-        self.environment.process(self.process_requests())
+        self.environment.process(self.process_delivery_requests())
         self.environment.process(self.move())
 
     def fits(self, route: Route):
         return self.capacity.fits(route.required_capacity)
 
     def request_delivery(self, route: Route):
-        self.requests.put(route)
+        self.delivery_requests.put(route)
 
-    def process_requests(self):
+    def process_delivery_requests(self):
         while True:
-            route = yield self.requests.get()
+            route = yield self.delivery_requests.get()
             self.process_route(route)
             yield self.environment.timeout(self.time_to_accept_or_reject_route(route))
 
@@ -76,7 +76,7 @@ class Driver:
                 event = DriverAcceptedDelivery(
                     driver_id=self.driver_id,
                     order_id=route_segment.order.order_id,
-                    client_id=route_segment.order.client.client_id,
+                    customer_id=route_segment.order.customer.customer_id,
                     restaurant_id=route_segment.order.restaurant.restaurant_id,
                     distance=self.current_route.distance,
                     time=self.environment.now
@@ -104,7 +104,7 @@ class Driver:
             event = DriverAcceptedDelivery(
                 driver_id=self.driver_id,
                 order_id=route_segment.order.order_id,
-                client_id=route_segment.order.client.client_id,
+                customer_id=route_segment.order.customer.customer_id,
                 restaurant_id=route_segment.order.restaurant.restaurant_id,
                 distance=self.current_route.distance,
                 time=self.environment.now
@@ -146,7 +146,7 @@ class Driver:
             event = DriverRejectedDelivery(
                 driver_id=self.driver_id,
                 order_id=route_segment.order.order_id,
-                client_id=route_segment.order.client.client_id,
+                customer_id=route_segment.order.customer.customer_id,
                 restaurant_id=route_segment.order.restaurant.restaurant_id,
                 time=self.environment.now
             )
@@ -160,7 +160,7 @@ class Driver:
         self.total_distance += self.environment.map.distance(self.coordinates, order.restaurant.coordinates)
         event = DriverPickingUpOrder(
             order_id=order.order_id,
-            client_id=order.client.client_id,
+            customer_id=order.customer.customer_id,
             restaurant_id=order.restaurant.restaurant_id,
             driver_id=self.driver_id,
             distance=self.environment.map.distance(self.coordinates, order.restaurant.coordinates),
@@ -173,7 +173,7 @@ class Driver:
     def finish_order_pickup(self, order):
         event = DriverPickedUpOrder(
             order_id=order.order_id,
-            client_id=order.client.client_id,
+            customer_id=order.customer.customer_id,
             restaurant_id=order.restaurant.restaurant_id,
             driver_id=self.driver_id,
             time=self.environment.now
@@ -185,41 +185,41 @@ class Driver:
     def start_order_delivery(self, order: Order):
         self.status = DriverStatus.DELIVERING
         order.update_status(OrderStatus.DELIVERING)
-        self.total_distance += self.environment.map.distance(self.coordinates, order.client.coordinates)
+        self.total_distance += self.environment.map.distance(self.coordinates, order.customer.coordinates)
         event = DriverDeliveringOrder(
             order_id=order.order_id,
-            client_id=order.client.client_id,
+            customer_id=order.customer.customer_id,
             restaurant_id=order.restaurant.restaurant_id,
             driver_id=self.driver_id,
-            distance=self.environment.map.distance(self.coordinates, order.client.coordinates),
+            distance=self.environment.map.distance(self.coordinates, order.customer.coordinates),
             time=self.environment.now
         )
         self.environment.add_event(event)
         yield self.environment.timeout(self.time_to_deliver_order(order))
-        self.environment.process(self.wait_client_pick_up_order(order))
+        self.environment.process(self.wait_customer_pick_up_order(order))
 
-    def wait_client_pick_up_order(self, order: Order):
+    def wait_customer_pick_up_order(self, order: Order):
         order.update_status(OrderStatus.DRIVER_ARRIVED_DELIVERY_LOCATION)
         event = DriverArrivedDeliveryLocation(
             order_id=order.order_id,
-            client_id=order.client.client_id,
+            customer_id=order.customer.customer_id,
             restaurant_id=order.restaurant.restaurant_id,
             driver_id=self.driver_id,
             time=self.environment.now
         )
         self.environment.add_event(event)
-        yield self.environment.process(order.client.receive_order(order, self))
+        yield self.environment.process(order.customer.receive_order(order, self))
         self.finish_order_delivery(order)
 
     def finish_order_delivery(self, order: Order):
         event = DriverDeliveredOrder(
             order_id=order.order_id,
-            client_id=order.client.client_id,
+            customer_id=order.customer.customer_id,
             restaurant_id=order.restaurant.restaurant_id,
             driver_id=self.driver_id,
             time=self.environment.now
         )
-        self.coordinates = order.client.coordinates
+        self.coordinates = order.customer.coordinates
         self.environment.add_event(event)
         self.status = DriverStatus.AVAILABLE
         order.update_status(OrderStatus.DELIVERED)
@@ -243,6 +243,7 @@ class Driver:
 
     def time_to_accept_or_reject_route(self, route: Route):
         return random.randrange(3, 10)
+
     def time_between_accept_and_start_picking_up(self, order: Order):
         return random.randrange(0, 3)
 
@@ -254,5 +255,5 @@ class Driver:
 
     def time_to_deliver_order(self, order: Order):
         restaurant_coordinates = order.restaurant.coordinates
-        client_coordinates = order.client.coordinates
-        return self.environment.map.estimated_time(restaurant_coordinates, client_coordinates, self.movement_rate)
+        customer_coordinates = order.customer.coordinates
+        return self.environment.map.estimated_time(restaurant_coordinates, customer_coordinates, self.movement_rate)

@@ -13,4 +13,4 @@ class RouteSegment:
         if self.route_segment_type is RouteSegmentType.PICKUP:
             return self.order.restaurant.coordinates
         if self.route_segment_type is RouteSegmentType.DELIVERY:
-            return self.order.client.coordinates
+            return self.order.customer.coordinates

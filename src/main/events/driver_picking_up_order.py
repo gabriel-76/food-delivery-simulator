@@ -3,8 +3,8 @@ from src.main.events.event_type import EventType
 
 
 class DriverPickingUpOrder(OrderEvent):
-    def __init__(self, order_id, client_id, restaurant_id, driver_id, distance, time):
-        super().__init__(order_id, client_id, restaurant_id, time, EventType.DRIVER_PICKING_UP_ORDER)
+    def __init__(self, order_id, customer_id, restaurant_id, driver_id, distance, time):
+        super().__init__(order_id, customer_id, restaurant_id, time, EventType.DRIVER_PICKING_UP_ORDER)
         self.driver_id = driver_id
         self.distance = distance
 
@@ -12,6 +12,6 @@ class DriverPickingUpOrder(OrderEvent):
         return (f"Driver {self.driver_id} is picking up "
                 f"order {self.order_id} from "
                 f"restaurant {self.restaurant_id} and "
-                f"client {self.client_id} at a "
+                f"customer {self.customer_id} at a "
                 f"distance {self.distance} in "
                 f"time {self.time}")

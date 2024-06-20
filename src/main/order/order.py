@@ -8,13 +8,13 @@ from src.main.order.order_status import OrderStatus
 class Order:
     def __init__(
             self,
-            client,
+            customer,
             restaurant,
             request_date: int,
             items: [Item]
     ):
         self.order_id = uuid.uuid4()
-        self.client = client
+        self.customer = customer
         self.restaurant = restaurant
         self.request_date = request_date
         self.items = items

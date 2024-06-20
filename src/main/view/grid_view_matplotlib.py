@@ -26,7 +26,7 @@ class GridViewMatplotlib(FoodDeliveryView):
             return
 
         x_restaurants, y_restaurants = extract_coordinates(environment.state.restaurants)
-        x_clients, y_clients = extract_coordinates(environment.state.clients)
+        x_customers, y_customers = extract_coordinates(environment.state.customers)
         x_drivers, y_drivers = extract_coordinates(environment.state.drivers)
 
         self.ax.clear()
@@ -45,7 +45,7 @@ class GridViewMatplotlib(FoodDeliveryView):
                 self.ax.quiver(x, y, dx, dy, angles='xy', scale_units='xy', scale=scale, color='red', width=0.003)
 
         # Criar o gráfico de dispersão
-        self.ax.scatter(x_clients, y_clients, color='blue', label='Clients', marker="x", s=10)
+        self.ax.scatter(x_customers, y_customers, color='blue', label='Customers', marker="x", s=10)
         self.ax.scatter(x_restaurants, y_restaurants, color='green', label='Restaurants', marker="s", s=20)
         self.ax.scatter(x_drivers, y_drivers, color='red', label='Drivers', marker="o", s=10)
 

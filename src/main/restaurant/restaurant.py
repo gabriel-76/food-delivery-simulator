@@ -60,7 +60,7 @@ class Restaurant:
     def accept_order(self, order):
         event = RestaurantAcceptedOrder(
             order_id=order.order_id,
-            client_id=order.client.client_id,
+            customer_id=order.customer.customer_id,
             restaurant_id=self.restaurant_id,
             time=self.environment.now
         )
@@ -89,7 +89,7 @@ class Restaurant:
         estimated_time = self.time_estimate_to_prepare_order(order)
         event = EstimatedOrderPreparationTime(
             order_id=order.order_id,
-            client_id=order.client.client_id,
+            customer_id=order.customer.customer_id,
             restaurant_id=self.restaurant_id,
             estimated_time=self.time_estimate_to_prepare_order(order),
             time=self.environment.now
@@ -101,7 +101,7 @@ class Restaurant:
     def reject_order(self, order):
         event = RestaurantRejectedOrder(
             order_id=order.order_id,
-            client_id=order.client.client_id,
+            customer_id=order.customer.customer_id,
             restaurant_id=self.restaurant_id,
             time=self.environment.now
         )
@@ -120,7 +120,7 @@ class Restaurant:
     def prepare_order(self, order):
         event = RestaurantPreparingOrder(
             order_id=order.order_id,
-            client_id=order.client.client_id,
+            customer_id=order.customer.customer_id,
             restaurant_id=self.restaurant_id,
             time=self.environment.now
         )
@@ -134,7 +134,7 @@ class Restaurant:
     def finish_order(self, order):
         event = RestaurantFinishedOrder(
             order_id=order.order_id,
-            client_id=order.client.client_id,
+            customer_id=order.customer.customer_id,
             restaurant_id=self.restaurant_id,
             time=self.environment.now
         )

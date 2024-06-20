@@ -28,8 +28,8 @@ class FoodDeliverySimpyEnv(Environment):
 
         self.init()
 
-    def add_clients(self, clients):
-        self.state.add_clients(clients)
+    def add_customers(self, customers):
+        self.state.add_customers(customers)
 
     def add_restaurants(self, restaurants):
         self.state.add_restaurants(restaurants)

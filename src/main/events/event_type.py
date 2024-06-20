@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 
 class EventType(Enum):
-    CLIENT_PLACED_ORDER = auto()
+    CUSTOMER_PLACED_ORDER = auto()
     RESTAURANT_ACCEPTED_ORDER = auto()
     ESTIMATED_ORDER_PREPARATION_TIME = auto()
     RESTAURANT_REJECTED_ORDER = auto()
@@ -14,7 +14,7 @@ class EventType(Enum):
     DRIVER_PICKED_UP_ORDER = auto()
     DRIVER_DELIVERING_ORDER = auto()
     DRIVER_ARRIVED_DELIVERY_LOCATION = auto()
-    CLIENT_RECEIVED_ORDER = auto()
+    CUSTOMER_RECEIVED_ORDER = auto()
     DRIVER_DELIVERED_ORDER = auto()
 
     DRIVER_ACCEPTED_ROUTE = auto()
