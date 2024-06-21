@@ -7,7 +7,6 @@ def random_point_in_radius(centroid, inf_limit, sup_limit):
     r = random.uniform(inf_limit, sup_limit)
     x = centroid[0] + r * math.cos(theta)
     y = centroid[1] + r * math.sin(theta)
-
     return round(x), round(y)
 
 

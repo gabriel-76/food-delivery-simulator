@@ -131,7 +131,7 @@ class OrToolsOptimizer(Optimizer):
 
                 if driver is not None and len(segments) > 0:
                     route = Route(env, segments)
-                    driver.request_delivery(route)
+                    driver.receive_route_requests(route)
         else:
             print('Nenhuma solução encontrada!')
             for order in orders:

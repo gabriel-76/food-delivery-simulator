@@ -21,7 +21,7 @@ class TimeShiftRestaurantOrderRateGenerator(TimeShiftGenerator):
                 coordinates=env.map.random_point(),
                 available=True,
                 catalog=catalog,
-                order_production_capacity=1,
+                production_capacity=1,
                 order_request_time_rate=random.randint(1, 10),
                 order_production_time_rate=random.randint(1, 10),
                 operating_radius=random.randint(10, 30)

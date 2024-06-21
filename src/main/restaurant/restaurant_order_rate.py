@@ -12,12 +12,12 @@ class RestaurantOrderRate(Restaurant):
             coordinates,
             available: bool,
             catalog: Catalog,
-            order_production_capacity,
+            production_capacity,
             order_request_time_rate,
             order_production_time_rate,
             operating_radius
     ):
-        super().__init__(environment, coordinates, available, catalog, order_production_capacity)
+        super().__init__(environment, coordinates, available, catalog, production_capacity)
         self.order_request_time_rate = order_request_time_rate
         self.order_production_time_rate = order_production_time_rate
         self.operating_radius = operating_radius

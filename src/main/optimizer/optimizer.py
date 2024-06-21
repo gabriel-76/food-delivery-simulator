@@ -29,7 +29,7 @@ class Optimizer(TimeShiftGenerator, ABC):
             driver = self.select_driver(env, route)
 
             if driver is not None:
-                driver.request_delivery(route)
+                driver.receive_route_requests(route)
             elif rejected:
                 env.add_rejected_delivery(order)
             elif self.use_estimate:
