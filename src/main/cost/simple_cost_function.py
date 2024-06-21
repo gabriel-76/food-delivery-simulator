@@ -1,3 +1,4 @@
+from src.main.base.types import Number
 from src.main.cost.cost_function import CostFunction
 from src.main.driver.driver import Driver
 from src.main.map.map import Map
@@ -46,7 +47,7 @@ class SimpleCostFunction(CostFunction):
         )
         return current_distance + new_segment_distance
 
-    def cost(self, map: Map, driver: Driver, route_segment: RouteSegment):
+    def cost(self, map: Map, driver: Driver, route_segment: RouteSegment) -> Number:
         value = (
                 self.WEIGHT_DELAY * self.delay(map, driver, route_segment) +
                 self.WEIGHT_DISTANCE * self.distance(map, driver, route_segment) +
