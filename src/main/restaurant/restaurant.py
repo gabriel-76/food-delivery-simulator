@@ -1,12 +1,12 @@
 import random
 import uuid
-from typing import List, Union
+from typing import List
 
 from simpy.core import SimTime
 from simpy.events import ProcessGenerator
 
 from src.main.actors.map_actor import MapActor
-from src.main.base.types import Coordinates
+from src.main.base.types import Coordinates, Number
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.estimated_order_preparation_time import EstimatedOrderPreparationTime
 from src.main.events.restaurant_accepted_order import RestaurantAcceptedOrder
@@ -25,7 +25,7 @@ class Restaurant(MapActor):
             coordinates: Coordinates,
             available: bool,
             catalog: Catalog,
-            production_capacity: Union[int, float] = float('inf')
+            production_capacity: Number = float('inf')
     ) -> None:
         self.restaurant_id = uuid.uuid4()
         super().__init__(environment, coordinates, available)

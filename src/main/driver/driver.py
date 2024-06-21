@@ -1,11 +1,11 @@
 import random
 import uuid
-from typing import Union, Optional, List
+from typing import Optional, List
 
 from simpy.events import ProcessGenerator
 
 from src.main.actors.map_actor import MapActor
-from src.main.base.types import Coordinates
+from src.main.base.types import Coordinates, Number
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver_status import DriverStatus
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
@@ -33,7 +33,7 @@ class Driver(MapActor):
             available: bool,
             capacity: Capacity,
             status: DriverStatus,
-            movement_rate: Union[int, float]
+            movement_rate: Number
     ):
         self.driver_id = uuid.uuid4()
         super().__init__(environment, coordinates, available)
@@ -43,7 +43,7 @@ class Driver(MapActor):
 
         self.current_route: Optional[Route] = None
         self.current_route_segment: Optional[RouteSegment] = None
-        self.total_distance: Union[int, float] = 0
+        self.total_distance: Number = 0
         self.route_requests: List[Route] = []
 
         self.process(self.process_route_requests())
@@ -119,8 +119,8 @@ class Driver(MapActor):
             #       f"current time {self.now}")
             yield self.timeout(1)
             self.process(self.sequential_processor())
-        elif self.current_route.has_next_segments():
-            route_segment = self.current_route.next_segments()
+        elif self.current_route.has_next():
+            route_segment = self.current_route.next()
             self.current_route_segment = route_segment
             if route_segment.is_pickup():
                 timeout = self.time_between_accept_and_start_picking_up(route_segment.order)

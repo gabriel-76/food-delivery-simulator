@@ -1,4 +1,5 @@
 import uuid
+from typing import List
 
 from src.main.base.dimensions import Dimensions
 from src.main.order.item import Item
@@ -11,7 +12,7 @@ class Order:
             customer,
             restaurant,
             request_date: int,
-            items: [Item]
+            items: List[Item]
     ):
         self.order_id = uuid.uuid4()
         self.customer = customer
