@@ -61,6 +61,8 @@ class DistanceMetric(Metric):
 
         distances = distances.values()
 
+        distances = distances if len(distances) > 0 else [0]
+
         min_distance = min(distances)
         p1 = np.percentile(list(distances), 1)
         p10 = np.percentile(list(distances), 10)

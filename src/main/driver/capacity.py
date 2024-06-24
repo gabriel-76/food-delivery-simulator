@@ -1,4 +1,5 @@
 from src.main.base.dimensions import Dimensions
+from src.main.base.types import Number
 
 
 class Capacity:
@@ -7,4 +8,8 @@ class Capacity:
 
     def fits(self, dimensions: Dimensions) -> bool:
         return self.dimensions > dimensions
+
+    @property
+    def value(self) -> Number:
+        return self.dimensions.value
 

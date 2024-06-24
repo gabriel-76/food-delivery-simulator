@@ -41,6 +41,7 @@ class DelayMetric(Metric):
         #     print(f"Order ID: {order_id} - Time Difference: {time_difference}")
 
         times = time_differences.values()
+        times = times if len(times) > 0 else [0]
 
         min_time = min(times)
         p1 = np.percentile(list(times), 1)

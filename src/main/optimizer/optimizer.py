@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 from src.main.cost.cost_function import CostFunction
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
@@ -20,7 +21,7 @@ class Optimizer(TimeShiftGenerator, ABC):
     def select_driver(self, env: FoodDeliverySimpyEnv, route: Route):
         pass
 
-    def process_orders(self, env: FoodDeliverySimpyEnv, orders: [Order], rejected=False):
+    def process_orders(self, env: FoodDeliverySimpyEnv, orders: List[Order], rejected=False):
         for order in orders:
             segment_pickup = PickupRouteSegment(order)
             segment_delivery = DeliveryRouteSegment(order)
