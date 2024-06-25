@@ -19,6 +19,7 @@ from src.main.events.driver_picked_up_order import DriverPickedUpOrder
 from src.main.events.driver_picking_up_order import DriverPickingUpOrder
 from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
 from src.main.events.driver_rejected_route import DriverRejectedRoute
+from src.main.order.driver_delivery_rejection import DriverDeliveryRejection
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
 from src.main.route.route import Route
@@ -156,7 +157,8 @@ class Driver(MapActor):
             time=self.now
         ))
         route_segment.order.update_status(OrderStatus.DRIVER_REJECTED)
-        self.environment.add_rejected_delivery(route_segment.order)
+        rejection = DriverDeliveryRejection(self, self.now)
+        self.environment.add_rejected_delivery(route_segment.order, rejection)
 
     def picking_up(self, order: Order) -> ProcessGenerator:
         self.status = DriverStatus.PICKING_UP

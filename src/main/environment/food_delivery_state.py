@@ -12,10 +12,6 @@ class FoodDeliveryState:
 
         # Orders ready for picking up
         self.orders_awaiting_delivery: List[Order] = []
-        # Order deliveries rejected by driver
-        self.rejected_deliveries: List[Order] = []
-        # Order preparation estimate
-        self.estimated_orders: List[Order] = []
 
         self.events = []
 

@@ -2,6 +2,7 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from src.main.cost.cost_function import CostFunction
 from src.main.optimizer.optimizer import Optimizer
+from src.main.order.optimization_delivery_rejection import OptimizationDeliveryRejection
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
 from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route import Route
@@ -135,9 +136,4 @@ class OrToolsOptimizer(Optimizer):
         else:
             print('Nenhuma solução encontrada!')
             for order in orders:
-                if rejected:
-                    env.add_rejected_delivery(order)
-                elif self.use_estimate:
-                    env.add_estimated_order(order)
-                else:
-                    env.add_ready_order(order)
+                env.add_rejected_delivery(order, OptimizationDeliveryRejection(env.now))

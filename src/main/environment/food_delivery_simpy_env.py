@@ -5,6 +5,7 @@ from simpy.core import SimTime
 
 from src.main.environment.food_delivery_state import FoodDeliveryState
 from src.main.map.map import Map
+from src.main.order.delivery_rejection import DeliveryRejection
 from src.main.view.food_delivery_view import FoodDeliveryView
 
 
@@ -47,8 +48,9 @@ class FoodDeliverySimpyEnv(Environment):
     def count_ready_orders(self):
         return len(self.state.orders_awaiting_delivery)
 
-    def add_rejected_delivery(self, order):
-        self.state.rejected_deliveries.append(order)
+    def add_rejected_delivery(self, order, delivery_rejection: DeliveryRejection):
+        order.add_delivery_rejection(delivery_rejection)
+        self.state.orders_awaiting_delivery.append(order)
 
     def get_rejected_deliveries(self):
         rejected_orders = []
@@ -56,16 +58,6 @@ class FoodDeliverySimpyEnv(Environment):
             rejected_orders = self.state.rejected_deliveries
             self.state.rejected_deliveries = []
         return rejected_orders
-
-    def add_estimated_order(self, order):
-        self.state.estimated_orders.append(order)
-
-    def get_estimated_orders(self):
-        estimated_orders = []
-        while len(self.state.estimated_orders) > 0:
-            estimated_orders = self.state.estimated_orders
-            self.state.estimated_orders = []
-        return estimated_orders
 
     def add_event(self, event):
         self.state.add_event(event)
