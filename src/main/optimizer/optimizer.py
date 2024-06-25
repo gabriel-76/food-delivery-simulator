@@ -38,15 +38,15 @@ class Optimizer(TimeShiftGenerator, ABC):
                 env.add_ready_order(order)
 
     def optimize(self, env: FoodDeliverySimpyEnv):
-        orders = yield env.process(env.get_rejected_deliveries())
+        orders = env.get_rejected_deliveries()
         self.process_orders(env, orders, rejected=True)
 
         if self.use_estimate:
-            orders = yield env.process(env.get_estimated_orders())
+            orders = env.get_estimated_orders()
             self.process_orders(env, orders)
         else:
-            orders = yield env.process(env.get_ready_orders())
+            orders = env.get_ready_orders()
             self.process_orders(env, orders)
 
     def run(self, env: FoodDeliverySimpyEnv):
-        env.process(self.optimize(env))
+        self.optimize(env)

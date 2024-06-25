@@ -1,6 +1,6 @@
 from typing import Optional, Union
 
-from simpy import Environment, Event, FilterStore
+from simpy import Environment, Event
 from simpy.core import SimTime
 
 from src.main.environment.food_delivery_state import FoodDeliveryState
@@ -14,19 +14,13 @@ class FoodDeliverySimpyEnv(Environment):
         self.map = map
         self.generators = generators
         self.optimizer = optimizer
-
-        self.state = FoodDeliveryState()
-        self.events = []
         self.view = view
-
-        # Orders ready for picking up
-        self.ready_orders = FilterStore(self)
-        # Order deliveries rejected by driver
-        self.rejected_deliveries = FilterStore(self)
-        # Order preparation estimate
-        self.estimated_orders = FilterStore(self)
-
+        self.state = FoodDeliveryState()
         self.init()
+
+    @property
+    def events(self):
+        return self.state.events
 
     def add_customers(self, customers):
         self.state.add_customers(customers)
@@ -41,40 +35,40 @@ class FoodDeliverySimpyEnv(Environment):
         return [driver for driver in self.state.drivers if driver.check_availability(route)]
 
     def add_ready_order(self, order):
-        self.ready_orders.put(order)
+        self.state.orders_awaiting_delivery.append(order)
 
     def get_ready_orders(self):
         read_orders = []
-        while len(self.ready_orders.items) > 0:
-            order = yield self.ready_orders.get()
-            read_orders.append(order)
+        while len(self.state.orders_awaiting_delivery) > 0:
+            read_orders = self.state.orders_awaiting_delivery
+            self.state.orders_awaiting_delivery = []
         return read_orders
 
     def count_ready_orders(self):
-        return len(self.ready_orders.items)
+        return len(self.state.orders_awaiting_delivery)
 
     def add_rejected_delivery(self, order):
-        self.rejected_deliveries.put(order)
+        self.state.rejected_deliveries.append(order)
 
     def get_rejected_deliveries(self):
         rejected_orders = []
-        while len(self.rejected_deliveries.items) > 0:
-            order = yield self.rejected_deliveries.get()
-            rejected_orders.append(order)
+        while len(self.state.rejected_deliveries) > 0:
+            rejected_orders = self.state.rejected_deliveries
+            self.state.rejected_deliveries = []
         return rejected_orders
 
     def add_estimated_order(self, order):
-        self.estimated_orders.put(order)
+        self.state.estimated_orders.append(order)
 
     def get_estimated_orders(self):
         estimated_orders = []
-        while len(self.estimated_orders.items) > 0:
-            order = yield self.estimated_orders.get()
-            estimated_orders.append(order)
+        while len(self.state.estimated_orders) > 0:
+            estimated_orders = self.state.estimated_orders
+            self.state.estimated_orders = []
         return estimated_orders
 
     def add_event(self, event):
-        self.events.append(event)
+        self.state.add_event(event)
 
     def init(self):
         for generator in self.generators:
@@ -84,8 +78,7 @@ class FoodDeliverySimpyEnv(Environment):
             self.process(self.optimizer.generate(self))
 
     def log_events(self):
-        for event in self.events:
-            print(event)
+        self.state.log_events()
 
     def run(self, until: Optional[Union[SimTime, Event]] = None, render_mode=None):
         if render_mode == "human" and self.view is not None:
