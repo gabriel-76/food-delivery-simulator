@@ -12,6 +12,7 @@
 ### Execute `pip install gymnasium`
 ### Execute `pip install numpy`
 ### Execute `pip install ortools`
+### Execute `pip install stable-baselines3`
 
 ## Run project
 

@@ -18,15 +18,15 @@ from src.main.statistic.order_status_metric import OrderStatusMetric
 from src.main.statistic.total_metric import TotalMetric
 from src.main.view.grid_view_pygame import GridViewPygame
 
-NUM_DRIVERS = 100
-NUM_ORDERS = 100
+NUM_DRIVERS = 1
+NUM_ORDERS = 5
 
 def main():
     environment = FoodDeliverySimpyEnv(
         map=GridMap(100),
         generators=[
             InitialCustomerGenerator(NUM_ORDERS),
-            InitialRestaurantGenerator(20),
+            InitialRestaurantGenerator(10),
             InitialDriverGenerator(NUM_DRIVERS),
             InitialOrderGenerator(NUM_ORDERS)
         ],

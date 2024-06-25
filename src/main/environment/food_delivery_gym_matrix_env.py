@@ -16,6 +16,7 @@ class FoodDeliveryGymMatrixEnv(Env):
         self.num_drivers = num_drivers
         self.num_orders = num_orders
         self.simpy_env = simpy_env
+
         self.observation_space = Dict({
             'num_drivers': Discrete(self.num_drivers + 1),
             'drivers': Box(low=-np.inf, high=np.inf, shape=(self.num_drivers, 6), dtype=np.float32),
@@ -36,28 +37,6 @@ class FoodDeliveryGymMatrixEnv(Env):
             # shape=(2 * self.num_drivers, 2 + self.num_orders),
             dtype=np.float32
         )
-
-        # low = np.array([-1] + [-1] + [-1] * self.num_orders, dtype=np.int64)
-        # high = np.array([self.num_drivers - 1] + [1] + [self.num_orders - 1] * self.num_orders, dtype=np.int64)
-        # low_matrix = np.array([low] * self.num_drivers, dtype=np.int64)
-        # high_matrix = np.array([high] * self.num_drivers, dtype=np.int64)
-        #
-        # self.action_space = Box(
-        #     low=low_matrix,
-        #     high=high_matrix,
-        #     # shape=(2 * self.num_drivers, 2 + self.num_orders),
-        #     dtype=np.float32
-        # )
-
-        # # Defina os limites inferiores e superiores
-        # low = [-1, 0] + [0] * self.num_orders
-        # high = [self.num_drivers - 1, 1] + [self.num_orders - 1] * self.num_orders
-        # vec = [high[i] - low[i] + 1 for i in range(len(low))]
-        #
-        # # Crie o espaço MultiDiscrete
-        # nvec = np.array(vec * self.num_drivers, dtype=np.int32)
-        # print('nvec', nvec)
-        # self.action_space = MultiDiscrete(nvec)
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
@@ -115,19 +94,6 @@ class FoodDeliveryGymMatrixEnv(Env):
         return {'info': self.simpy_env.now}
 
     def action_is_valid(self, action) -> bool:
-        # print(action)
-        # ready_orders = [order for order in self.simpy_env.state.orders if order.status == OrderStatus.READY]
-        # num_ready_orders = len(ready_orders)
-        # for lines in action:
-        #     if lines[0] >= self.num_drivers:
-        #         return False
-        #     if lines[1] >= 2:
-        #         return False
-        #     for order_index in lines[2:]:
-        #         if order_index >= num_ready_orders:
-        #             return False
-        #
-        # return True
 
         ready_orders = [order for order in self.simpy_env.state.orders if order.status == OrderStatus.READY]
         num_ready_orders = len(ready_orders)
@@ -138,28 +104,18 @@ class FoodDeliveryGymMatrixEnv(Env):
                 if order_index >= num_ready_orders:
                     return False
 
-        return True
+        colum_0 = action[:, 0]
+        if len(np.unique(colum_0)) != len(colum_0):  # Verifica se há motoristas repetidos
+            return False
 
-        # for i in range(len(action)):
-        #     for j in range(len(action[i])):
-        #         driver_index = action[i][0]
-        #         rout_segment_type = action[i][1]
-        #         order_indexes = list(filter(lambda index: -1 < index < self.num_orders, action[i][2:]))
-        #         if driver_index >= self.num_drivers:
-        #             return False
-        #         if rout_segment_type >= 2:
-        #             return False
-        #         if len(order_indexes) > 0:
-        #             for order_index in order_indexes:
-        #                 if order_index >= num_ready_orders:
-        #                     return False
-        #
-        #         if driver_index > -1 and rout_segment_type == 0:
-
-
+        for col in range(1, action.shape[1]):  # Ignora a coluna 0 dos motoristas
+            colum = action[:, col]
+            # Remove -1 da coluna
+            colum_without_minus_1 = colum[colum != -1]
+            if len(np.unique(colum_without_minus_1)) != len(colum_without_minus_1):  # Verifica se há ordens repetidas
+                return False
 
         return True
-
 
     def apply_action(self, action) -> None:
         # print(action)
@@ -170,9 +126,9 @@ class FoodDeliveryGymMatrixEnv(Env):
             return
 
         for line in action:
-            if -1 < line[0] < self.num_drivers and -1 < line[1] < 2:
+            if -1 < line[0] < self.num_drivers:
                 driver_index = line[0]
-                order_indexes = list(filter(lambda index: -1 < index < self.num_orders, line[1:]))
+                order_indexes = list(filter(lambda index: -1 < index < len(ready_orders), line[1:]))
                 if len(order_indexes) > 0:
                     driver = drivers[driver_index]
                     for order_index in order_indexes:
@@ -181,28 +137,6 @@ class FoodDeliveryGymMatrixEnv(Env):
                         delivery_segment = DeliveryRouteSegment(order)
                         route = Route(self.simpy_env, [pickup_segment, delivery_segment])
                         driver.receive_route_requests(route)
-
-        # for line in action:
-        #     if -1 < line[0] < self.num_drivers and -1 < line[1] < 2:
-        #         driver_index = line[0]
-        #         rout_segment_type = line[1]
-        #         order_indexes = list(filter(lambda index: -1 < index < self.num_orders, line[2:]))
-        #         if len(order_indexes) > 0:
-        #             driver = drivers[driver_index]
-        #             for order_index in order_indexes:
-        #                 order = ready_orders[order_index]
-        #                 pickup_segment = PickupRouteSegment(order)
-        #                 delivery_segment = DeliveryRouteSegment(order)
-        #                 route = Route(self.simpy_env, [pickup_segment, delivery_segment])
-        #                 driver.receive_route_requests(route)
-                        # if rout_segment_type == 0:
-                        #     pickup_segment = PickupRouteSegment(order)
-                        #     route = Route(self.simpy_env, [pickup_segment])
-                        #     driver.receive_route_requests(route)
-                        # elif rout_segment_type == 1:
-                        #     delivery_segment = DeliveryRouteSegment(order)
-                        #     route = Route(self.simpy_env, [delivery_segment])
-                        #     driver.receive_route_requests(route)
 
     def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
@@ -233,8 +167,7 @@ class FoodDeliveryGymMatrixEnv(Env):
 
         truncated = False
         observation = self._get_obs()
-        assert self.observation_space.contains(
-            observation), "A observação gerada não está contida no espaço de observação."
+        assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
         info = self._get_info()
 
         if self.render_mode == "human":
@@ -245,10 +178,10 @@ class FoodDeliveryGymMatrixEnv(Env):
             self.apply_action(action)
             terminated = False
             num_delivered = len(list(filter(lambda order: order.status == OrderStatus.DELIVERED, self.simpy_env.state.orders)))
-            reward = 1 + num_delivered
+            reward = 1 + num_delivered * 3 - self.simpy_env.now * 0.3
         else:
             terminated = True
-            reward = -2
+            reward = -10 - self.simpy_env.now * 0.3
 
         return observation, reward, terminated, truncated, info
 
