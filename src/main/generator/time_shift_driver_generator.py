@@ -15,15 +15,12 @@ class TimeShiftDriverGenerator(TimeShiftGenerator):
     def run(self, env: FoodDeliverySimpyEnv):
         capacity = Capacity(Dimensions(10, 10, 10, 10))
         drivers = [
-            DriverActor(
-                environment=env,
-                driver=Driver(
-                    coordinate=env.map.random_point(),
-                    capacity=capacity,
-                    available=True,
-                    status=DriverStatus.AVAILABLE,
-                    movement_rate=random.uniform(1, 30)
-                )
+            Driver(
+                coordinate=env.map.random_point(),
+                capacity=capacity,
+                available=True,
+                status=DriverStatus.AVAILABLE,
+                movement_rate=random.uniform(1, 30)
             ) for _ in self.range(env)
         ]
         env.add_drivers(drivers)

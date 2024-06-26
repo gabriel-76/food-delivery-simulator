@@ -16,14 +16,11 @@ class TimeShiftEstablishmentGenerator(TimeShiftGenerator):
         dimension = Dimensions(1, 1, 1, 1)
         catalog = Catalog([Item(f"type_{i}", dimension, 4) for i in range(5)])
         establishments = [
-            EstablishmentActor(
-                environment=env,
-                establishment=Establishment(
-                    coordinate=env.map.random_point(),
-                    available=True,
-                    catalog=catalog,
-                    use_estimate=self.use_estimate
-                )
+            Establishment(
+                coordinate=env.map.random_point(),
+                available=True,
+                catalog=catalog,
+                use_estimate=self.use_estimate
             )
             for _ in self.range(env)
         ]

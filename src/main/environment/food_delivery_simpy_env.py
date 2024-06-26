@@ -1,9 +1,12 @@
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from simpy import Environment, Event
 from simpy.core import SimTime
 
+from src.main.customer.customer import Customer
+from src.main.driver.driver import Driver
 from src.main.environment.delivery_env_state import DeliveryEnvState
+from src.main.establishment.establishment import Establishment
 from src.main.map.map import Map
 from src.main.order.delivery_rejection import DeliveryRejection
 from src.main.view.food_delivery_view import FoodDeliveryView
@@ -27,13 +30,13 @@ class FoodDeliverySimpyEnv(Environment):
     def state(self):
         return self._state
 
-    def add_customers(self, customers):
+    def add_customers(self, customers: List[Customer]):
         self._state.add_customers(customers)
 
-    def add_establishments(self, establishments):
+    def add_establishments(self, establishments: List[Establishment]):
         self._state.add_establishments(establishments)
 
-    def add_drivers(self, drivers):
+    def add_drivers(self, drivers: List[Driver]):
         self._state.add_drivers(drivers)
 
     def available_drivers(self, route):

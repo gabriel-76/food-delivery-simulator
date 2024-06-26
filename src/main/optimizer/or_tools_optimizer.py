@@ -1,5 +1,6 @@
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
+from src.main.actors.driver_actor import DriverActor
 from src.main.cost.cost_function import CostFunction
 from src.main.optimizer.optimizer import Optimizer
 from src.main.order.optimization_delivery_rejection import OptimizationDeliveryRejection
@@ -132,7 +133,8 @@ class OrToolsOptimizer(Optimizer):
 
                 if driver is not None and len(segments) > 0:
                     route = Route(env, segments)
-                    driver.receive_route_requests(route)
+                    driver_actor = DriverActor(env, driver)
+                    driver_actor.receive_route_requests(route)
         else:
             print('Nenhuma solução encontrada!')
             for order in orders:

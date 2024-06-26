@@ -17,23 +17,25 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
 
         if establishment.establishment_id not in self.hash_timeout or self.hash_timeout[establishment.establishment_id] == env.now:
 
+            customer = Customer(
+                coordinate=point_in_gauss_circle(
+                    establishment.coordinate,
+                    establishment.operating_radius,
+                    env.map.size
+                ),
+                available=True
+            )
+
             customer_actor = CustomerActor(
                 environment=env,
-                customer=Customer(
-                    coordinate=point_in_gauss_circle(
-                        establishment.coordinate,
-                        establishment.operating_radius,
-                        env.map.size
-                    ),
-                    available=True
-                ),
+                customer=customer,
             )
 
             items = random.sample(establishment.catalog.items, 2)
 
-            order = Order(customer_actor, establishment, env.now, items)
+            order = Order(customer, establishment, env.now, items)
 
-            env.state.add_customers([customer_actor])
+            env.state.add_customers([customer])
             env.state.add_orders([order])
 
             customer_actor.place_order(order, establishment)

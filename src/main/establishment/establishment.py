@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional
+from typing import Optional, List
 
 from src.main.base.types import Coordinate, Number
 from src.main.establishment.catalog import Catalog
@@ -26,3 +26,8 @@ class Establishment:
         self.order_production_time_rate = order_production_time_rate
         self.operating_radius = operating_radius
         self.use_estimate = use_estimate
+        self.orders_in_preparation: int = 0
+        self.overloaded_until: Number = 0
+        self.order_requests: List = []
+        self.orders_accepted: List = []
+        self.orders_rejected: List = []

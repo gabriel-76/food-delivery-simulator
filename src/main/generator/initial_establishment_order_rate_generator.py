@@ -18,18 +18,15 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
         dimension = Dimensions(1, 1, 1, 1)
         catalog = Catalog([Item(f"type_{i}", dimension, 4) for i in range(5)])
         establishment = [
-            EstablishmentActorOrderRate(
-                environment=env,
-                establishment=Establishment(
-                    coordinate=env.map.random_point(),
-                    available=True,
-                    catalog=catalog,
-                    production_capacity=float('inf'),
-                    use_estimate=self.use_estimate,
-                    order_request_time_rate=random.uniform(5.0, 10.0),
-                    order_production_time_rate=random.uniform(5.0, 10.0),
-                    operating_radius=random.randint(5, 30)
-                )
+            Establishment(
+                coordinate=env.map.random_point(),
+                available=True,
+                catalog=catalog,
+                production_capacity=float('inf'),
+                use_estimate=self.use_estimate,
+                order_request_time_rate=random.uniform(5.0, 10.0),
+                order_production_time_rate=random.uniform(5.0, 10.0),
+                operating_radius=random.randint(5, 30)
             )
             for _ in range(self.num_establishments)
         ]

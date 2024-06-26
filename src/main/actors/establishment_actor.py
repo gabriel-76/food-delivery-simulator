@@ -4,7 +4,7 @@ from typing import List
 from simpy.core import SimTime
 from simpy.events import ProcessGenerator
 
-from src.main.actors.map_actor import MapActor
+from src.main.actors.actor import Actor
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.establishment.establishment import Establishment
 from src.main.events.establishment_accepted_order import EstablishmentAcceptedOrder
@@ -16,34 +16,24 @@ from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
 
 
-class EstablishmentActor(MapActor):
+class EstablishmentActor(Actor):
     def __init__(
             self,
             environment: FoodDeliverySimpyEnv,
             establishment: Establishment
     ) -> None:
-        self.establishment_id = establishment.establishment_id
-        super().__init__(environment, establishment.coordinate, establishment.available)
-        self.catalog = establishment.catalog
-        self.production_capacity = establishment.production_capacity
-        self.use_estimate = establishment.use_estimate
-        self.orders_in_preparation: int = 0
-        self.overloaded_until: SimTime = int(self.now)
-
-        self.order_requests: List[Order] = []
-        self.orders_accepted: List[Order] = []
-        self.orders_rejected: List[Order] = []
-
+        self.establishment = establishment
+        super().__init__(environment)
         self.process(self.process_order_requests())
         self.process(self.process_accepted_orders())
 
     def receive_order_requests(self, orders: List[Order]) -> None:
-        self.order_requests += orders
+        self.establishment.order_requests += orders
 
     def process_order_requests(self) -> ProcessGenerator:
         while True:
-            while len(self.order_requests) > 0:
-                order = self.order_requests.pop(0)
+            while len(self.establishment.order_requests) > 0:
+                order = self.establishment.order_requests.pop(0)
                 self.process(self.process_order_request(order))
             yield self.timeout(self.time_to_process_order_requests())
 
@@ -56,23 +46,29 @@ class EstablishmentActor(MapActor):
         self.publish_event(EstablishmentAcceptedOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
-            establishment_id=self.establishment_id,
+            establishment_id=self.establishment.establishment_id,
             time=self.now
         ))
         estimated_time = self.estimate_preparation_time(order)
         order.establishment_accepted(self.now + estimated_time)
         self.update_overload_time(estimated_time)
-        self.orders_accepted.append(order)
+        self.establishment.orders_accepted.append(order)
 
     def update_overload_time(self, estimated_time) -> None:
         env_now = self.now
         if self.is_empty():
-            self.overloaded_until = max(self.overloaded_until - env_now, env_now)
+            self.establishment.overloaded_until = max(self.establishment.overloaded_until - env_now, env_now)
         elif self.is_within_capacity():
-            self.overloaded_until = env_now + max(self.overloaded_until - env_now, estimated_time)
+            self.establishment.overloaded_until = env_now + max(
+                self.establishment.overloaded_until - env_now,
+                estimated_time
+            )
         else:
-            batch_size = len(self.orders_accepted) // self.production_capacity
-            self.overloaded_until = env_now + max(self.overloaded_until - env_now, batch_size * estimated_time)
+            batch_size = len(self.establishment.orders_accepted) // self.establishment.production_capacity
+            self.establishment.overloaded_until = env_now + max(
+                self.establishment.overloaded_until - env_now,
+                batch_size * estimated_time
+            )
 
         # print(f"{self.now} "
         #       f"full_until_time = {self.full_until_time} "
@@ -84,11 +80,11 @@ class EstablishmentActor(MapActor):
         self.publish_event(EstimatedOrderPreparationTime(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
-            establishment_id=self.establishment_id,
+            establishment_id=self.establishment.establishment_id,
             estimated_time=self.time_estimate_to_prepare_order(order),
             time=self.now
         ))
-        if self.use_estimate:
+        if self.establishment.use_estimate:
             self.environment.add_ready_order(order)
         return estimated_time
 
@@ -96,17 +92,17 @@ class EstablishmentActor(MapActor):
         self.publish_event(EstablishmentRejectedOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
-            establishment_id=self.establishment_id,
+            establishment_id=self.establishment.establishment_id,
             time=self.now
         ))
         order.update_status(OrderStatus.ESTABLISHMENT_REJECTED)
-        self.orders_rejected.append(order)
+        self.establishment.orders_rejected.append(order)
 
     def process_accepted_orders(self) -> ProcessGenerator:
         while True:
-            while len(self.orders_accepted) > 0 and self.is_within_capacity():
-                self.orders_in_preparation += 1
-                order = self.orders_accepted.pop(0)
+            while len(self.establishment.orders_accepted) > 0 and self.is_within_capacity():
+                self.establishment.orders_in_preparation += 1
+                order = self.establishment.orders_accepted.pop(0)
                 self.process(self.prepare_order(order))
             yield self.timeout(self.time_check_to_start_preparation())
 
@@ -114,7 +110,7 @@ class EstablishmentActor(MapActor):
         self.publish_event(EstablishmentPreparingOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
-            establishment_id=self.establishment_id,
+            establishment_id=self.establishment.establishment_id,
             time=self.now
         ))
         order.update_status(OrderStatus.PREPARING)
@@ -127,23 +123,23 @@ class EstablishmentActor(MapActor):
         self.publish_event(EstablishmentFinishedOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
-            establishment_id=self.establishment_id,
+            establishment_id=self.establishment.establishment_id,
             time=self.now
         ))
         order.update_status(OrderStatus.READY)
-        self.orders_in_preparation -= 1
-        if not self.use_estimate:
+        self.establishment.orders_in_preparation -= 1
+        if not self.establishment.use_estimate:
             self.environment.add_ready_order(order)
         self.update_overload_time(0)
 
     def is_empty(self) -> bool:
-        return self.orders_in_preparation == 0
+        return self.establishment.orders_in_preparation == 0
 
     def is_within_capacity(self) -> bool:
-        return self.orders_in_preparation < self.production_capacity
+        return self.establishment.orders_in_preparation < self.establishment.production_capacity
 
     def is_full(self) -> bool:
-        return self.orders_in_preparation >= self.production_capacity
+        return self.establishment.orders_in_preparation >= self.establishment.production_capacity
 
     def time_to_process_order_requests(self) -> SimTime:
         return random.randrange(1, 5)
@@ -161,4 +157,4 @@ class EstablishmentActor(MapActor):
         return self.time_to_prepare_order(order) + random.randrange(-5, 5)
 
     def condition_to_accept(self, order) -> bool:
-        return self.available
+        return self.establishment.available
