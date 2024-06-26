@@ -1,4 +1,5 @@
 from src.main.customer.customer import Customer
+from src.main.customer.customer_actor import CustomerActor
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 
@@ -8,12 +9,14 @@ class TimeShiftCustomerGenerator(TimeShiftGenerator):
         super().__init__(function, time_shift)
 
     def run(self, env: FoodDeliverySimpyEnv):
-        customers = [
-            Customer(
+        customer_actor = [
+            CustomerActor(
                 environment=env,
-                coordinate=env.map.random_point(),
-                available=True
+                customer=Customer(
+                    coordinate=env.map.random_point(),
+                    available=True
+                )
             )
             for _ in self.range(env)
         ]
-        env.add_customers(customers)
+        env.add_customers(customer_actor)

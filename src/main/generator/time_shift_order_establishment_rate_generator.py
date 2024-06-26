@@ -2,6 +2,7 @@ import random
 
 from src.main.base.geometry import point_in_gauss_circle
 from src.main.customer.customer import Customer
+from src.main.customer.customer_actor import CustomerActor
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.order import Order
@@ -16,24 +17,26 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
 
         if establishment.establishment_id not in self.hash_timeout or self.hash_timeout[establishment.establishment_id] == env.now:
 
-            customer = Customer(
+            customer_actor = CustomerActor(
                 environment=env,
-                coordinate=point_in_gauss_circle(
-                    establishment.coordinate,
-                    establishment.operating_radius,
-                    env.map.size
+                customer=Customer(
+                    coordinate=point_in_gauss_circle(
+                        establishment.coordinate,
+                        establishment.operating_radius,
+                        env.map.size
+                    ),
+                    available=True
                 ),
-                available=True
             )
 
             items = random.sample(establishment.catalog.items, 2)
 
-            order = Order(customer, establishment, env.now, items)
+            order = Order(customer_actor, establishment, env.now, items)
 
-            env.state.add_customers([customer])
+            env.state.add_customers([customer_actor])
             env.state.add_orders([order])
 
-            customer.place_order(order, establishment)
+            customer_actor.place_order(order, establishment)
 
             timeout = round(random.expovariate(1 / establishment.order_request_time_rate))
             # print("generated in time", env.now, timeout)
