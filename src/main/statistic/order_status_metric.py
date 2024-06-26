@@ -12,7 +12,7 @@ class OrderStatusMetric(Metric):
     def view(self, ax) -> None:
         print("ORDERS")
         order_status_counts = defaultdict(int)
-        for order in self.environment.state.orders:
+        for order in self.environment.state._orders:
             order_status_counts[order.status.name.lower()] += 1
 
         for status, count in order_status_counts.items():
