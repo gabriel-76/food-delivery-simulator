@@ -7,6 +7,7 @@ from src.main.customer.customer import Customer
 from src.main.driver.driver import Driver
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.actors.establishment_actor import EstablishmentActor
+from src.main.establishment.establishment import Establishment
 from src.main.events.customer_placed_order import CustomerPlacedOrder
 from src.main.events.customer_received_order import CustomerReceivedOrder
 from src.main.order.order import Order
@@ -19,14 +20,15 @@ class CustomerActor(MapActor):
         self.customer = customer
         super().__init__(environment, customer.coordinate, customer.available)
 
-    def place_order(self, order: Order, establishment: EstablishmentActor) -> None:
+    def place_order(self, order: Order, establishment: Establishment) -> None:
         self.publish_event(CustomerPlacedOrder(
             order_id=order.order_id,
             customer_id=self.customer_id,
             establishment_id=establishment.establishment_id,
             time=self.now
         ))
-        establishment.receive_order_requests([order])
+        establishment_actor = EstablishmentActor(self.environment, establishment)
+        establishment_actor.receive_order_requests([order])
         order.update_status(OrderStatus.PLACED)
 
     def receive_order(self, order: Order, driver: Driver) -> ProcessGenerator:
