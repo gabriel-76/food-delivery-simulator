@@ -2,6 +2,8 @@ import uuid
 from typing import List
 
 from src.main.base.dimensions import Dimensions
+from src.main.customer.customer import Customer
+from src.main.establishment.establishment import Establishment
 from src.main.order.delivery_rejection import DeliveryRejection
 from src.main.order.item import Item
 from src.main.order.order_status import OrderStatus
@@ -10,8 +12,8 @@ from src.main.order.order_status import OrderStatus
 class Order:
     def __init__(
             self,
-            customer,
-            establishment,
+            customer: Customer,
+            establishment: Establishment,
             request_date: int,
             items: List[Item]
     ):
