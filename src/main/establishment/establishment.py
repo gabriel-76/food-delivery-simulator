@@ -9,16 +9,16 @@ from src.main.actors.map_actor import MapActor
 from src.main.base.types import Coordinates, Number
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.estimated_order_preparation_time import EstimatedOrderPreparationTime
-from src.main.events.restaurant_accepted_order import RestaurantAcceptedOrder
-from src.main.events.restaurant_finished_order import RestaurantFinishedOrder
-from src.main.events.restaurant_preparing_order import RestaurantPreparingOrder
-from src.main.events.restaurant_rejected_order import RestaurantRejectedOrder
+from src.main.events.establishment_accepted_order import EstablishmentAcceptedOrder
+from src.main.events.establishment_finished_order import EstablishmentFinishedOrder
+from src.main.events.establishment_preparing_order import EstablishmentPreparingOrder
+from src.main.events.establishment_rejected_order import EstablishmentRejectedOrder
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
-from src.main.restaurant.catalog import Catalog
+from src.main.establishment.catalog import Catalog
 
 
-class Restaurant(MapActor):
+class Establishment(MapActor):
     def __init__(
             self,
             environment: FoodDeliverySimpyEnv,
@@ -28,7 +28,7 @@ class Restaurant(MapActor):
             production_capacity: Number = float('inf'),
             use_estimate: bool = False
     ) -> None:
-        self.restaurant_id = uuid.uuid4()
+        self.establishment_id = uuid.uuid4()
         super().__init__(environment, coordinates, available)
         self.catalog = catalog
         self.production_capacity = production_capacity
@@ -59,14 +59,14 @@ class Restaurant(MapActor):
         self.accept_order(order) if accept else self.reject_order(order)
 
     def accept_order(self, order) -> None:
-        self.publish_event(RestaurantAcceptedOrder(
+        self.publish_event(EstablishmentAcceptedOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
-            restaurant_id=self.restaurant_id,
+            establishment_id=self.establishment_id,
             time=self.now
         ))
         estimated_time = self.estimate_preparation_time(order)
-        order.restaurant_accepted(self.now + estimated_time)
+        order.establishment_accepted(self.now + estimated_time)
         self.update_overload_time(estimated_time)
         self.orders_accepted.append(order)
 
@@ -90,7 +90,7 @@ class Restaurant(MapActor):
         self.publish_event(EstimatedOrderPreparationTime(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
-            restaurant_id=self.restaurant_id,
+            establishment_id=self.establishment_id,
             estimated_time=self.time_estimate_to_prepare_order(order),
             time=self.now
         ))
@@ -99,13 +99,13 @@ class Restaurant(MapActor):
         return estimated_time
 
     def reject_order(self, order) -> None:
-        self.publish_event(RestaurantRejectedOrder(
+        self.publish_event(EstablishmentRejectedOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
-            restaurant_id=self.restaurant_id,
+            establishment_id=self.establishment_id,
             time=self.now
         ))
-        order.update_status(OrderStatus.RESTAURANT_REJECTED)
+        order.update_status(OrderStatus.ESTABLISHMENT_REJECTED)
         self.orders_rejected.append(order)
 
     def process_accepted_orders(self) -> ProcessGenerator:
@@ -117,10 +117,10 @@ class Restaurant(MapActor):
             yield self.timeout(self.time_check_to_start_preparation())
 
     def prepare_order(self, order) -> ProcessGenerator:
-        self.publish_event(RestaurantPreparingOrder(
+        self.publish_event(EstablishmentPreparingOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
-            restaurant_id=self.restaurant_id,
+            establishment_id=self.establishment_id,
             time=self.now
         ))
         order.update_status(OrderStatus.PREPARING)
@@ -130,10 +130,10 @@ class Restaurant(MapActor):
         self.finish_order(order)
 
     def finish_order(self, order) -> None:
-        self.publish_event(RestaurantFinishedOrder(
+        self.publish_event(EstablishmentFinishedOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
-            restaurant_id=self.restaurant_id,
+            establishment_id=self.establishment_id,
             time=self.now
         ))
         order.update_status(OrderStatus.READY)

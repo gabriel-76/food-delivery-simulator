@@ -11,13 +11,13 @@ class Order:
     def __init__(
             self,
             customer,
-            restaurant,
+            establishment,
             request_date: int,
             items: List[Item]
     ):
         self.order_id = uuid.uuid4()
         self.customer = customer
-        self.restaurant = restaurant
+        self.establishment = establishment
         self.request_date = request_date
         self.items = items
         self.status: OrderStatus = OrderStatus.CREATED
@@ -35,8 +35,8 @@ class Order:
     def update_status(self, status: OrderStatus):
         self.status = status
 
-    def restaurant_accepted(self, estimated_time_to_ready: int):
-        self.status = OrderStatus.RESTAURANT_ACCEPTED
+    def establishment_accepted(self, estimated_time_to_ready: int):
+        self.status = OrderStatus.ESTABLISHMENT_ACCEPTED
         self.estimated_time_to_ready = estimated_time_to_ready
 
     def add_delivery_rejection(self, delivery_rejection: DeliveryRejection):

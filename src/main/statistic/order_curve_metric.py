@@ -14,7 +14,7 @@ class OrderCurveMetric(Metric):
             lambda event: event.event_type in [
                 EventType.CUSTOMER_PLACED_ORDER,
                 EventType.DRIVER_DELIVERED_ORDER,
-                EventType.RESTAURANT_FINISHED_ORDER,
+                EventType.ESTABLISHMENT_FINISHED_ORDER,
             ],
             self.environment.events
         )

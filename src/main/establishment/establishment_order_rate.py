@@ -1,11 +1,11 @@
 import random
 
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.restaurant.catalog import Catalog
-from src.main.restaurant.restaurant import Restaurant
+from src.main.establishment.catalog import Catalog
+from src.main.establishment.establishment import Establishment
 
 
-class RestaurantOrderRate(Restaurant):
+class EstablishmentOrderRate(Establishment):
     def __init__(
             self,
             environment: FoodDeliverySimpyEnv,

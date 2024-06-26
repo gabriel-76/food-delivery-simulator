@@ -26,8 +26,8 @@ class FoodDeliverySimpyEnv(Environment):
     def add_customers(self, customers):
         self.state.add_customers(customers)
 
-    def add_restaurants(self, restaurants):
-        self.state.add_restaurants(restaurants)
+    def add_establishments(self, establishments):
+        self.state.add_establishments(establishments)
 
     def add_drivers(self, drivers):
         self.state.add_drivers(drivers)

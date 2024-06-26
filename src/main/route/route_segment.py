@@ -11,7 +11,7 @@ class RouteSegment:
 
     def init_coordinates(self):
         if self.is_pickup():
-            return self.order.restaurant.coordinates
+            return self.order.establishment.coordinates
         return self.order.customer.coordinates
 
     def is_pickup(self) -> bool:

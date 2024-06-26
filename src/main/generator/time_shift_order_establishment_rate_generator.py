@@ -7,40 +7,40 @@ from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.order import Order
 
 
-class TimeShiftOrderRestaurantRateGenerator(TimeShiftGenerator):
+class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
     def __init__(self, function, time_shift=1):
         super().__init__(function, time_shift)
         self.hash_timeout = {}
 
-    def process_restaurant(self, env: FoodDeliverySimpyEnv, restaurant):
+    def process_establishment(self, env: FoodDeliverySimpyEnv, establishment):
 
-        if restaurant.restaurant_id not in self.hash_timeout or self.hash_timeout[restaurant.restaurant_id] == env.now:
+        if establishment.establishment_id not in self.hash_timeout or self.hash_timeout[establishment.establishment_id] == env.now:
 
             customer = Customer(
                 environment=env,
                 coordinates=point_in_gauss_circle(
-                    restaurant.coordinates,
-                    restaurant.operating_radius,
+                    establishment.coordinates,
+                    establishment.operating_radius,
                     env.map.size
                 ),
                 available=True
             )
 
-            items = random.sample(restaurant.catalog.items, 2)
+            items = random.sample(establishment.catalog.items, 2)
 
-            order = Order(customer, restaurant, env.now, items)
+            order = Order(customer, establishment, env.now, items)
 
             env.state.customers.append(customer)
             env.state.orders.append(order)
 
-            customer.place_order(order, restaurant)
+            customer.place_order(order, establishment)
 
-            timeout = round(random.expovariate(1 / restaurant.order_request_time_rate))
+            timeout = round(random.expovariate(1 / establishment.order_request_time_rate))
             # print("generated in time", env.now, timeout)
 
-            self.hash_timeout[restaurant.restaurant_id] = env.now + max(timeout, 1)
+            self.hash_timeout[establishment.establishment_id] = env.now + max(timeout, 1)
 
     def run(self, env: FoodDeliverySimpyEnv):
         for _ in self.range(env):
-            for restaurant in env.state.restaurants:
-                self.process_restaurant(env, restaurant)
+            for establishment in env.state.establishments:
+                self.process_establishment(env, establishment)

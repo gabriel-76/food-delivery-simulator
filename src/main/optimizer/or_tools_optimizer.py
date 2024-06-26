@@ -37,7 +37,7 @@ class OrToolsOptimizer(Optimizer):
                 row.append(env.map.distance(from_node.coordinates, to_node.coordinates))
             distance_matrix.append(row)
 
-        # Índices de restaurantes, clientes e motoristas
+        # Índices de estabelecimentos, clientes e motoristas
         pickup_indices = list(range(num_pickups))
         delivery_indices = list(range(num_pickups, num_pickups + num_deliveries))
         driver_indices = list(range(num_pickups + num_deliveries, num_locations))

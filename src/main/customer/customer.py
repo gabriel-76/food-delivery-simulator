@@ -11,7 +11,7 @@ from src.main.events.customer_placed_order import CustomerPlacedOrder
 from src.main.events.customer_received_order import CustomerReceivedOrder
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
-from src.main.restaurant.restaurant import Restaurant
+from src.main.establishment.establishment import Establishment
 
 
 class Customer(MapActor):
@@ -19,14 +19,14 @@ class Customer(MapActor):
         self.customer_id = uuid.uuid4()
         super().__init__(environment, coordinates, available)
 
-    def place_order(self, order: Order, restaurant: Restaurant) -> None:
+    def place_order(self, order: Order, establishment: Establishment) -> None:
         self.publish_event(CustomerPlacedOrder(
             order_id=order.order_id,
             customer_id=self.customer_id,
-            restaurant_id=restaurant.restaurant_id,
+            establishment_id=establishment.establishment_id,
             time=self.now
         ))
-        restaurant.receive_order_requests([order])
+        establishment.receive_order_requests([order])
         order.update_status(OrderStatus.PLACED)
 
     def receive_order(self, order: Order, driver: Driver) -> ProcessGenerator:
@@ -34,7 +34,7 @@ class Customer(MapActor):
         self.publish_event(CustomerReceivedOrder(
             order_id=order.order_id,
             customer_id=self.customer_id,
-            restaurant_id=order.restaurant.restaurant_id,
+            establishment_id=order.establishment.establishment_id,
             driver_id=driver.driver_id,
             time=self.now
         ))

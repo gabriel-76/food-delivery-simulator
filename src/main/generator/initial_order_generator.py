@@ -11,13 +11,13 @@ class InitialOrderGenerator(InitialGenerator):
 
     def run(self, env: FoodDeliverySimpyEnv):
         for _ in range(self.num_orders):
-            restaurant = random.choice(env.state.restaurants)
+            establishment = random.choice(env.state.establishments)
             customer = random.choice(env.state.customers)
 
-            items = random.sample(restaurant.catalog.items, 2)
+            items = random.sample(establishment.catalog.items, 2)
 
-            order = Order(customer, restaurant, env.now, items)
+            order = Order(customer, establishment, env.now, items)
 
             env.state.orders += [order]
 
-            customer.place_order(order, restaurant)
+            customer.place_order(order, establishment)

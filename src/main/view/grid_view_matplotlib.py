@@ -25,15 +25,15 @@ class GridViewMatplotlib(FoodDeliveryView):
         if self.quited:
             return
 
-        x_restaurants, y_restaurants = extract_coordinates(environment.state.restaurants)
+        x_establishments, y_establishments = extract_coordinates(environment.state.establishments)
         x_customers, y_customers = extract_coordinates(environment.state.customers)
         x_drivers, y_drivers = extract_coordinates(environment.state.drivers)
 
         self.ax.clear()
         circles = []
-        for restaurant in environment.state.restaurants:
-            if hasattr(restaurant, "operating_radius"):
-                circle = plt.Circle(restaurant.coordinates, restaurant.operating_radius, color='green', fill=False)
+        for establishment in environment.state.establishments:
+            if hasattr(establishment, "operating_radius"):
+                circle = plt.Circle(establishment.coordinates, establishment.operating_radius, color='green', fill=False)
                 circles.append(circle)
 
         for driver in environment.state.drivers:
@@ -46,7 +46,7 @@ class GridViewMatplotlib(FoodDeliveryView):
 
         # Criar o gráfico de dispersão
         self.ax.scatter(x_customers, y_customers, color='blue', label='Customers', marker="x", s=10)
-        self.ax.scatter(x_restaurants, y_restaurants, color='green', label='Restaurants', marker="s", s=20)
+        self.ax.scatter(x_establishments, y_establishments, color='green', label='Establishments', marker="s", s=20)
         self.ax.scatter(x_drivers, y_drivers, color='red', label='Drivers', marker="o", s=10)
 
         for circle in circles:
