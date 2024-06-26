@@ -6,8 +6,8 @@ from src.main.route.route import Route
 
 
 class LowestCostDriverOptimizer(Optimizer):
-    def __init__(self, cost_function: CostFunction, use_estimate=False, time_shift=1):
-        super().__init__(cost_function, use_estimate, time_shift)
+    def __init__(self, cost_function: CostFunction, time_shift=1):
+        super().__init__(cost_function, time_shift)
 
     def compare_distance(self, env: FoodDeliverySimpyEnv, driver: Driver, route: Route):
         return self.cost_function.cost(env.map, driver, route.route_segments[0])

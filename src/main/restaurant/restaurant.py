@@ -25,18 +25,20 @@ class Restaurant(MapActor):
             coordinates: Coordinates,
             available: bool,
             catalog: Catalog,
-            production_capacity: Number = float('inf')
+            production_capacity: Number = float('inf'),
+            use_estimate: bool = False
     ) -> None:
         self.restaurant_id = uuid.uuid4()
         super().__init__(environment, coordinates, available)
         self.catalog = catalog
         self.production_capacity = production_capacity
+        self.use_estimate = use_estimate
         self.orders_in_preparation: int = 0
         self.overloaded_until: SimTime = int(self.now)
 
         self.order_requests: List[Order] = []
         self.orders_accepted: List[Order] = []
-        self.rejected_orders: List[Order] = []
+        self.orders_rejected: List[Order] = []
 
         self.process(self.process_order_requests())
         self.process(self.process_accepted_orders())
@@ -92,7 +94,8 @@ class Restaurant(MapActor):
             estimated_time=self.time_estimate_to_prepare_order(order),
             time=self.now
         ))
-        self.environment.add_estimated_order(order)
+        if self.use_estimate:
+            self.environment.add_ready_order(order)
         return estimated_time
 
     def reject_order(self, order) -> None:
@@ -103,7 +106,7 @@ class Restaurant(MapActor):
             time=self.now
         ))
         order.update_status(OrderStatus.RESTAURANT_REJECTED)
-        self.rejected_orders.append(order)
+        self.orders_rejected.append(order)
 
     def process_accepted_orders(self) -> ProcessGenerator:
         while True:
@@ -135,7 +138,8 @@ class Restaurant(MapActor):
         ))
         order.update_status(OrderStatus.READY)
         self.orders_in_preparation -= 1
-        self.environment.add_ready_order(order)
+        if not self.use_estimate:
+            self.environment.add_ready_order(order)
         self.update_overload_time(0)
 
     def is_empty(self) -> bool:

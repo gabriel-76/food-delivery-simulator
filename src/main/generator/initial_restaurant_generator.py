@@ -7,8 +7,9 @@ from src.main.restaurant.restaurant import Restaurant
 
 
 class InitialRestaurantGenerator(InitialGenerator):
-    def __init__(self, num_restaurants):
+    def __init__(self, num_restaurants,  use_estimate: bool = False):
         self.num_restaurants = num_restaurants
+        self.use_estimate = use_estimate
 
     def run(self, env: FoodDeliverySimpyEnv):
         dimension = Dimensions(1, 1, 1, 1)
@@ -18,7 +19,8 @@ class InitialRestaurantGenerator(InitialGenerator):
                 environment=env,
                 coordinates=env.map.random_point(),
                 available=True,
-                catalog=catalog
+                catalog=catalog,
+                use_estimate=self.use_estimate
             )
             for _ in range(self.num_restaurants)
         ]
