@@ -26,14 +26,9 @@ from src.main.route.route_segment import RouteSegment
 
 
 class DriverActor(Actor):
-    def __init__(
-            self,
-            environment: FoodDeliverySimpyEnv,
-            driver: Driver
-    ):
-        self.driver = driver
+    def __init__(self, environment: FoodDeliverySimpyEnv, driver: Driver):
         super().__init__(environment)
-
+        self.driver = driver
         self.process(self.process_route_requests())
         self.process(self.move())
 

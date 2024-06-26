@@ -17,13 +17,9 @@ from src.main.order.order_status import OrderStatus
 
 
 class EstablishmentActor(Actor):
-    def __init__(
-            self,
-            environment: FoodDeliverySimpyEnv,
-            establishment: Establishment
-    ) -> None:
-        self.establishment = establishment
+    def __init__(self, environment: FoodDeliverySimpyEnv, establishment: Establishment) -> None:
         super().__init__(environment)
+        self.establishment = establishment
         self.process(self.process_order_requests())
         self.process(self.process_accepted_orders())
 
