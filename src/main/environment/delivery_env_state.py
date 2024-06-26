@@ -6,7 +6,7 @@ from src.main.establishment.establishment import Establishment
 from src.main.order.order import Order
 
 
-class FoodDeliveryState:
+class DeliveryEnvState:
     def __init__(self):
         self._customers: List[Customer] = []
         self._establishments: List[Establishment] = []
@@ -33,7 +33,6 @@ class FoodDeliveryState:
     @property
     def orders(self) -> List[Order]:
         return self._orders
-
 
     def add_customers(self, customer: List[Customer]):
         self._customers += customer
