@@ -1,4 +1,4 @@
-from src.main.driver.driver_actor import DriverActor
+from src.main.actors.driver_actor import DriverActor
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.optimizer.optimizer import Optimizer
 from src.main.route.route import Route

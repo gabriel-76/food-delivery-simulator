@@ -5,7 +5,7 @@ from simpy.events import ProcessGenerator
 
 from src.main.actors.map_actor import MapActor
 from src.main.base.types import Number
-from src.main.customer.customer_actor import CustomerActor
+from src.main.actors.customer_actor import CustomerActor
 from src.main.driver.driver import Driver
 from src.main.driver.driver_status import DriverStatus
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv

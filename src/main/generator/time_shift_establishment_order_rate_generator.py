@@ -6,7 +6,7 @@ from src.main.establishment.establishment import Establishment
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.item import Item
 from src.main.establishment.catalog import Catalog
-from src.main.establishment.establishment_actor_order_rate import EstablishmentActorOrderRate
+from src.main.actors.establishment_actor_order_rate import EstablishmentActorOrderRate
 
 
 class TimeShiftEstablishmentOrderRateGenerator(TimeShiftGenerator):

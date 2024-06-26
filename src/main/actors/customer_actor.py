@@ -6,7 +6,7 @@ from src.main.actors.map_actor import MapActor
 from src.main.customer.customer import Customer
 from src.main.driver.driver import Driver
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.establishment.establishment_actor import EstablishmentActor
+from src.main.actors.establishment_actor import EstablishmentActor
 from src.main.events.customer_placed_order import CustomerPlacedOrder
 from src.main.events.customer_received_order import CustomerReceivedOrder
 from src.main.order.order import Order

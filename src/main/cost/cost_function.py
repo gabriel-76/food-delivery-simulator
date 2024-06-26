@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src.main.base.types import Number
-from src.main.driver.driver_actor import Driver
+from src.main.actors.driver_actor import Driver
 from src.main.map.map import Map
 from src.main.route.route_segment import RouteSegment
 

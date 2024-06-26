@@ -1,5 +1,5 @@
 from src.main.customer.customer import Customer
-from src.main.customer.customer_actor import CustomerActor
+from src.main.actors.customer_actor import CustomerActor
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_generator import InitialGenerator
 
