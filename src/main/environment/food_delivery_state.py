@@ -6,7 +6,7 @@ from src.main.order.order import Order
 class FoodDeliveryState:
     def __init__(self):
         self.customers = []
-        self.restaurants = []
+        self.establishments = []
         self.drivers = []
         self.orders = []
 
@@ -18,8 +18,8 @@ class FoodDeliveryState:
     def add_customers(self, customer):
         self.customers += customer
 
-    def add_restaurants(self, restaurants):
-        self.restaurants += restaurants
+    def add_establishments(self, establishments):
+        self.establishments += establishments
 
     def add_drivers(self, drivers):
         self.drivers += drivers

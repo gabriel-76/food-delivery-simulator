@@ -1,8 +1,8 @@
 from src.main.cost.simple_cost_function import SimpleCostFunction
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_driver_generator import InitialDriverGenerator
-from src.main.generator.initial_restaurant_order_reate_generator import InitialRestaurantOrderRateGenerator
-from src.main.generator.time_shift_order_restaurant_rate_generator import TimeShiftOrderRestaurantRateGenerator
+from src.main.generator.initial_establishment_order_rate_generator import InitialEstablishmentOrderRateGenerator
+from src.main.generator.time_shift_order_establishment_rate_generator import TimeShiftOrderEstablishmentRateGenerator
 from src.main.map.grid_map import GridMap
 from src.main.optimizer.or_tools_optimizer import OrToolsOptimizer
 from src.main.statistic.custom_board import CustomBoard
@@ -19,9 +19,9 @@ def run():
     environment = FoodDeliverySimpyEnv(
         map=GridMap(100),
         generators=[
-            InitialRestaurantOrderRateGenerator(10),
+            InitialEstablishmentOrderRateGenerator(10),
             InitialDriverGenerator(10),
-            TimeShiftOrderRestaurantRateGenerator(lambda time: 1 if time < 400 else 0),
+            TimeShiftOrderEstablishmentRateGenerator(lambda time: 1 if time < 400 else 0),
         ],
         optimizer=OrToolsOptimizer(cost_function=SimpleCostFunction()),
         view=GridViewPygame()

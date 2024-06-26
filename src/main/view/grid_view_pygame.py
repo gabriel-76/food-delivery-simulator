@@ -23,7 +23,7 @@ class GridViewPygame(FoodDeliveryView):
         pygame.display.init()
         self.screen = pygame.display.set_mode(window_size)
         self.clock = pygame.time.Clock()
-        pygame.display.set_caption('Map of Restaurants, Customers and Drivers')
+        pygame.display.set_caption('Map of Establishments, Customers and Drivers')
 
     def coordinates(self, coordinates):
         return (map_coordinates(coordinates[0], self.min_x, self.max_x, 0, self.window_size[0]),
@@ -48,12 +48,12 @@ class GridViewPygame(FoodDeliveryView):
             mapped_x, mapped_y = self.coordinates(customer.coordinates)
             pygame.draw.circle(canvas, BLUE, (int(mapped_x), int(mapped_y)), 5)
 
-        for restaurant in environment.state.restaurants:
-            mapped_x, mapped_y = self.coordinates(restaurant.coordinates)
+        for establishment in environment.state.establishments:
+            mapped_x, mapped_y = self.coordinates(establishment.coordinates)
             pygame.draw.circle(canvas, GREEN, (int(mapped_x), int(mapped_y)), 5)
 
-            if hasattr(restaurant, "operating_radius"):
-                operating_radius_mapped = map_coordinates(restaurant.operating_radius, 0, 100, 0, min(self.window_size))
+            if hasattr(establishment, "operating_radius"):
+                operating_radius_mapped = map_coordinates(establishment.operating_radius, 0, 100, 0, min(self.window_size))
                 pygame.draw.circle(canvas, GREEN, (int(mapped_x), int(mapped_y)), int(operating_radius_mapped), 1)
 
         for driver in environment.state.drivers:

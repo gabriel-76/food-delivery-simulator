@@ -2,11 +2,11 @@ from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.item import Item
-from src.main.restaurant.catalog import Catalog
-from src.main.restaurant.restaurant import Restaurant
+from src.main.establishment.catalog import Catalog
+from src.main.establishment.establishment import Establishment
 
 
-class TimeShiftRestaurantGenerator(TimeShiftGenerator):
+class TimeShiftEstablishmentGenerator(TimeShiftGenerator):
     def __init__(self, function, time_shift=1, use_estimate: bool = False):
         super().__init__(function, time_shift)
         self.use_estimate = use_estimate
@@ -14,8 +14,8 @@ class TimeShiftRestaurantGenerator(TimeShiftGenerator):
     def run(self, env: FoodDeliverySimpyEnv):
         dimension = Dimensions(1, 1, 1, 1)
         catalog = Catalog([Item(f"type_{i}", dimension, 4) for i in range(5)])
-        restaurants = [
-            Restaurant(
+        establishments = [
+            Establishment(
                 environment=env,
                 coordinates=env.map.random_point(),
                 available=True,
@@ -24,4 +24,4 @@ class TimeShiftRestaurantGenerator(TimeShiftGenerator):
             )
             for _ in self.range(env)
         ]
-        env.add_restaurants(restaurants)
+        env.add_establishments(establishments)

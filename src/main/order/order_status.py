@@ -4,8 +4,8 @@ from enum import Enum, auto
 class OrderStatus(Enum):
     CREATED = auto()
     PLACED = auto()
-    RESTAURANT_ACCEPTED = auto()
-    RESTAURANT_REJECTED = auto()
+    ESTABLISHMENT_ACCEPTED = auto()
+    ESTABLISHMENT_REJECTED = auto()
     PREPARING = auto()
     READY = auto()
     DRIVER_ACCEPTED = auto()
