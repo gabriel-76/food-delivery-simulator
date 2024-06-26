@@ -10,7 +10,7 @@ from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 
 class Actor(ABC):
 
-    def __init__(self, environment) -> None:
+    def __init__(self, environment: FoodDeliverySimpyEnv) -> None:
         self._environment = environment
 
     def publish_event(self, event) -> None:
