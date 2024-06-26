@@ -20,6 +20,7 @@ class FoodDeliverySimpyEnv(Environment):
         self.optimizer = optimizer
         self.view = view
         self._state = DeliveryEnvState()
+        self._actors = {}
         self.init()
 
     @property
@@ -29,6 +30,16 @@ class FoodDeliverySimpyEnv(Environment):
     @property
     def state(self):
         return self._state
+
+    @property
+    def actors(self):
+        return self._actors
+
+    def get_actor(self, actor_id):
+        return self._actors.get(actor_id)
+
+    def add_actor(self, actor_id, actor):
+        self._actors[actor_id] = actor
 
     def add_customers(self, customers: List[Customer]):
         self._state.add_customers(customers)

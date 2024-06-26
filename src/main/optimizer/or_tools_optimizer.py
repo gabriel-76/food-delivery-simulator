@@ -133,7 +133,11 @@ class OrToolsOptimizer(Optimizer):
 
                 if driver is not None and len(segments) > 0:
                     route = Route(env, segments)
-                    driver_actor = DriverActor(env, driver)
+                    if driver.driver_id not in env.actors:
+                        driver_actor = DriverActor(env, driver)
+                        env.add_actor(driver.driver_id, driver_actor)
+
+                    driver_actor = env.get_actor(driver.driver_id)
                     driver_actor.receive_route_requests(route)
         else:
             print('Nenhuma solução encontrada!')
