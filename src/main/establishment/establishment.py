@@ -6,7 +6,7 @@ from simpy.core import SimTime
 from simpy.events import ProcessGenerator
 
 from src.main.actors.map_actor import MapActor
-from src.main.base.types import Coordinates, Number
+from src.main.base.types import Coordinate, Number
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.estimated_order_preparation_time import EstimatedOrderPreparationTime
 from src.main.events.establishment_accepted_order import EstablishmentAcceptedOrder
@@ -22,14 +22,14 @@ class Establishment(MapActor):
     def __init__(
             self,
             environment: FoodDeliverySimpyEnv,
-            coordinates: Coordinates,
+            coordinate: Coordinate,
             available: bool,
             catalog: Catalog,
             production_capacity: Number = float('inf'),
             use_estimate: bool = False
     ) -> None:
         self.establishment_id = uuid.uuid4()
-        super().__init__(environment, coordinates, available)
+        super().__init__(environment, coordinate, available)
         self.catalog = catalog
         self.production_capacity = production_capacity
         self.use_estimate = use_estimate

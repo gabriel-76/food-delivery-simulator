@@ -16,7 +16,7 @@ class TimeShiftDriverGenerator(TimeShiftGenerator):
         drivers = [
             Driver(
                 environment=env,
-                coordinates=env.map.random_point(),
+                coordinate=env.map.random_point(),
                 capacity=capacity,
                 available=True,
                 status=DriverStatus.AVAILABLE,

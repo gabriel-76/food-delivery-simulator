@@ -9,7 +9,7 @@ class NearestDriverOptimizer(Optimizer):
         super().__init__(time_shift=time_shift)
 
     def compare_distance(self, env: FoodDeliverySimpyEnv, driver: Driver, route: Route):
-        return env.map.distance(driver.coordinates, route.route_segments[0].coordinates)
+        return env.map.distance(driver.coordinate, route.route_segments[0].coordinate)
 
     def select_driver(self, env: FoodDeliverySimpyEnv, route: Route):
         drivers = env.available_drivers(route)

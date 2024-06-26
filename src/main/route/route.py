@@ -29,7 +29,7 @@ class Route:
         return self.route_segments.pop(0)
 
     def calculate_total_distance(self):
-        coordinates = [segment.coordinates for segment in self.route_segments]
+        coordinates = [segment.coordinate for segment in self.route_segments]
         return self.environment.map.acc_distance(coordinates)
 
     def extend_route(self, other_route):

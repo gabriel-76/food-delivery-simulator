@@ -34,7 +34,7 @@ class OrToolsOptimizer(Optimizer):
         for from_node in all_locations:
             row = []
             for to_node in all_locations:
-                row.append(env.map.distance(from_node.coordinates, to_node.coordinates))
+                row.append(env.map.distance(from_node.coordinate, to_node.coordinate))
             distance_matrix.append(row)
 
         # Índices de estabelecimentos, clientes e motoristas

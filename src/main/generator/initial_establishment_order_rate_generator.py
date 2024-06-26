@@ -19,7 +19,7 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
         establishment = [
             EstablishmentOrderRate(
                 environment=env,
-                coordinates=env.map.random_point(),
+                coordinate=env.map.random_point(),
                 available=True,
                 catalog=catalog,
                 production_capacity=float('inf'),
