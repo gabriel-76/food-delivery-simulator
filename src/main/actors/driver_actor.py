@@ -57,7 +57,7 @@ class DriverActor(Actor):
             self.publish_event(DriverAcceptedRoute(
                 driver_id=self.driver.driver_id,
                 route_id=self.driver.current_route.route_id,
-                distance=self.driver.current_route.distance,
+                distance=self.environment.map.acc_distance([self.driver.coordinate] + route.coordinates),
                 time=self.now
             ))
             self.accept_route_segments(self.driver.current_route.route_segments)
@@ -75,19 +75,20 @@ class DriverActor(Actor):
             order_id=route_segment.order.order_id,
             customer_id=route_segment.order.customer.customer_id,
             establishment_id=route_segment.order.establishment.establishment_id,
-            distance=self.driver.current_route.distance,
+            # TODO: Calculate distance posteriorly
+            distance=0,
             time=self.now
         ))
         route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
 
     def accepted_route_extension(self, route: Route) -> None:
-        old_distance = self.driver.current_route.distance
+        old_distance = self.environment.map.acc_distance([self.driver.coordinate] + route.coordinates)
         self.driver.current_route.extend_route(route)
         self.publish_event(DriverAcceptedRouteExtension(
             driver_id=self.driver.driver_id,
             route_id=self.driver.current_route.route_id,
             old_distance=old_distance,
-            distance=self.driver.current_route.distance,
+            distance=self.environment.map.acc_distance([self.driver.coordinate] + route.coordinates),
             time=self.now
         ))
         self.accept_route_segments(route.route_segments)
@@ -122,7 +123,7 @@ class DriverActor(Actor):
         self.publish_event(DriverRejectedRoute(
             driver_id=self.driver.driver_id,
             route_id=self.driver.current_route.route_id,
-            distance=self.driver.current_route.distance,
+            distance=self.environment.map.acc_distance([self.driver.coordinate] + route.coordinates),
             time=self.now
         ))
         self.reject_route_segments(route.route_segments)

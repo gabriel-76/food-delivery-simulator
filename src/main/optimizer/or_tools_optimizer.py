@@ -1,7 +1,10 @@
+from typing import List
+
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from src.main.actors.driver_actor import DriverActor
 from src.main.cost.cost_function import CostFunction
+from src.main.driver.driver import Driver
 from src.main.optimizer.optimizer import Optimizer
 from src.main.order.optimization_delivery_rejection import OptimizationDeliveryRejection
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
@@ -22,7 +25,7 @@ class OrToolsOptimizer(Optimizer):
 
         pickup_segments = list(map(lambda order: PickupRouteSegment(order), orders))
         delivery_segments = list(map(lambda order: DeliveryRouteSegment(order), orders))
-        drivers = list(filter(lambda d: d.available, env.state.drivers))
+        drivers: List[Driver] = list(filter(lambda d: d.available, env.state.drivers))
 
         num_pickups = len(pickup_segments)
         num_deliveries = len(delivery_segments)
@@ -132,7 +135,7 @@ class OrToolsOptimizer(Optimizer):
                 # print(plan_output)
 
                 if driver is not None and len(segments) > 0:
-                    route = Route(env, segments)
+                    route = Route(segments)
                     if driver.driver_id not in env.actors:
                         driver_actor = DriverActor(env, driver)
                         env.add_actor(driver.driver_id, driver_actor)

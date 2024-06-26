@@ -2,11 +2,10 @@ import random
 
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.establishment.catalog import Catalog
 from src.main.establishment.establishment import Establishment
 from src.main.generator.initial_generator import InitialGenerator
 from src.main.order.item import Item
-from src.main.establishment.catalog import Catalog
-from src.main.actors.establishment_actor_order_rate import EstablishmentActorOrderRate
 
 
 class InitialEstablishmentOrderRateGenerator(InitialGenerator):

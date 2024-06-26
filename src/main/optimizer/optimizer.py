@@ -24,7 +24,7 @@ class Optimizer(TimeShiftGenerator, ABC):
         for order in orders:
             segment_pickup = PickupRouteSegment(order)
             segment_delivery = DeliveryRouteSegment(order)
-            route = Route(env, [segment_pickup, segment_delivery])
+            route = Route([segment_pickup, segment_delivery])
 
             driver = self.select_driver(env, route)
 

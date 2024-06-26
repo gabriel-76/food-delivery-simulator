@@ -1,8 +1,11 @@
 import uuid
+from typing import Optional
 
 from src.main.base.types import Coordinate, Number
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver_status import DriverStatus
+from src.main.route.route import Route
+from src.main.route.route_segment import RouteSegment
 
 
 class Driver:
@@ -22,8 +25,8 @@ class Driver:
         self.status = status
         self.movement_rate = movement_rate
         self.max_distance = max_distance
-        self.current_route = None
-        self.current_route_segment = None
+        self.current_route: Optional[Route] = None
+        self.current_route_segment: Optional[RouteSegment] = None
         self.total_distance: Number = 0
         self.route_requests: list = []
 
