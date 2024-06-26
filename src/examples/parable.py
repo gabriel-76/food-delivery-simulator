@@ -27,11 +27,11 @@ def run():
         map=GridMap(100),
         generators=[
             TimeShiftCustomerGenerator(lambda time: 3),
-            TimeShiftRestaurantGenerator(lambda time: 3),
+            TimeShiftRestaurantGenerator(lambda time: 3, use_estimate=True),
             TimeShiftDriverGenerator(lambda time: 3),
             TimeShiftOrderGenerator(lambda time: parable(time))
         ],
-        optimizer=RandomDriverOptimizer(use_estimate=True)
+        optimizer=RandomDriverOptimizer()
     )
     environment.run(until=2000)
 

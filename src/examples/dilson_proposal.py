@@ -17,13 +17,13 @@ def run():
     environment = FoodDeliverySimpyEnv(
         map=GridMap(100),
         generators=[
-            InitialRestaurantOrderRateGenerator(100),
+            InitialRestaurantOrderRateGenerator(100, use_estimate=True),
             InitialDriverGenerator(20),
             TimeShiftOrderRestaurantRateGenerator(lambda time: 1),
         ],
-        optimizer=RandomDriverOptimizer(use_estimate=True)
+        optimizer=RandomDriverOptimizer()
     )
-    environment.run(100)
+    environment.run(100, render_mode='human')
 
     custom_board = CustomBoard(metrics=[
         OrderCurveMetric(environment),

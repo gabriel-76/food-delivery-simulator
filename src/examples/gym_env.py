@@ -14,11 +14,11 @@ def main():
         map=GridMap(100),
         generators=[
             InitialCustomerGenerator(100),
-            InitialRestaurantGenerator(100),
+            InitialRestaurantGenerator(100, use_estimate=True),
             InitialDriverGenerator(100),
             InitialOrderGenerator(1000)
         ],
-        optimizer=RandomDriverOptimizer(use_estimate=True),
+        optimizer=RandomDriverOptimizer(),
         # view=GridViewMatplotlib()
         view=GridViewPygame()
     )

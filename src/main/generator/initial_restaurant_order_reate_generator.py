@@ -9,8 +9,9 @@ from src.main.restaurant.restaurant_order_rate import RestaurantOrderRate
 
 
 class InitialRestaurantOrderRateGenerator(InitialGenerator):
-    def __init__(self, num_restaurants):
+    def __init__(self, num_restaurants,  use_estimate: bool = False):
         self.num_restaurants = num_restaurants
+        self.use_estimate = use_estimate
 
     def run(self, env: FoodDeliverySimpyEnv):
         dimension = Dimensions(1, 1, 1, 1)
@@ -22,6 +23,7 @@ class InitialRestaurantOrderRateGenerator(InitialGenerator):
                 available=True,
                 catalog=catalog,
                 production_capacity=float('inf'),
+                use_estimate=self.use_estimate,
                 order_request_time_rate=random.uniform(5.0, 10.0),
                 order_production_time_rate=random.uniform(5.0, 10.0),
                 operating_radius=random.randint(5, 30),

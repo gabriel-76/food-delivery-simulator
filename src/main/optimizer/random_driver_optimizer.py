@@ -6,8 +6,8 @@ from src.main.route.route import Route
 
 
 class RandomDriverOptimizer(Optimizer):
-    def __init__(self, use_estimate=False, time_shift=1):
-        super().__init__(use_estimate=use_estimate, time_shift=time_shift)
+    def __init__(self, time_shift=1):
+        super().__init__(time_shift=time_shift)
 
     def select_driver(self, env: FoodDeliverySimpyEnv, route: Route):
         drivers = env.available_drivers(route)

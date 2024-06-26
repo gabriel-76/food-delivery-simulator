@@ -9,8 +9,8 @@ from src.main.route.route import Route
 
 
 class OrToolsOptimizer(Optimizer):
-    def __init__(self, cost_function: CostFunction, use_estimate=False, time_shift=1):
-        super().__init__(cost_function, use_estimate, time_shift)
+    def __init__(self, cost_function: CostFunction, time_shift=1):
+        super().__init__(cost_function, time_shift)
 
     def select_driver(self, env, route):
         pass

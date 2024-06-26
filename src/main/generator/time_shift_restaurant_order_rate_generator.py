@@ -9,8 +9,9 @@ from src.main.restaurant.restaurant_order_rate import RestaurantOrderRate
 
 
 class TimeShiftRestaurantOrderRateGenerator(TimeShiftGenerator):
-    def __init__(self, function, time_shift):
+    def __init__(self, function, time_shift, use_estimate: bool = False):
         super().__init__(function, time_shift)
+        self.use_estimate = use_estimate
 
     def run(self, env: FoodDeliverySimpyEnv):
         dimension = Dimensions(1, 1, 1, 1)
@@ -22,6 +23,7 @@ class TimeShiftRestaurantOrderRateGenerator(TimeShiftGenerator):
                 available=True,
                 catalog=catalog,
                 production_capacity=1,
+                use_estimate=self.use_estimate,
                 order_request_time_rate=random.randint(1, 10),
                 order_production_time_rate=random.randint(1, 10),
                 operating_radius=random.randint(10, 30)

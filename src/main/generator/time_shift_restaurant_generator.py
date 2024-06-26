@@ -7,8 +7,9 @@ from src.main.restaurant.restaurant import Restaurant
 
 
 class TimeShiftRestaurantGenerator(TimeShiftGenerator):
-    def __init__(self, function, time_shift=1):
+    def __init__(self, function, time_shift=1, use_estimate: bool = False):
         super().__init__(function, time_shift)
+        self.use_estimate = use_estimate
 
     def run(self, env: FoodDeliverySimpyEnv):
         dimension = Dimensions(1, 1, 1, 1)
@@ -18,7 +19,8 @@ class TimeShiftRestaurantGenerator(TimeShiftGenerator):
                 environment=env,
                 coordinates=env.map.random_point(),
                 available=True,
-                catalog=catalog
+                catalog=catalog,
+                use_estimate=self.use_estimate
             )
             for _ in self.range(env)
         ]

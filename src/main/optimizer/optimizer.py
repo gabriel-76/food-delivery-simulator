@@ -12,9 +12,8 @@ from src.main.route.route import Route
 
 class Optimizer(TimeShiftGenerator, ABC):
 
-    def __init__(self, cost_function: CostFunction | None = None, use_estimate=False, time_shift=1):
+    def __init__(self, cost_function: CostFunction | None = None, time_shift=1):
         super().__init__(time_shift=time_shift)
-        self.use_estimate = use_estimate
         self.cost_function = cost_function
 
     @abstractmethod
