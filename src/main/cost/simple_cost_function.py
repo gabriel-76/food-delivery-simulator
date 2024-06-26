@@ -1,6 +1,6 @@
 from src.main.base.types import Number
 from src.main.cost.cost_function import CostFunction
-from src.main.driver.driver_actor import DriverActor
+from src.main.driver.driver import Driver
 from src.main.map.map import Map
 from src.main.order.order_status import OrderStatus
 from src.main.route.route_segment import RouteSegment
@@ -19,7 +19,7 @@ class SimpleCostFunction(CostFunction):
             return 0
         return self.MAX_PENALTY
 
-    def delay(self, map: Map, driver: DriverActor, route_segment: RouteSegment):
+    def delay(self, map: Map, driver: Driver, route_segment: RouteSegment):
         current_delay = 0
         if driver.current_route_segment is not None:
             current_delay = map.estimated_time(
@@ -34,7 +34,7 @@ class SimpleCostFunction(CostFunction):
         )
         return current_delay + new_segment_delay
 
-    def distance(self, map: Map, driver: DriverActor, route_segment: RouteSegment):
+    def distance(self, map: Map, driver: Driver, route_segment: RouteSegment):
         current_distance = 0
         if driver.current_route_segment is not None:
             current_distance = map.distance(
@@ -47,7 +47,7 @@ class SimpleCostFunction(CostFunction):
         )
         return current_distance + new_segment_distance
 
-    def cost(self, map: Map, driver: DriverActor, route_segment: RouteSegment) -> Number:
+    def cost(self, map: Map, driver: Driver, route_segment: RouteSegment) -> Number:
         value = (
                 self.WEIGHT_DELAY * self.delay(map, driver, route_segment) +
                 self.WEIGHT_DISTANCE * self.distance(map, driver, route_segment) +

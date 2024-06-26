@@ -1,5 +1,4 @@
 import random
-import uuid
 from typing import List
 
 from simpy.core import SimTime

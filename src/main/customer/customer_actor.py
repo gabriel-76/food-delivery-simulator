@@ -4,7 +4,7 @@ from simpy.events import ProcessGenerator
 
 from src.main.actors.map_actor import MapActor
 from src.main.customer.customer import Customer
-from src.main.driver.driver_actor import DriverActor
+from src.main.driver.driver import Driver
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.establishment.establishment_actor import EstablishmentActor
 from src.main.events.customer_placed_order import CustomerPlacedOrder
@@ -29,7 +29,7 @@ class CustomerActor(MapActor):
         establishment.receive_order_requests([order])
         order.update_status(OrderStatus.PLACED)
 
-    def receive_order(self, order: Order, driver: DriverActor) -> ProcessGenerator:
+    def receive_order(self, order: Order, driver: Driver) -> ProcessGenerator:
         yield self.timeout(self.time_to_receive_order(order))
         self.publish_event(CustomerReceivedOrder(
             order_id=order.order_id,

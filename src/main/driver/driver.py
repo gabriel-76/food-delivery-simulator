@@ -20,4 +20,7 @@ class Driver:
         self.available = available
         self.status = status
         self.movement_rate = movement_rate
+        self.current_route = None
+        self.current_route_segment = None
+        self.total_distance: Number = 0
 

@@ -5,6 +5,7 @@ from simpy.events import ProcessGenerator
 
 from src.main.actors.map_actor import MapActor
 from src.main.base.types import Number
+from src.main.customer.customer_actor import CustomerActor
 from src.main.driver.driver import Driver
 from src.main.driver.driver_status import DriverStatus
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
@@ -32,6 +33,7 @@ class DriverActor(MapActor):
             driver: Driver
     ):
         self.driver_id = driver.driver_id
+        self.driver = driver
         super().__init__(environment, driver.coordinate, driver.available)
         self.capacity = driver.capacity
         self.status = driver.status
@@ -205,7 +207,8 @@ class DriverActor(MapActor):
             driver_id=self.driver_id,
             time=self.now
         ))
-        yield self.process(order.customer.receive_order(order, self))
+        customer_actor = CustomerActor(self.environment, order.customer)
+        yield self.process(customer_actor.receive_order(order, self.driver))
         self.delivered(order)
 
     def delivered(self, order: Order) -> None:
