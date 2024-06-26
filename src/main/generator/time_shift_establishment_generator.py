@@ -1,9 +1,10 @@
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.establishment.establishment import Establishment
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.order.item import Item
 from src.main.establishment.catalog import Catalog
-from src.main.establishment.establishment import Establishment
+from src.main.establishment.establishment_actor import EstablishmentActor
 
 
 class TimeShiftEstablishmentGenerator(TimeShiftGenerator):
@@ -15,12 +16,14 @@ class TimeShiftEstablishmentGenerator(TimeShiftGenerator):
         dimension = Dimensions(1, 1, 1, 1)
         catalog = Catalog([Item(f"type_{i}", dimension, 4) for i in range(5)])
         establishments = [
-            Establishment(
+            EstablishmentActor(
                 environment=env,
-                coordinate=env.map.random_point(),
-                available=True,
-                catalog=catalog,
-                use_estimate=self.use_estimate
+                establishment=Establishment(
+                    coordinate=env.map.random_point(),
+                    available=True,
+                    catalog=catalog,
+                    use_estimate=self.use_estimate
+                )
             )
             for _ in self.range(env)
         ]

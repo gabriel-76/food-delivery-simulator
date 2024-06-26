@@ -2,10 +2,11 @@ import random
 
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.establishment.establishment import Establishment
 from src.main.generator.initial_generator import InitialGenerator
 from src.main.order.item import Item
 from src.main.establishment.catalog import Catalog
-from src.main.establishment.establishment_order_rate import EstablishmentOrderRate
+from src.main.establishment.establishment_actor_order_rate import EstablishmentActorOrderRate
 
 
 class InitialEstablishmentOrderRateGenerator(InitialGenerator):
@@ -17,16 +18,18 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
         dimension = Dimensions(1, 1, 1, 1)
         catalog = Catalog([Item(f"type_{i}", dimension, 4) for i in range(5)])
         establishment = [
-            EstablishmentOrderRate(
+            EstablishmentActorOrderRate(
                 environment=env,
-                coordinate=env.map.random_point(),
-                available=True,
-                catalog=catalog,
-                production_capacity=float('inf'),
-                use_estimate=self.use_estimate,
-                order_request_time_rate=random.uniform(5.0, 10.0),
-                order_production_time_rate=random.uniform(5.0, 10.0),
-                operating_radius=random.randint(5, 30),
+                establishment=Establishment(
+                    coordinate=env.map.random_point(),
+                    available=True,
+                    catalog=catalog,
+                    production_capacity=float('inf'),
+                    use_estimate=self.use_estimate,
+                    order_request_time_rate=random.uniform(5.0, 10.0),
+                    order_production_time_rate=random.uniform(5.0, 10.0),
+                    operating_radius=random.randint(5, 30)
+                )
             )
             for _ in range(self.num_establishments)
         ]
