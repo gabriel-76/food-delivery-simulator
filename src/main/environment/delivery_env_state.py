@@ -1,13 +1,15 @@
 from typing import List
 
+from src.main.customer.customer import Customer
+from src.main.driver.driver import Driver
 from src.main.order.order import Order
 
 
 class DeliveryEnvState:
     def __init__(self):
-        self._customers = []
+        self._customers: List[Customer] = []
         self._establishments = []
-        self._drivers = []
+        self._drivers: List[Driver] = []
         self._orders: List[Order] = []
 
         # Orders ready for picking up
@@ -16,7 +18,7 @@ class DeliveryEnvState:
         self.events = []
 
     @property
-    def customers(self) -> List:
+    def customers(self) -> List[Customer]:
         return self._customers
 
     @property
@@ -31,7 +33,7 @@ class DeliveryEnvState:
     def orders(self) -> List[Order]:
         return self._orders
 
-    def add_customers(self, customer: List):
+    def add_customers(self, customer: List[Customer]):
         self._customers += customer
 
     def add_establishments(self, establishments: List) -> None:

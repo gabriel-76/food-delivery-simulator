@@ -1,20 +1,18 @@
 from src.main.driver.capacity import Capacity
-from src.main.driver.driver import Driver, DriverStatus
+from src.main.driver.driver import Driver
+from src.main.driver.driver_actor import DriverActor, DriverStatus
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.route.route import Route
 
 
-class ReactiveDriver(Driver):
+class DriverActorReactive(DriverActor):
     def __init__(
             self,
             environment: FoodDeliverySimpyEnv,
-            coordinate, capacity: Capacity,
-            available: bool,
-            status: DriverStatus,
-            movement_rate,
-            max_distance
+            driver: Driver,
+            max_distance: int
     ):
-        super().__init__(environment, coordinate, available, capacity, status, movement_rate)
+        super().__init__(environment, driver)
         self.max_distance = max_distance
         self.process(self.search_order())
 
