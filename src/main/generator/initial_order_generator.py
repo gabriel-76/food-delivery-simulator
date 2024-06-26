@@ -18,6 +18,6 @@ class InitialOrderGenerator(InitialGenerator):
 
             order = Order(customer, establishment, env.now, items)
 
-            env.state.orders += [order]
+            env.state.add_orders([order])
 
             customer.place_order(order, establishment)

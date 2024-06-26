@@ -21,4 +21,4 @@ class TimeShiftOrderGenerator(TimeShiftGenerator):
             orders.append(order)
             customer.place_order(order, establishment)
 
-        env.state.orders += orders
+        env.state.add_orders(orders)

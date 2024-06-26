@@ -30,8 +30,8 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
 
             order = Order(customer, establishment, env.now, items)
 
-            env.state.customers.append(customer)
-            env.state.orders.append(order)
+            env.state.add_customers([customer])
+            env.state.add_orders([order])
 
             customer.place_order(order, establishment)
 
