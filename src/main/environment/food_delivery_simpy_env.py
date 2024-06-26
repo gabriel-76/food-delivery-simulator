@@ -3,7 +3,7 @@ from typing import Optional, Union
 from simpy import Environment, Event
 from simpy.core import SimTime
 
-from src.main.environment.delivery_env_state import FoodDeliveryState
+from src.main.environment.delivery_env_state import DeliveryEnvState
 from src.main.map.map import Map
 from src.main.order.delivery_rejection import DeliveryRejection
 from src.main.view.food_delivery_view import FoodDeliveryView
@@ -16,7 +16,7 @@ class FoodDeliverySimpyEnv(Environment):
         self.generators = generators
         self.optimizer = optimizer
         self.view = view
-        self.state = FoodDeliveryState()
+        self.state = DeliveryEnvState()
         self.init()
 
     @property

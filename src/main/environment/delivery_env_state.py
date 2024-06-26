@@ -1,16 +1,13 @@
 from typing import List
 
-from src.main.customer.customer import Customer
-from src.main.driver.driver import Driver
-from src.main.establishment.establishment import Establishment
 from src.main.order.order import Order
 
 
 class DeliveryEnvState:
     def __init__(self):
-        self._customers: List[Customer] = []
-        self._establishments: List[Establishment] = []
-        self._drivers: List[Driver] = []
+        self._customers = []
+        self._establishments = []
+        self._drivers = []
         self._orders: List[Order] = []
 
         # Orders ready for picking up
@@ -19,31 +16,31 @@ class DeliveryEnvState:
         self.events = []
 
     @property
-    def customers(self) -> List[Customer]:
+    def customers(self) -> List:
         return self._customers
 
     @property
-    def establishments(self) -> List[Establishment]:
+    def establishments(self) -> List:
         return self._establishments
 
     @property
-    def drivers(self) -> List[Driver]:
+    def drivers(self) -> List:
         return self._drivers
 
     @property
     def orders(self) -> List[Order]:
         return self._orders
 
-    def add_customers(self, customer: List[Customer]):
+    def add_customers(self, customer: List):
         self._customers += customer
 
-    def add_establishments(self, establishments: List[Establishment]) -> None:
+    def add_establishments(self, establishments: List) -> None:
         self._establishments += establishments
 
-    def add_drivers(self, drivers: List[Driver]) -> None:
+    def add_drivers(self, drivers: List) -> None:
         self._drivers += drivers
 
-    def add_orders(self, orders: List[Order]) -> None:
+    def add_orders(self, orders: List) -> None:
         self._orders += orders
 
     def add_event(self, event) -> None:
