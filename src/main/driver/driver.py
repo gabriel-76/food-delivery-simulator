@@ -5,7 +5,7 @@ from typing import Optional, List
 from simpy.events import ProcessGenerator
 
 from src.main.actors.map_actor import MapActor
-from src.main.base.types import Coordinates, Number
+from src.main.base.types import Coordinate, Number
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver_status import DriverStatus
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
@@ -30,14 +30,14 @@ class Driver(MapActor):
     def __init__(
             self,
             environment: FoodDeliverySimpyEnv,
-            coordinates: Coordinates,
+            coordinate: Coordinate,
             available: bool,
             capacity: Capacity,
             status: DriverStatus,
             movement_rate: Number
     ):
         self.driver_id = uuid.uuid4()
-        super().__init__(environment, coordinates, available)
+        super().__init__(environment, coordinate, available)
         self.capacity = capacity
         self.status = status
         self.movement_rate = movement_rate
@@ -112,8 +112,8 @@ class Driver(MapActor):
 
     def sequential_processor(self) -> ProcessGenerator:
         if self.current_route_segment is not None and self.current_route_segment.order.status < OrderStatus.READY:
-            # print(f"Driver {self.coordinates} is waiting for "
-            #       f"order {self.current_route_segment.coordinates} "
+            # print(f"Driver {self.coordinate} is waiting for "
+            #       f"order {self.current_route_segment.coordinate} "
             #       f"status {self.current_route_segment.order.status.name} "
             #       f"estimated time {self.current_route_segment.order.estimated_time_to_ready} "
             #       f"ready time {self.current_route_segment.order.time_it_was_ready} "
@@ -163,13 +163,13 @@ class Driver(MapActor):
     def picking_up(self, order: Order) -> ProcessGenerator:
         self.status = DriverStatus.PICKING_UP
         order.update_status(OrderStatus.PICKING_UP)
-        self.total_distance += self.environment.map.distance(self.coordinates, order.establishment.coordinates)
+        self.total_distance += self.environment.map.distance(self.coordinate, order.establishment.coordinate)
         self.publish_event(DriverPickingUpOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
             establishment_id=order.establishment.establishment_id,
             driver_id=self.driver_id,
-            distance=self.environment.map.distance(self.coordinates, order.establishment.coordinates),
+            distance=self.environment.map.distance(self.coordinate, order.establishment.coordinate),
             time=self.now
         ))
         yield self.timeout(self.time_to_picking_up_order(order))
@@ -183,19 +183,19 @@ class Driver(MapActor):
             driver_id=self.driver_id,
             time=self.now
         ))
-        self.coordinates = order.establishment.coordinates
+        self.coordinate = order.establishment.coordinate
         self.process(self.sequential_processor())
 
     def delivering(self, order: Order) -> ProcessGenerator:
         self.status = DriverStatus.DELIVERING
         order.update_status(OrderStatus.DELIVERING)
-        self.total_distance += self.environment.map.distance(self.coordinates, order.customer.coordinates)
+        self.total_distance += self.environment.map.distance(self.coordinate, order.customer.coordinate)
         self.publish_event(DriverDeliveringOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
             establishment_id=order.establishment.establishment_id,
             driver_id=self.driver_id,
-            distance=self.environment.map.distance(self.coordinates, order.customer.coordinates),
+            distance=self.environment.map.distance(self.coordinate, order.customer.coordinate),
             time=self.now
         ))
         yield self.timeout(self.time_to_deliver_order(order))
@@ -214,7 +214,7 @@ class Driver(MapActor):
         self.delivered(order)
 
     def delivered(self, order: Order) -> None:
-        self.coordinates = order.customer.coordinates
+        self.coordinate = order.customer.coordinate
         self.publish_event(DriverDeliveredOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
@@ -229,9 +229,9 @@ class Driver(MapActor):
     def move(self) -> ProcessGenerator:
         while True:
             if self.current_route_segment is not None:
-                self.coordinates = self.environment.map.move(
-                    origin=self.coordinates,
-                    destination=self.current_route_segment.coordinates,
+                self.coordinate = self.environment.map.move(
+                    origin=self.coordinate,
+                    destination=self.current_route_segment.coordinate,
                     rate=self.movement_rate
                 )
             yield self.timeout(1)
@@ -249,12 +249,12 @@ class Driver(MapActor):
         return random.randrange(0, 3)
 
     def time_to_picking_up_order(self, order: Order):
-        return self.environment.map.estimated_time(self.coordinates, order.establishment.coordinates, self.movement_rate)
+        return self.environment.map.estimated_time(self.coordinate, order.establishment.coordinate, self.movement_rate)
 
     def time_between_picked_up_and_start_delivery(self, order: Order) -> int:
         return random.randrange(0, 3)
 
     def time_to_deliver_order(self, order: Order) -> int:
-        establishment_coordinates = order.establishment.coordinates
-        customer_coordinates = order.customer.coordinates
+        establishment_coordinates = order.establishment.coordinate
+        customer_coordinates = order.customer.coordinate
         return self.environment.map.estimated_time(establishment_coordinates, customer_coordinates, self.movement_rate)

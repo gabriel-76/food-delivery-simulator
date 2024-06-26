@@ -11,7 +11,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 
 
-def map_coordinates(value, min_val, max_val, min_screen, max_screen):
+def map_coordinate(value, min_val, max_val, min_screen, max_screen):
     return min_screen + (value - min_val) * (max_screen - min_screen) / (max_val - min_val)
 
 
@@ -25,9 +25,9 @@ class GridViewPygame(FoodDeliveryView):
         self.clock = pygame.time.Clock()
         pygame.display.set_caption('Map of Establishments, Customers and Drivers')
 
-    def coordinates(self, coordinates):
-        return (map_coordinates(coordinates[0], self.min_x, self.max_x, 0, self.window_size[0]),
-                map_coordinates(coordinates[1], self.min_y, self.max_y, 0, self.window_size[1]))
+    def coordinate(self, coordinate):
+        return (map_coordinate(coordinate[0], self.min_x, self.max_x, 0, self.window_size[0]),
+                map_coordinate(coordinate[1], self.min_y, self.max_y, 0, self.window_size[1]))
 
     def render(self, environment):
 
@@ -45,22 +45,22 @@ class GridViewPygame(FoodDeliveryView):
         canvas.fill(WHITE)
 
         for customer in environment.state.customers:
-            mapped_x, mapped_y = self.coordinates(customer.coordinates)
+            mapped_x, mapped_y = self.coordinate(customer.coordinate)
             pygame.draw.circle(canvas, BLUE, (int(mapped_x), int(mapped_y)), 5)
 
         for establishment in environment.state.establishments:
-            mapped_x, mapped_y = self.coordinates(establishment.coordinates)
+            mapped_x, mapped_y = self.coordinate(establishment.coordinate)
             pygame.draw.circle(canvas, GREEN, (int(mapped_x), int(mapped_y)), 5)
 
             if hasattr(establishment, "operating_radius"):
-                operating_radius_mapped = map_coordinates(establishment.operating_radius, 0, 100, 0, min(self.window_size))
+                operating_radius_mapped = map_coordinate(establishment.operating_radius, 0, 100, 0, min(self.window_size))
                 pygame.draw.circle(canvas, GREEN, (int(mapped_x), int(mapped_y)), int(operating_radius_mapped), 1)
 
         for driver in environment.state.drivers:
-            mapped_x, mapped_y = self.coordinates(driver.coordinates)
+            mapped_x, mapped_y = self.coordinate(driver.coordinate)
             pygame.draw.circle(canvas, RED, (int(mapped_x), int(mapped_y)), 5)
             if driver.status in [DriverStatus.PICKING_UP, DriverStatus.DELIVERING]:
-                target_mapped_x, target_mapped_y = self.coordinates(driver.current_route_segment.coordinates)
+                target_mapped_x, target_mapped_y = self.coordinate(driver.current_route_segment.coordinate)
                 pygame.draw.line(canvas, RED, (mapped_x, mapped_y), (target_mapped_x, target_mapped_y), 2)
 
         self.screen.blit(canvas, canvas.get_rect())

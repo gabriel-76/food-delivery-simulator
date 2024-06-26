@@ -7,8 +7,8 @@ from src.main.view.food_delivery_view import FoodDeliveryView
 
 
 def extract_coordinates(objects):
-    x = [obj.coordinates[0] for obj in objects]
-    y = [obj.coordinates[1] for obj in objects]
+    x = [obj.coordinate[0] for obj in objects]
+    y = [obj.coordinate[1] for obj in objects]
     return x, y
 
 
@@ -33,13 +33,13 @@ class GridViewMatplotlib(FoodDeliveryView):
         circles = []
         for establishment in environment.state.establishments:
             if hasattr(establishment, "operating_radius"):
-                circle = plt.Circle(establishment.coordinates, establishment.operating_radius, color='green', fill=False)
+                circle = plt.Circle(establishment.coordinate, establishment.operating_radius, color='green', fill=False)
                 circles.append(circle)
 
         for driver in environment.state.drivers:
             if driver.status in [DriverStatus.PICKING_UP, DriverStatus.DELIVERING]:
-                x, y = driver.coordinates
-                segment_x, segment_y = driver.current_route_segment.coordinates
+                x, y = driver.coordinate
+                segment_x, segment_y = driver.current_route_segment.coordinate
                 dx, dy = segment_x - x, segment_y - y
                 scale = tanh(driver.movement_rate)
                 self.ax.quiver(x, y, dx, dy, angles='xy', scale_units='xy', scale=scale, color='red', width=0.003)

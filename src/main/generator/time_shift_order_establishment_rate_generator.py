@@ -18,8 +18,8 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
 
             customer = Customer(
                 environment=env,
-                coordinates=point_in_gauss_circle(
-                    establishment.coordinates,
+                coordinate=point_in_gauss_circle(
+                    establishment.coordinate,
                     establishment.operating_radius,
                     env.map.size
                 ),

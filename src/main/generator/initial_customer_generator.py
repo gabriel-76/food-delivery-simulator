@@ -11,7 +11,7 @@ class InitialCustomerGenerator(InitialGenerator):
         customers = [
             Customer(
                 environment=env,
-                coordinates=env.map.random_point(),
+                coordinate=env.map.random_point(),
                 available=True
             )
             for _ in range(self.num_customer)
