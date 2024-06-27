@@ -14,11 +14,11 @@ class TimeShiftOrderGenerator(TimeShiftGenerator):
         orders = []
 
         for _ in self.range(env):
-            client = random.choice(env.state.clients)
-            restaurant = random.choice(env.state.restaurants)
-            items = random.sample(restaurant.catalog.items, 2)
-            order = Order(client, restaurant, env.now, items)
+            customer = random.choice(env.state.customers)
+            establishment = random.choice(env.state.establishments)
+            items = random.sample(establishment.catalog.items, 2)
+            order = Order(customer, establishment, env.now, items)
             orders.append(order)
-            client.place_order(order, restaurant)
+            customer.place_order(order, establishment)
 
-        env.state.orders += orders
+        env.state.add_orders(orders)

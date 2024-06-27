@@ -1,8 +1,8 @@
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.generator.initial_client_generator import InitialClientGenerator
+from src.main.generator.initial_customer_generator import InitialCustomerGenerator
 from src.main.generator.initial_driver_generator import InitialDriverGenerator
 from src.main.generator.initial_order_generator import InitialOrderGenerator
-from src.main.generator.initial_restaurant_generator import InitialRestaurantGenerator
+from src.main.generator.initial_establishment_generator import InitialEstablishmentGenerator
 from src.main.map.grid_map import GridMap
 from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
 from src.main.view.grid_view_matplotlib import GridViewMatplotlib
@@ -12,8 +12,8 @@ def main():
     environment = FoodDeliverySimpyEnv(
         map=GridMap(100),
         generators=[
-            InitialClientGenerator(10),
-            InitialRestaurantGenerator(10),
+            InitialCustomerGenerator(10),
+            InitialEstablishmentGenerator(10),
             InitialDriverGenerator(10),
             InitialOrderGenerator(10)
         ],

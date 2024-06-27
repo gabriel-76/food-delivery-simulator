@@ -42,6 +42,7 @@ Set-ExecutionPolicy Unrestricted -Scope Process
 ### Execute `pip install pygame`
 ### Execute `pip install gymnasium`
 ### Execute `pip install numpy`
+### Execute `pip install ortools`
 
 ## Run project
 
@@ -57,3 +58,4 @@ Set-ExecutionPolicy Unrestricted -Scope Process
 ### Execute `python -m src.examples.grid_map_view`
 ### Execute `python -m src.examples.dilson_proposal`
 ### Execute `python -m src.examples.gymnasium_env`
+### Execute `python -m src.examples.or_tools_example`

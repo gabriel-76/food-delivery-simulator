@@ -1,9 +1,4 @@
-from collections import defaultdict
-
-import numpy as np
-
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.events.event_type import EventType
 from src.main.statistic.metric import Metric
 
 
@@ -14,14 +9,14 @@ class TotalMetric(Metric):
         self.table = table
 
     def view(self, ax) -> None:
-        print("TOTAL RESTAURANTS", len(self.environment.state.restaurants))
-        print("TOTAL CLIENTS", len(self.environment.state.clients))
+        print("TOTAL ESTABLISHMENTS", len(self.environment.state.establishments))
+        print("TOTAL CUSTOMERS", len(self.environment.state.customers))
         print("TOTAL DRIVERS", len(self.environment.state.drivers))
         print("TOTAL ORDERS", len(self.environment.state.orders))
 
-        labels = ['Restaurants', 'Clients', 'Drivers', 'Orders']
-        values = [len(self.environment.state.restaurants), len(self.environment.state.clients),
-                 len(self.environment.state.drivers), len(self.environment.state.orders)]
+        labels = ['Establishments', 'Customers', 'Drivers', 'Orders']
+        values = [len(self.environment.state.establishments), len(self.environment.state.customers),
+                  len(self.environment.state.drivers), len(self.environment.state.orders)]
 
         ax.set_title('Total generated data')
 

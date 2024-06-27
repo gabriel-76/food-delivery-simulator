@@ -1,4 +1,5 @@
 from math import ceil
+from typing import List
 
 from matplotlib import pyplot as plt
 
@@ -8,7 +9,7 @@ from src.main.statistic.metric import Metric
 
 class CustomBoard(Board):
 
-    def __init__(self, metrics: [Metric]):
+    def __init__(self, metrics: List[Metric]):
         super().__init__(metrics)
 
     def view(self) -> None:

@@ -1,8 +1,8 @@
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.generator.time_shift_client_generator import TimeShiftClientGenerator
+from src.main.generator.time_shift_customer_generator import TimeShiftCustomerGenerator
 from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenerator
 from src.main.generator.time_shift_order_generator import TimeShiftOrderGenerator
-from src.main.generator.time_shift_restaurant_generator import TimeShiftRestaurantGenerator
+from src.main.generator.time_shift_establishment_generator import TimeShiftEstablishmentGenerator
 from src.main.map.grid_map import GridMap
 from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
 from src.main.statistic.custom_board import CustomBoard
@@ -26,12 +26,12 @@ def run():
     environment = FoodDeliverySimpyEnv(
         map=GridMap(100),
         generators=[
-            TimeShiftClientGenerator(lambda time: 3),
-            TimeShiftRestaurantGenerator(lambda time: 3),
+            TimeShiftCustomerGenerator(lambda time: 3),
+            TimeShiftEstablishmentGenerator(lambda time: 3, use_estimate=True),
             TimeShiftDriverGenerator(lambda time: 3),
             TimeShiftOrderGenerator(lambda time: parable(time))
         ],
-        optimizer=RandomDriverOptimizer(use_estimate=True)
+        optimizer=RandomDriverOptimizer()
     )
     environment.run(until=2000)
 
