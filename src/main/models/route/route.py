@@ -9,11 +9,11 @@ class Route:
     def __init__(self, segments: List[Segment]):
         self.route_id = uuid.uuid4()
         self._segments = segments
-        self.required_capacity = self.calculate_required_capacity()
+        self.dimension: Dimension = self.calculate_required_capacity()
 
     @property
     def coordinates(self):
-        return [segment.coordinate for segment in self._segments]
+        return [segment._coordinate for segment in self._segments]
 
     def calculate_required_capacity(self):
         dimensions = Dimension.empty()

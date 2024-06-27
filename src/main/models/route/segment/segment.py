@@ -1,21 +1,22 @@
+from src.main.models.common.types import Coordinate
 from src.main.models.order.order import Order
 from src.main.models.route.segment.segment_type import SegmentType
 
 
 class Segment:
-    def __init__(self, route_segment_type: SegmentType, order: Order):
-        self.route_segment_type = route_segment_type
-        self.order = order
-        self.coordinate = self.init_coordinates()
-        self.required_capacity = self.order.required_capacity
+    def __init__(self, order: Order, segment_type: SegmentType):
+        self._order = order
+        self._segment_type = segment_type
+        self._coordinate: Coordinate = self.extract_coordinate()
+        self._dimension = self._order.dimension
 
-    def init_coordinates(self):
+    def extract_coordinate(self):
         if self.is_pickup():
-            return self.order.establishment.coordinate
-        return self.order.customer.coordinate
+            return self._order.establishment.coordinate
+        return self._order.customer.coordinate
 
     def is_pickup(self) -> bool:
-        return self.route_segment_type == SegmentType.PICKUP
+        return self._segment_type == SegmentType.PICKUP
 
     def is_delivery(self) -> bool:
-        return self.route_segment_type == SegmentType.DELIVERY
+        return self._segment_type == SegmentType.DELIVERY

@@ -1,12 +1,12 @@
 import uuid
-from typing import Optional
+from typing import Optional, List
 
 from src.main.models.common.types import Coordinate, Number
 from src.main.models.common.localizable import Localizable
 from src.main.models.common.capacity import Capacity
 from src.main.models.driver.status import Status
 from src.main.models.route.route import Route
-from src.main.models.route.segment import Segment
+from src.main.models.route.segment.segment import Segment
 
 
 class Driver(Localizable):
@@ -21,12 +21,12 @@ class Driver(Localizable):
             max_distance: Number = 0
     ):
         super().__init__(identifier, available, coordinate)
-        self.capacity = capacity
-        self.status = status
-        self.movement_rate = movement_rate
-        self.max_distance = max_distance
-        self.current_route: Optional[Route] = None
-        self.current_route_segment: Optional[Segment] = None
-        self.total_distance: Number = 0
-        self.route_requests: list = []
+        self._capacity = capacity
+        self._status = status
+        self._movement_rate = movement_rate
+        self._max_distance = max_distance
+        self._current_route: Optional[Route] = None
+        self._current_segment: Optional[Segment] = None
+        self._travelled_distance: Number = 0
+        self._requests: List[Route] = []
 

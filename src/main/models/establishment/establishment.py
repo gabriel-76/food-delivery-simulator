@@ -5,6 +5,7 @@ from src.main.models.common.types import Coordinate, Number
 from src.main.models.common.localizable import Localizable
 from src.main.models.common.capacity import Capacity
 from src.main.models.establishment.catalog import Catalog
+from src.main.models.order.order import Order
 
 
 class Establishment(Localizable):
@@ -21,15 +22,13 @@ class Establishment(Localizable):
             estimate: bool = False
     ) -> None:
         super().__init__(identifier, available, coordinate)
-        self.capacity = capacity
-        self.catalog = catalog
-        self.request_rate = request_rate
-        self.production_rate = production_rate
-        self.radius = radius
-        self.estimate = estimate
-
-        self.orders_in_preparation: int = 0
-        self.overloaded_until: Number = 0
-        self.requests: List = []
-        self.accepted: List = []
-        self.rejected: List = []
+        self._capacity = capacity
+        self._catalog = catalog
+        self._request_rate = request_rate
+        self._production_rate = production_rate
+        self._radius = radius
+        self._estimate = estimate
+        self._available_in: Number = 0
+        self._requests: List[Order] = []
+        self._accepted: List[Order] = []
+        self._rejected: List[Order] = []
