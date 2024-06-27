@@ -1,5 +1,5 @@
 import unittest
-from src.main.models.base.dimensions import Dimensions
+from src.main.models.common.dimensions import Dimensions
 
 
 class TestDimensions(unittest.TestCase):
