@@ -30,6 +30,10 @@ class Dimensions:
     def volume(self) -> Number:
         return self._length * self._height * self._width
 
+    @staticmethod
+    def empty() -> 'Dimensions':
+        return Dimensions(0, 0, 0, 0)
+
     def _to_tuple(self) -> Tuple[Number, Number, Number, Number]:
         return self.length, self.height, self.width, self.weight
 

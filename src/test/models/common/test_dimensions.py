@@ -1,12 +1,12 @@
 import unittest
-from src.main.models.common.dimensions import Dimensions
+from src.main.models.common.dimension import Dimension
 
 
 class TestDimensions(unittest.TestCase):
 
     def setUp(self):
-        self.dim1 = Dimensions(2, 2, 2, 2)
-        self.dim2 = Dimensions(3, 3, 3, 3)
+        self.dim1 = Dimension(2, 2, 2, 2)
+        self.dim2 = Dimension(3, 3, 3, 3)
 
     def test_properties(self):
         self.assertEqual(self.dim1.length, 2)
