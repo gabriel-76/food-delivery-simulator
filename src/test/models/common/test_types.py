@@ -1,5 +1,5 @@
 import unittest
-from src.main.models.common.types import Number, Coordinate
+from src.main.models.commons.types import Number, Coordinate
 
 
 class TestTypes(unittest.TestCase):

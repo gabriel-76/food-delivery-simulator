@@ -1,6 +1,6 @@
 import unittest
 import uuid
-from src.main.models.common.localizable import Localizable
+from src.main.models.commons.localizable import Localizable
 
 
 class TestLocalizable(unittest.TestCase):

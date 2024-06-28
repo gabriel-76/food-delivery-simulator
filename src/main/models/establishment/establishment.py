@@ -8,7 +8,7 @@ from src.main.models.commons.types import Coordinate, Number
 from src.main.models.order.rejection import EstablishmentRejection
 
 if TYPE_CHECKING:
-    from src.main.models.order import Order
+    from src.main.models.order.order import Order
 
 
 class Catalog:

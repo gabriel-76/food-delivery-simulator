@@ -1,6 +1,6 @@
 import unittest
-from src.main.models.common.dimension import Dimension
-from src.main.models.common.capacity import Capacity
+from src.main.models.commons.capacity import Capacity
+from src.main.models.commons.dimension import Dimension
 
 
 class TestCapacity(unittest.TestCase):

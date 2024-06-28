@@ -1,6 +1,6 @@
 import unittest
-from src.main.models.common.dimension import Dimension
-from src.main.models.common.item import Item
+from src.main.models.commons.item import Item
+from src.main.models.commons.dimension import Dimension
 
 
 class TestItem(unittest.TestCase):
