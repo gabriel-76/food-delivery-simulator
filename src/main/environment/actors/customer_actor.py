@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from simpy.core import SimTime
 from simpy.events import ProcessGenerator
 
-from src.main.actors.actor import Actor
+from src.main.environment.actors.actor import Actor
 from src.main.events.customer_placed_order import CustomerPlacedOrder
 from src.main.events.customer_received_order import CustomerReceivedOrder
 from src.main.models.customer.customer import Customer

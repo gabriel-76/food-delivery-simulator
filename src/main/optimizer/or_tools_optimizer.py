@@ -2,7 +2,7 @@ from typing import List
 
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
-from src.main.actors.driver_actor import DriverActor
+from src.main.environment.actors import DriverActor
 from src.main.cost.cost_function import CostFunction
 from src.main.models.driver import Driver
 from src.main.models.route.route import Route

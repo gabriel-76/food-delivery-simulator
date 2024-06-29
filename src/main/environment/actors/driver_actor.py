@@ -3,8 +3,8 @@ from typing import List, TYPE_CHECKING
 
 from simpy.events import ProcessGenerator
 
-from src.main.actors.actor import Actor
-from src.main.actors.customer_actor import CustomerActor
+from src.main.environment.actors.actor import Actor
+from src.main.environment.actors.customer_actor import CustomerActor
 from src.main.models.driver.driver import Driver
 from src.main.models.order.order import OrderStatus, Order
 from src.main.models.order.rejection import DriverRejection

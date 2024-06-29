@@ -1,6 +1,6 @@
 import random
 
-from src.main.actors.establishment_actor import EstablishmentActor
+from src.main.environment.actors.establishment_actor import EstablishmentActor
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.models.establishment.establishment import Establishment
 

@@ -1,6 +1,6 @@
 import random
 
-from src.main.actors import DriverStatus
+from src.main.environment.actors import DriverStatus
 from src.main.models.base import Dimensions
 from src.main.models.driver import Capacity
 from src.main.models.driver import Driver

@@ -4,7 +4,7 @@ from typing import List, Union, TYPE_CHECKING
 from simpy.core import SimTime
 from simpy.events import ProcessGenerator
 
-from src.main.actors.actor import Actor
+from src.main.environment.actors.actor import Actor
 from src.main.events.establishment_accepted_order import EstablishmentAcceptedOrder
 from src.main.events.establishment_finished_order import EstablishmentFinishedOrder
 from src.main.events.establishment_preparing_order import EstablishmentPreparingOrder

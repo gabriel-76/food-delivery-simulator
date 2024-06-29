@@ -1,4 +1,4 @@
-from src.main.actors.driver_actor import DriverActor, DriverStatus
+from src.main.environment.actors.driver_actor import DriverActor, DriverStatus
 from src.main.models.driver import Driver
 from src.main.models.route.route import Route
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv

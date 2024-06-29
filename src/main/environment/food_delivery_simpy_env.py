@@ -4,9 +4,9 @@ from typing import Optional, Union, List, Dict
 from simpy import Environment, Event
 from simpy.core import SimTime
 
-from src.main.actors.customer_actor import CustomerActor
-from src.main.actors.driver_actor import DriverActor
-from src.main.actors.establishment_actor import EstablishmentActor
+from src.main.environment.actors.customer_actor import CustomerActor
+from src.main.environment.actors.driver_actor import DriverActor
+from src.main.environment.actors.establishment_actor import EstablishmentActor
 from src.main.models.customer.customer import Customer
 from src.main.environment.delivery_env_state import DeliveryEnvState
 from src.main.models.driver.driver import Driver
