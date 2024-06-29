@@ -1,5 +1,5 @@
 from src.main.models.commons.dimension import Dimension
-from src.main.models.commons.types import Number
+from src.main.commons.types import Number
 
 
 class Capacity:

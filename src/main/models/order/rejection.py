@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from typing import TYPE_CHECKING
 
-from src.main.models.commons.types import Number
+from src.main.commons.types import Number
 
 if TYPE_CHECKING:
     from src.main.models.establishment.establishment import Establishment

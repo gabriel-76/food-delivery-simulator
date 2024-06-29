@@ -11,29 +11,33 @@ from src.main.statistic.driver_status_metric import DriverStatusMetric
 from src.main.statistic.order_curve_metric import OrderCurveMetric
 from src.main.statistic.order_status_metric import OrderStatusMetric
 from src.main.statistic.total_metric import TotalMetric
+from src.main.view.grid_view_pygame import GridViewPygame
 
 
 def run():
     environment = FoodDeliverySimpyEnv(
         map=GridMap(100),
         generators=[
-            InitialEstablishmentOrderRateGenerator(100, use_estimate=True),
+            InitialEstablishmentOrderRateGenerator(2),
             InitialDriverGenerator(20),
             TimeShiftOrderEstablishmentRateGenerator(lambda time: 1),
         ],
-        optimizer=RandomDriverOptimizer()
+        optimizer=RandomDriverOptimizer(),
+        view=GridViewPygame()
     )
     environment.run(100, render_mode='human')
 
-    custom_board = CustomBoard(metrics=[
-        OrderCurveMetric(environment),
-        TotalMetric(environment),
-        DistanceMetric(environment),
-        DelayMetric(environment),
-        DriverStatusMetric(environment),
-        OrderStatusMetric(environment),
-    ])
-    custom_board.view()
+    environment.log_events()
+
+    # custom_board = CustomBoard(metrics=[
+    #     OrderCurveMetric(environment),
+    #     TotalMetric(environment),
+    #     DistanceMetric(environment),
+    #     DelayMetric(environment),
+    #     DriverStatusMetric(environment),
+    #     OrderStatusMetric(environment),
+    # ])
+    # custom_board.view()
 
 
 if __name__ == '__main__':

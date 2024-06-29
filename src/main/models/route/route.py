@@ -2,7 +2,7 @@ import uuid
 from typing import List, Optional
 
 from src.main.models.commons.dimension import Dimension
-from src.main.models.commons.types import Coordinate, Number
+from src.main.commons.types import Coordinate, Number
 from src.main.models.route.segment import Segment
 
 

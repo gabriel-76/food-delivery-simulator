@@ -1,6 +1,6 @@
 import pygame
 
-from src.main.driver.driver_status import DriverStatus
+from src.main.models.driver.driver import DriverStatus
 from src.main.view.food_delivery_view import FoodDeliveryView
 
 # Definindo cores
@@ -52,15 +52,15 @@ class GridViewPygame(FoodDeliveryView):
             mapped_x, mapped_y = self.coordinate(establishment.coordinate)
             pygame.draw.circle(canvas, GREEN, (int(mapped_x), int(mapped_y)), 5)
 
-            if hasattr(establishment, "operating_radius"):
-                operating_radius_mapped = map_coordinate(establishment.operating_radius, 0, 100, 0, min(self.window_size))
+            if hasattr(establishment, "radius"):
+                operating_radius_mapped = map_coordinate(establishment.radius, 0, 100, 0, min(self.window_size))
                 pygame.draw.circle(canvas, GREEN, (int(mapped_x), int(mapped_y)), int(operating_radius_mapped), 1)
 
         for driver in environment.state.drivers:
             mapped_x, mapped_y = self.coordinate(driver.coordinate)
             pygame.draw.circle(canvas, RED, (int(mapped_x), int(mapped_y)), 5)
             if driver.status in [DriverStatus.PICKING_UP, DriverStatus.DELIVERING]:
-                target_mapped_x, target_mapped_y = self.coordinate(driver.current_route_segment.coordinate)
+                target_mapped_x, target_mapped_y = self.coordinate(driver.segment.coordinate)
                 pygame.draw.line(canvas, RED, (mapped_x, mapped_y), (target_mapped_x, target_mapped_y), 2)
 
         self.screen.blit(canvas, canvas.get_rect())

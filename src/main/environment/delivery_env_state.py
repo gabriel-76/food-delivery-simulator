@@ -1,9 +1,9 @@
 from typing import List
 
-from src.main.customer.customer import Customer
-from src.main.driver.driver import Driver
-from src.main.establishment.establishment import Establishment
-from src.main.order.order import Order
+from src.main.models.customer.customer import Customer
+from src.main.models.driver.driver import Driver
+from src.main.models.establishment.establishment import Establishment
+from src.main.models.order.order import Order
 
 
 class DeliveryEnvState:

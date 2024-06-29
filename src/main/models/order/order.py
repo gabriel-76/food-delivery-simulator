@@ -1,10 +1,10 @@
 import uuid
 from enum import Enum, auto
-from typing import List
+from typing import List, Optional
 
 from src.main.models.commons.dimension import Dimension
 from src.main.models.commons.item import Item
-from src.main.models.commons.types import Number
+from src.main.commons.types import Number
 from src.main.models.customer.customer import Customer
 from src.main.models.establishment.establishment import Establishment
 from src.main.models.order.rejection import Rejection, RejectionType
@@ -45,9 +45,11 @@ class Order:
             customer: Customer,
             establishment: Establishment,
             items: List[Item],
-            identifier: uuid = uuid.uuid4()
+            identifier: Optional[uuid] = None,
     ):
         super().__init__()
+        if identifier is None:
+            identifier = uuid.uuid4()
         self._identifier = identifier
         self._customer: Customer = customer
         self._establishment: Establishment = establishment

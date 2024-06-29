@@ -1,7 +1,7 @@
 import random
 from typing import List
 
-from src.main.base.types import Coordinate, Number
+from src.main.commons.types import Coordinate, Number
 from src.main.map.map import Map
 
 

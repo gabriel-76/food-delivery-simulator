@@ -1,5 +1,5 @@
 import random
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from simpy.events import ProcessGenerator
 
@@ -9,7 +9,6 @@ from src.main.models.driver.driver import Driver
 from src.main.models.order.order import OrderStatus, Order
 from src.main.models.order.rejection import DriverRejection
 from src.main.models.route.route import Route
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.driver_accepted_delivery import DriverAcceptedDelivery
 from src.main.events.driver_accepted_route import DriverAcceptedRoute
 from src.main.events.driver_arrived_delivery_location import DriverArrivedDeliveryLocation
@@ -21,9 +20,12 @@ from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
 from src.main.events.driver_rejected_route import DriverRejectedRoute
 from src.main.models.route.segment import Segment
 
+if TYPE_CHECKING:
+    from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+
 
 class DriverActor(Actor):
-    def __init__(self, environment: FoodDeliverySimpyEnv, driver: Driver):
+    def __init__(self, environment: 'FoodDeliverySimpyEnv', driver: Driver):
         super().__init__(environment)
         self._driver = driver
         self.process(self.process_requests())

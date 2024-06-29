@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from src.main.models.commons.types import Number
+from src.main.commons.types import Number
 
 
 class Dimension:
@@ -40,8 +40,14 @@ class Dimension:
     def __lt__(self, other: 'Dimension'):
         return self._to_tuple() < other._to_tuple()
 
+    def __le__(self, other: 'Dimension'):
+        return self._to_tuple() <= other._to_tuple()
+
     def __gt__(self, other: 'Dimension'):
         return self._to_tuple() > other._to_tuple()
+
+    def __ge__(self, other: 'Dimension'):
+        return self._to_tuple() >= other._to_tuple()
 
     def __eq__(self, other: 'Dimension'):
         return self._to_tuple() == other._to_tuple()

@@ -2,7 +2,7 @@ import random
 
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_generator import InitialGenerator
-from src.main.order.order import Order
+from src.main.models.order import Order
 
 
 class InitialOrderGenerator(InitialGenerator):
@@ -14,10 +14,10 @@ class InitialOrderGenerator(InitialGenerator):
             establishment = random.choice(env.state.establishments)
             customer = random.choice(env.state.customers)
 
-            items = random.sample(establishment.catalog.items, 2)
+            items = random.sample(establishment._catalog._items, 2)
 
             order = Order(customer, establishment, env.now, items)
 
             env.state.add_orders([order])
 
-            customer.place_order(order, establishment)
+            customer.place(order, establishment)

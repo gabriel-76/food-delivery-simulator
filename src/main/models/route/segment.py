@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-from src.main.models.commons.types import Coordinate, Number
+from src.main.commons.types import Coordinate, Number
 from src.main.models.order.order import Order
 
 

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from src.main.base.types import Coordinate, Number
+from src.main.commons.types import Coordinate, Number
 
 
 class Map(ABC):

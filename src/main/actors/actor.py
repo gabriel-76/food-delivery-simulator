@@ -1,16 +1,17 @@
 from abc import ABC
-from typing import Optional, Any
+from typing import Optional, Any, TYPE_CHECKING
 
 from simpy import Process
 from simpy.core import SimTime
 from simpy.events import ProcessGenerator, Timeout
 
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+if TYPE_CHECKING:
+    from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 
 
 class Actor(ABC):
 
-    def __init__(self, environment: FoodDeliverySimpyEnv) -> None:
+    def __init__(self, environment: 'FoodDeliverySimpyEnv') -> None:
         self._environment = environment
 
     def publish_event(self, event) -> None:
@@ -27,5 +28,5 @@ class Actor(ABC):
         return self._environment.now
 
     @property
-    def environment(self) -> FoodDeliverySimpyEnv:
+    def environment(self) -> 'FoodDeliverySimpyEnv':
         return self._environment

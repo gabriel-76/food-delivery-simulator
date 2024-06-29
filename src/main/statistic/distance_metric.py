@@ -32,7 +32,7 @@ class DistanceMetric(Metric):
         # Preenchendo o dicionário com os tempos dos eventos
         for event in events:
             driver_id = event.driver_id
-            order_id = event.order_id
+            order_id = event._identifier
             event_type = event.event_type
             distance = 0
             if hasattr(event, "distance"):

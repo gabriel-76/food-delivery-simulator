@@ -1,22 +1,24 @@
 import random
-from typing import List, Union
+from typing import List, Union, TYPE_CHECKING
 
 from simpy.core import SimTime
 from simpy.events import ProcessGenerator
 
 from src.main.actors.actor import Actor
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.models.establishment.establishment import Establishment
 from src.main.events.establishment_accepted_order import EstablishmentAcceptedOrder
 from src.main.events.establishment_finished_order import EstablishmentFinishedOrder
 from src.main.events.establishment_preparing_order import EstablishmentPreparingOrder
 from src.main.events.establishment_rejected_order import EstablishmentRejectedOrder
 from src.main.events.estimated_order_preparation_time import EstimatedOrderPreparationTime
-from src.main.models.order.order import Order, OrderStatus
+from src.main.models.establishment.establishment import Establishment
+from src.main.models.order.order import Order
+
+if TYPE_CHECKING:
+    from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 
 
 class EstablishmentActor(Actor):
-    def __init__(self, environment: FoodDeliverySimpyEnv, establishment: Establishment) -> None:
+    def __init__(self, environment: 'FoodDeliverySimpyEnv', establishment: Establishment) -> None:
         super().__init__(environment)
         self._establishment = establishment
         self.process(self._process_requests())
@@ -50,19 +52,19 @@ class EstablishmentActor(Actor):
     # TODO: refactor this method
     def update_overload_time(self, estimated_time) -> None:
         env_now = self.now
-        if self.is_empty():
-            self._establishment._available_in = max(self._establishment._available_in - env_now, env_now)
-        elif self.is_within_capacity():
-            self._establishment._available_in = env_now + max(
-                self._establishment._available_in - env_now,
-                estimated_time
-            )
-        else:
-            batch_size = len(self._establishment.orders_accepted) // self._establishment.production_capacity
-            self._establishment._available_in = env_now + max(
-                self._establishment._available_in - env_now,
-                batch_size * estimated_time
-            )
+        # if self.is_empty():
+        #     self._establishment._available_in = max(self._establishment._available_in - env_now, env_now)
+        # elif self.is_within_capacity():
+        #     self._establishment._available_in = env_now + max(
+        #         self._establishment._available_in - env_now,
+        #         estimated_time
+        #     )
+        # else:
+        #     batch_size = len(self._establishment.orders_accepted) // self._establishment.production_capacity
+        #     self._establishment._available_in = env_now + max(
+        #         self._establishment._available_in - env_now,
+        #         batch_size * estimated_time
+        #     )
 
         # print(f"{self.now} "
         #       f"full_until_time = {self.full_until_time} "
@@ -92,13 +94,16 @@ class EstablishmentActor(Actor):
         ))
         self._establishment.reject(order, self.now)
 
+    # TODO: Refactor this method
     def process_accepted(self) -> ProcessGenerator:
         while True:
-            while len(self._establishment.orders_accepted) > 0 and self.is_within_capacity():
-                self._establishment.orders_in_preparation += 1
-                order = self._establishment.orders_accepted.pop(0)
-                self.process(self._prepare(order))
-            yield self.timeout(self.time_check_to_start_preparation())
+            accepted = self._establishment.get_accepted_within_capacity()
+            timeout = 1
+            if accepted:
+                for order in accepted:
+                    self.process(self._prepare(order))
+                timeout = self.time_check_to_start_preparation()
+            yield self.timeout(timeout)
 
     def _prepare(self, order) -> ProcessGenerator:
         self.publish_event(EstablishmentPreparingOrder(
@@ -127,14 +132,14 @@ class EstablishmentActor(Actor):
         self._establishment.finish(order, self.now)
         self.update_overload_time(0)
 
-    def is_empty(self) -> bool:
-        return self._establishment.orders_in_preparation == 0
-
-    def is_within_capacity(self) -> bool:
-        return self._establishment.orders_in_preparation < self._establishment.production_capacity
-
-    def is_full(self) -> bool:
-        return self._establishment.orders_in_preparation >= self._establishment.production_capacity
+    # def is_empty(self) -> bool:
+    #     return self._establishment.orders_in_preparation == 0
+    #
+    # def is_within_capacity(self) -> bool:
+    #     return self._establishment.orders_in_preparation < self._establishment.production_capacity
+    #
+    # def is_full(self) -> bool:
+    #     return self._establishment.orders_in_preparation >= self._establishment.production_capacity
 
     def time_to_process_requests(self) -> SimTime:
         return random.randrange(1, 5)

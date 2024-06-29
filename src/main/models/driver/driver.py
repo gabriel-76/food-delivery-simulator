@@ -4,7 +4,7 @@ from typing import Optional, List, TYPE_CHECKING, Union
 
 from src.main.models.commons.capacity import Capacity
 from src.main.models.commons.localizable import Localizable
-from src.main.models.commons.types import Number, Coordinate
+from src.main.commons.types import Number, Coordinate
 from src.main.models.route.route import Route
 from src.main.models.route.segment import Segment
 
@@ -21,7 +21,7 @@ class DriverStatus(Enum):
 class Driver(Localizable):
     def __init__(
             self,
-            identifier: uuid = uuid.uuid4(),
+            identifier: uuid = None,
             available: bool = True,
             coordinate: Coordinate = (0, 0),
             capacity: Capacity = Capacity.empty(),

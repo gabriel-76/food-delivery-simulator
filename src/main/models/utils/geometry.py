@@ -2,7 +2,7 @@ import math
 import random
 from typing import Tuple
 
-from src.main.models.commons.types import Number, Coordinate
+from src.main.commons.types import Number, Coordinate
 
 
 def random_point_in_radius(centroid: Coordinate, inf_limit: Number, sup_limit: Number) -> Tuple[Number, Number]:

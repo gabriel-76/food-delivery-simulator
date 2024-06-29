@@ -1,9 +1,9 @@
 import random
 
 from src.main.actors import DriverStatus
-from src.main.base.dimensions import Dimensions
-from src.main.driver.capacity import Capacity
-from src.main.driver.driver import Driver
+from src.main.models.base import Dimensions
+from src.main.models.driver import Capacity
+from src.main.models.driver import Driver
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 

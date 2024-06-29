@@ -1,11 +1,11 @@
 import random
 
-from src.main.actors.customer_actor import CustomerActor
-from src.main.base.geometry import point_in_gauss_circle
-from src.main.customer.customer import Customer
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
-from src.main.order.order import Order
+from src.main.models.customer.customer import Customer
+from src.main.models.establishment.establishment import Establishment
+from src.main.models.order.order import Order
+from src.main.models.utils.geometry import point_in_gauss_circle
 
 
 class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
@@ -13,37 +13,30 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
         super().__init__(function, time_shift)
         self.hash_timeout = {}
 
-    def process_establishment(self, env: FoodDeliverySimpyEnv, establishment):
+    def process_establishment(self, env: FoodDeliverySimpyEnv, establishment: Establishment):
 
-        if establishment.establishment_id not in self.hash_timeout or self.hash_timeout[establishment.establishment_id] == env.now:
+        if establishment.identifier not in self.hash_timeout or self.hash_timeout[establishment.identifier] == env.now:
 
             customer = Customer(
                 coordinate=point_in_gauss_circle(
-                    establishment.coordinate,
-                    establishment.operating_radius,
-                    env.map.size
+                    centroid=establishment.coordinate,
+                    radius=establishment.radius,
+                    inf_limit=0,
+                    sup_limit=env.map.size
                 ),
                 available=True
             )
 
-            customer_actor = CustomerActor(
-                environment=env,
-                customer=customer,
-            )
-
             items = random.sample(establishment.catalog.items, 2)
 
-            order = Order(customer, establishment, env.now, items)
+            order = Order(customer, establishment, items)
 
-            env.state.add_customers([customer])
-            env.state.add_orders([order])
+            env.place(order, customer, establishment)
 
-            customer_actor.place_order(order, establishment)
-
-            timeout = round(random.expovariate(1 / establishment.order_request_time_rate))
+            timeout = round(random.expovariate(1 / establishment.request_rate))
             # print("generated in time", env.now, timeout)
 
-            self.hash_timeout[establishment.establishment_id] = env.now + max(timeout, 1)
+            self.hash_timeout[establishment.identifier] = env.now + max(timeout, 1)
 
     def run(self, env: FoodDeliverySimpyEnv):
         for _ in self.range(env):

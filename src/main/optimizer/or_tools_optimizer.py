@@ -4,12 +4,11 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from src.main.actors.driver_actor import DriverActor
 from src.main.cost.cost_function import CostFunction
-from src.main.driver.driver import Driver
+from src.main.models.driver import Driver
+from src.main.models.route.route import Route
+from src.main.models.route.segment import PickupSegment, DeliverySegment
 from src.main.optimizer.optimizer import Optimizer
-from src.main.order.optimization_delivery_rejection import OptimizationDeliveryRejection
-from src.main.route.delivery_route_segment import DeliveryRouteSegment
-from src.main.route.pickup_route_segment import PickupRouteSegment
-from src.main.route.route import Route
+from src.main.models.order import OptimizationDeliveryRejection
 
 
 class OrToolsOptimizer(Optimizer):
@@ -23,8 +22,8 @@ class OrToolsOptimizer(Optimizer):
         if len(orders) == 0:
             return
 
-        pickup_segments = list(map(lambda order: PickupRouteSegment(order), orders))
-        delivery_segments = list(map(lambda order: DeliveryRouteSegment(order), orders))
+        pickup_segments = list(map(lambda order: PickupSegment(order), orders))
+        delivery_segments = list(map(lambda order: DeliverySegment(order), orders))
         drivers: List[Driver] = list(filter(lambda d: d.available, env.state.drivers))
 
         num_pickups = len(pickup_segments)
@@ -38,7 +37,7 @@ class OrToolsOptimizer(Optimizer):
         for from_node in all_locations:
             row = []
             for to_node in all_locations:
-                row.append(env.map.distance(from_node.coordinate, to_node.coordinate))
+                row.append(env.map.distance(from_node._coordinate, to_node._coordinate))
             distance_matrix.append(row)
 
         # Índices de estabelecimentos, clientes e motoristas
@@ -141,7 +140,7 @@ class OrToolsOptimizer(Optimizer):
                         env.add_actor(driver.driver_id, driver_actor)
 
                     driver_actor = env.get_actor(driver.driver_id)
-                    driver_actor.receive_route_requests(route)
+                    driver_actor.request(route)
         else:
             print('Nenhuma solução encontrada!')
             for order in orders:

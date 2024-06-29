@@ -1,10 +1,10 @@
 import random
+from typing import TYPE_CHECKING
 
 from simpy.core import SimTime
 from simpy.events import ProcessGenerator
 
 from src.main.actors.actor import Actor
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.customer_placed_order import CustomerPlacedOrder
 from src.main.events.customer_received_order import CustomerReceivedOrder
 from src.main.models.customer.customer import Customer
@@ -12,9 +12,12 @@ from src.main.models.driver.driver import Driver
 from src.main.models.establishment.establishment import Establishment
 from src.main.models.order.order import Order
 
+if TYPE_CHECKING:
+    from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+
 
 class CustomerActor(Actor):
-    def __init__(self, environment: FoodDeliverySimpyEnv, customer: Customer) -> None:
+    def __init__(self, environment: 'FoodDeliverySimpyEnv', customer: Customer) -> None:
         super().__init__(environment)
         self._customer = customer
 

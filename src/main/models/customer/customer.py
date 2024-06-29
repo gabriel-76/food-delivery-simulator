@@ -2,7 +2,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 from src.main.models.commons.localizable import Localizable
-from src.main.models.commons.types import Coordinate, Number
+from src.main.commons.types import Coordinate, Number
 
 
 if TYPE_CHECKING:
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class Customer(Localizable):
     def __init__(
             self,
-            identifier: uuid = uuid.uuid4(),
+            identifier: uuid = None,
             available: bool = True,
             coordinate: Coordinate = (0, 0)
     ) -> None:

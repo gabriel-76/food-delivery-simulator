@@ -1,15 +1,18 @@
 import uuid
+from typing import Optional
 
-from src.main.models.commons.types import Coordinate
+from src.main.commons.types import Coordinate
 
 
 class Localizable:
     def __init__(
             self,
-            identifier: uuid = uuid.uuid4(),
+            identifier: Optional[uuid] = None,
             available: bool = True,
             coordinate: Coordinate = (0, 0)
     ) -> None:
+        if identifier is None:
+            identifier = uuid.uuid4()
         self._identifier = identifier
         self._coordinate = coordinate
         self._available = available

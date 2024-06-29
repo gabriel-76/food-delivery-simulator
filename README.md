@@ -20,6 +20,7 @@
 ## Run tests
 
 ### Execute `python -m unittest discover -s src/test`
+### Execute `python -m unittest discover -s src/test/models`
 
 ## Run examples
 

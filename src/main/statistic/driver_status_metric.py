@@ -13,7 +13,7 @@ class DriverStatusMetric(Metric):
         print("DRIVERS")
         drivers_status_counts = defaultdict(int)
         for driver in self.environment.state.drivers:
-            drivers_status_counts[driver.status.name.lower()] += 1
+            drivers_status_counts[driver._status.name.lower()] += 1
 
         for status, count in drivers_status_counts.items():
             print(f"{status} {count}")

@@ -22,7 +22,7 @@ class OrderCurveMetric(Metric):
         # Agrupar e contar os dados por status
         status_counts = defaultdict(lambda: defaultdict(int))
         for item in events:
-            status_counts[item.event_type][item.time] += 1
+            status_counts[item.event_type][item._time] += 1
 
         # Preparar os dados para plotar
         status_series = {}

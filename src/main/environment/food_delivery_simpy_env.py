@@ -1,14 +1,17 @@
-from typing import Optional, Union, List
+import uuid
+from typing import Optional, Union, List, Dict
 
 from simpy import Environment, Event
 from simpy.core import SimTime
 
-from src.main.customer.customer import Customer
-from src.main.driver.driver import Driver
+from src.main.actors.customer_actor import CustomerActor
+from src.main.actors.driver_actor import DriverActor
+from src.main.actors.establishment_actor import EstablishmentActor
+from src.main.models.customer.customer import Customer
 from src.main.environment.delivery_env_state import DeliveryEnvState
-from src.main.establishment.establishment import Establishment
+from src.main.models.driver.driver import Driver
+from src.main.models.establishment.establishment import Establishment
 from src.main.map.map import Map
-from src.main.order.delivery_rejection import DeliveryRejection
 from src.main.view.food_delivery_view import FoodDeliveryView
 
 
@@ -20,7 +23,7 @@ class FoodDeliverySimpyEnv(Environment):
         self.optimizer = optimizer
         self.view = view
         self._state = DeliveryEnvState()
-        self._actors = {}
+        self._actors: Dict[uuid, Union[CustomerActor, EstablishmentActor, DriverActor]] = {}
         self.init()
 
     @property
@@ -34,6 +37,21 @@ class FoodDeliverySimpyEnv(Environment):
     @property
     def actors(self):
         return self._actors
+
+    def place(self, order, customer, establishment):
+        self._state.add_orders([order])
+        if customer.identifier not in self._actors:
+            customer_actor = CustomerActor(self, customer)
+            self._state.add_customers([customer])
+            self._actors[customer.identifier] = customer_actor
+            customer_actor.place(order, establishment)
+        else:
+            self._actors[customer.identifier].place(order, establishment)
+
+        if establishment.identifier not in self._actors:
+            establishment_actor = EstablishmentActor(self, establishment)
+            self._actors[establishment.identifier] = establishment_actor
+            self._state.add_establishments([establishment])
 
     def get_actor(self, actor_id):
         return self._actors.get(actor_id)
@@ -66,7 +84,7 @@ class FoodDeliverySimpyEnv(Environment):
     def count_ready_orders(self):
         return len(self._state.orders_awaiting_delivery)
 
-    def add_rejected_delivery(self, order, delivery_rejection: DeliveryRejection):
+    def add_rejected_delivery(self, order, delivery_rejection):
         order.add_delivery_rejection(delivery_rejection)
         self._state.orders_awaiting_delivery.append(order)
 

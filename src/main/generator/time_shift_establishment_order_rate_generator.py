@@ -1,11 +1,11 @@
 import random
 
-from src.main.base.dimensions import Dimensions
+from src.main.models.base import Dimensions
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.establishment.catalog import Catalog
-from src.main.establishment.establishment import Establishment
+from src.main.models.establishment.establishment import Establishment
+from src.main.models.establishment.catalog import Catalog
 from src.main.generator.time_shift_generator import TimeShiftGenerator
-from src.main.order.item import Item
+from src.main.models.order import Item
 
 
 class TimeShiftEstablishmentOrderRateGenerator(TimeShiftGenerator):

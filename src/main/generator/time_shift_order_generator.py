@@ -2,7 +2,7 @@ import random
 
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
-from src.main.order.order import Order
+from src.main.models.order import Order
 
 
 class TimeShiftOrderGenerator(TimeShiftGenerator):
@@ -16,9 +16,9 @@ class TimeShiftOrderGenerator(TimeShiftGenerator):
         for _ in self.range(env):
             customer = random.choice(env.state.customers)
             establishment = random.choice(env.state.establishments)
-            items = random.sample(establishment.catalog.items, 2)
+            items = random.sample(establishment._catalog._items, 2)
             order = Order(customer, establishment, env.now, items)
             orders.append(order)
-            customer.place_order(order, establishment)
+            customer.place(order, establishment)
 
         env.state.add_orders(orders)
