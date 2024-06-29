@@ -1,8 +1,8 @@
 import uuid
-from typing import List
+from typing import List, Optional
 
 from src.main.models.commons.dimension import Dimension
-from src.main.models.commons.types import Coordinate
+from src.main.models.commons.types import Coordinate, Number
 from src.main.models.route.segment import Segment
 
 
@@ -28,18 +28,23 @@ class Route:
     def size(self) -> int:
         return len(self._segments)
 
+    def accept_pickup(self, time: Number, estimated_time: Number):
+        for segment in self._segments:
+            segment.order.accept_pickup(time, estimated_time)
+
     def _calculate_dimension(self) -> Dimension:
         dimension = Dimension.empty()
         for segment in self._segments:
             dimension += segment.dimension
         return dimension
 
-    def has_next(self):
-        return len(self._segments) > 0
+    def next(self) -> Optional[Segment]:
+        return self._segments.pop(0) if self._segments else None
 
-    def next(self):
-        return self._segments.pop(0)
-
-    def extend_route(self, route: 'Route'):
+    def extend(self, route: 'Route'):
         self._dimension += route.dimension
         self._segments += route.segments
+
+    @staticmethod
+    def empty():
+        return Route([])

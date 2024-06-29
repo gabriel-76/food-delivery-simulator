@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-from src.main.models.commons.types import Coordinate
+from src.main.models.commons.types import Coordinate, Number
 from src.main.models.order.order import Order
 
 
@@ -17,12 +17,22 @@ class Segment:
         self._dimension = self._order.dimension
 
     @property
+    def order(self) -> Order:
+        return self._order
+
+    @property
     def coordinate(self):
         return self._coordinate
 
     @property
     def dimension(self):
         return self._dimension
+
+    def accept_pickup(self, time: Number, estimated_time: Number):
+        self._order.accept_pickup(time, estimated_time)
+
+    def is_ready(self) -> bool:
+        return self._order.is_ready()
 
     def extract_coordinate(self):
         if self.is_pickup():

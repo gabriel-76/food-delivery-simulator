@@ -1,7 +1,7 @@
 from src.main.actors.driver_actor import DriverActor, DriverStatus
-from src.main.driver.driver import Driver
+from src.main.models.driver import Driver
+from src.main.models.route.route import Route
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.route.route import Route
 
 
 class DriverActorReactive(DriverActor):
@@ -17,8 +17,8 @@ class DriverActorReactive(DriverActor):
 
     def accept_route_condition(self, route: Route):
         default_condition = super().accept_route_condition(route)
-        order = route.route_segments[0].order
-        pickup_coordinate = self.environment.map.distance(self.coordinate, order.establishment.coordinate)
+        order = route._segments[0]._order
+        pickup_coordinate = self.environment.map.distance(self.coordinate, order._establishment.coordinate)
         return default_condition and pickup_coordinate <= self.max_distance
 
     def search_order(self):

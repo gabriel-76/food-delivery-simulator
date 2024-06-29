@@ -10,6 +10,35 @@ from src.main.models.establishment.establishment import Establishment
 from src.main.models.order.rejection import Rejection, RejectionType
 
 
+class OrderStatus(Enum):
+    CREATED = auto()
+    PLACED = auto()
+    ESTABLISHMENT_ACCEPTED = auto()
+    ESTABLISHMENT_REJECTED = auto()
+    PREPARING = auto()
+    READY = auto()
+    DRIVER_ACCEPTED = auto()
+    DRIVER_REJECTED = auto()
+    PICKING_UP = auto()
+    PICKED_UP = auto()
+    DELIVERING = auto()
+    DRIVER_ARRIVED_DELIVERY_LOCATION = auto()
+    RECEIVED = auto()
+    DELIVERED = auto()
+
+    def __lt__(self, other):
+        return self.value < other.value
+
+    def __gt__(self, other):
+        return self.value > other.value
+
+    def __le__(self, other):
+        return self.value <= other.value
+
+    def __ge__(self, other):
+        return self.value >= other.value
+
+
 class Order:
     def __init__(
             self,
@@ -73,6 +102,13 @@ class Order:
     def dimension(self):
         return self._dimension
 
+    @property
+    def status(self) -> OrderStatus:
+        return self._status
+
+    def is_ready(self) -> bool:
+        return self._status == OrderStatus.READY
+
     def placed(self, time: Number) -> None:
         self._status = OrderStatus.PLACED
         self._requested_at = time
@@ -129,32 +165,3 @@ class Order:
         for item in self._items:
             self._dimension += item.dimension
         return self._dimension
-
-
-class OrderStatus(Enum):
-    CREATED = auto()
-    PLACED = auto()
-    ESTABLISHMENT_ACCEPTED = auto()
-    ESTABLISHMENT_REJECTED = auto()
-    PREPARING = auto()
-    READY = auto()
-    DRIVER_ACCEPTED = auto()
-    DRIVER_REJECTED = auto()
-    PICKING_UP = auto()
-    PICKED_UP = auto()
-    DELIVERING = auto()
-    DRIVER_ARRIVED_DELIVERY_LOCATION = auto()
-    RECEIVED = auto()
-    DELIVERED = auto()
-
-    def __lt__(self, other):
-        return self.value < other.value
-
-    def __gt__(self, other):
-        return self.value > other.value
-
-    def __le__(self, other):
-        return self.value <= other.value
-
-    def __ge__(self, other):
-        return self.value >= other.value

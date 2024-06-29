@@ -5,12 +5,13 @@ from simpy.events import ProcessGenerator
 
 from src.main.actors.actor import Actor
 from src.main.actors.customer_actor import CustomerActor
-from src.main.driver.driver import Driver
-from src.main.driver.driver_status import DriverStatus
+from src.main.models.driver.driver import Driver
+from src.main.models.order.order import OrderStatus, Order
+from src.main.models.order.rejection import DriverRejection
+from src.main.models.route.route import Route
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.driver_accepted_delivery import DriverAcceptedDelivery
 from src.main.events.driver_accepted_route import DriverAcceptedRoute
-from src.main.events.driver_accepted_route_extension import DriverAcceptedRouteExtension
 from src.main.events.driver_arrived_delivery_location import DriverArrivedDeliveryLocation
 from src.main.events.driver_delivered_order import DriverDeliveredOrder
 from src.main.events.driver_delivering_order import DriverDeliveringOrder
@@ -18,144 +19,118 @@ from src.main.events.driver_picked_up_order import DriverPickedUpOrder
 from src.main.events.driver_picking_up_order import DriverPickingUpOrder
 from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
 from src.main.events.driver_rejected_route import DriverRejectedRoute
-from src.main.order.driver_delivery_rejection import DriverDeliveryRejection
-from src.main.order.order import Order
-from src.main.order.order_status import OrderStatus
-from src.main.route.route import Route
-from src.main.route.route_segment import RouteSegment
+from src.main.models.route.segment import Segment
 
 
 class DriverActor(Actor):
     def __init__(self, environment: FoodDeliverySimpyEnv, driver: Driver):
         super().__init__(environment)
-        self.driver = driver
-        self.process(self.process_route_requests())
+        self._driver = driver
+        self.process(self.process_requests())
         self.process(self.move())
 
-    def fits(self, route: Route) -> bool:
-        return self.driver.capacity.fits(route.required_capacity)
+    def request(self, route: Route) -> None:
+        self._driver.request(route)
 
-    def receive_route_requests(self, route: Route) -> None:
-        self.driver.route_requests.append(route)
-
-    def process_route_requests(self) -> ProcessGenerator:
+    # TODO: refactor this method
+    def process_requests(self) -> ProcessGenerator:
         while True:
-            if len(self.driver.route_requests) > 0:
-                route = self.driver.route_requests.pop(0)
-                self.process_route_request(route)
-                yield self.timeout(self.time_to_accept_or_reject_route(route))
-            else:
-                yield self.timeout(1)
+            timeout = 1
+            route = self._driver.get_request()
+            if route:
+                timeout = self.time_to_accept_or_reject_route(route)
+                self.process_request(route)
+            yield self.timeout(timeout)
 
-    def process_route_request(self, route: Route) -> None:
+    def process_request(self, route: Route) -> None:
         accept = self.accept_route_condition(route)
         self.accept_route(route) if accept else self.reject_route(route)
 
     def accept_route(self, route: Route) -> None:
-        if self.driver.current_route is None:
-            self.driver.current_route = route
-            self.publish_event(DriverAcceptedRoute(
-                driver_id=self.driver.driver_id,
-                route_id=self.driver.current_route.route_id,
-                distance=self.environment.map.acc_distance([self.driver.coordinate] + route.coordinates),
-                time=self.now
-            ))
-            self.accept_route_segments(self.driver.current_route.route_segments)
-            self.process(self.sequential_processor())
-        else:
-            self.accepted_route_extension(route)
+        self._driver.accept(route, self.now, 0)  # TODO: Calculate estimated time
+        self.publish_event(DriverAcceptedRoute(
+            driver_id=self._driver.identifier,
+            route_id=self._driver.route.route_id,
+            distance=self.environment.map.acc_distance([self._driver.coordinate] + route.coordinates),
+            time=self.now
+        ))
+        self.accept_route_segments(route.segments)
+        self.process(self.sequential_processor())
 
-    def accept_route_segments(self, route_segments: List[RouteSegment]) -> None:
+    # TODO: refactor this method
+    def accept_route_segments(self, route_segments: List[Segment]) -> None:
         for route_segment in route_segments:
             self.accept_route_segment(route_segment)
 
-    def accept_route_segment(self, route_segment: RouteSegment) -> None:
+    # TODO: refactor this method
+    def accept_route_segment(self, segment: Segment) -> None:
         self.publish_event(DriverAcceptedDelivery(
-            driver_id=self.driver.driver_id,
-            order_id=route_segment.order.order_id,
-            customer_id=route_segment.order.customer.customer_id,
-            establishment_id=route_segment.order.establishment.establishment_id,
-            # TODO: Calculate distance posteriorly
-            distance=0,
+            driver_id=self._driver.identifier,
+            order_id=segment.order.identifier,
+            customer_id=segment.order.customer.identifier,
+            establishment_id=segment.order.establishment.identifier,
+            distance=0,  # TODO: Calculate distance posteriorly
             time=self.now
         ))
-        route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
-
-    def accepted_route_extension(self, route: Route) -> None:
-        old_distance = self.environment.map.acc_distance([self.driver.coordinate] + route.coordinates)
-        self.driver.current_route.extend_route(route)
-        self.publish_event(DriverAcceptedRouteExtension(
-            driver_id=self.driver.driver_id,
-            route_id=self.driver.current_route.route_id,
-            old_distance=old_distance,
-            distance=self.environment.map.acc_distance([self.driver.coordinate] + route.coordinates),
-            time=self.now
-        ))
-        self.accept_route_segments(route.route_segments)
 
     def sequential_processor(self) -> ProcessGenerator:
-        if (self.driver.current_route_segment is not None
-                and self.driver.current_route_segment.order.status < OrderStatus.READY):
-            # print(f"Driver {self.coordinate} is waiting for "
-            #       f"order {self.current_route_segment.coordinate} "
-            #       f"status {self.current_route_segment.order.status.name} "
-            #       f"estimated time {self.current_route_segment.order.estimated_time_to_ready} "
-            #       f"ready time {self.current_route_segment.order.time_it_was_ready} "
+        if self._driver.is_waiting_to_collect():
+            # print(f"Driver {self._driver.coordinate} is waiting for "
+            #       f"order {self._driver.current_segment.coordinate} "
+            #       f"status {self._driver.current_segment.order.status.name} "
+            #       f"estimated time {self._driver.current_segment.order._estimated_preparation_at} "
+            #       f"ready time {self._driver.current_segment.order._finish_preparation_at} "
             #       f"current time {self.now}")
             yield self.timeout(1)
             self.process(self.sequential_processor())
-        elif self.driver.current_route.has_next():
-            route_segment = self.driver.current_route.next()
-            self.driver.current_route_segment = route_segment
-            if route_segment.is_pickup():
-                timeout = self.time_between_accept_and_start_picking_up(route_segment.order)
+        elif self._driver.has_next():
+            segment = self._driver.segment
+            if segment.is_pickup():
+                timeout = self.time_between_accept_and_start_picking_up(segment.order)
                 yield self.timeout(timeout)
-                self.process(self.picking_up(route_segment.order))
-            if route_segment.is_delivery():
-                timeout = self.time_between_picked_up_and_start_delivery(route_segment.order)
+                self.process(self.picking_up(segment.order))
+            if segment.is_delivery():
+                timeout = self.time_between_picked_up_and_start_delivery(segment.order)
                 yield self.timeout(timeout)
-                self.process(self.delivering(route_segment.order))
-        else:
-            self.driver.current_route = None
-            self.driver.current_route_segment = None
+                self.process(self.delivering(segment.order))
 
     def reject_route(self, route: Route) -> None:
         self.publish_event(DriverRejectedRoute(
-            driver_id=self.driver.driver_id,
-            route_id=self.driver.current_route.route_id,
-            distance=self.environment.map.acc_distance([self.driver.coordinate] + route.coordinates),
+            driver_id=self._driver.identifier,
+            route_id=self._driver.route.route_id,
+            distance=self.environment.map.acc_distance([self._driver.coordinate] + route.coordinates),
             time=self.now
         ))
-        self.reject_route_segments(route.route_segments)
+        self.reject_route_segments(route.segments)
 
-    def reject_route_segments(self, route_segments: List[RouteSegment]) -> None:
+    def reject_route_segments(self, route_segments: List[Segment]) -> None:
         for route_segment in route_segments:
             self.reject_route_segment(route_segment)
 
-    def reject_route_segment(self, route_segment: RouteSegment) -> None:
+    # TODO: refactor this method
+    def reject_route_segment(self, route_segment: Segment) -> None:
         self.publish_event(DriverRejectedDelivery(
-            driver_id=self.driver.driver_id,
-            order_id=route_segment.order.order_id,
-            customer_id=route_segment.order.customer.customer_id,
-            establishment_id=route_segment.order.establishment.establishment_id,
+            driver_id=self._driver.identifier,
+            order_id=route_segment.order.identifier,
+            customer_id=route_segment.order.customer.identifier,
+            establishment_id=route_segment.order.establishment.identifier,
             time=self.now
         ))
-        route_segment.order.update_status(OrderStatus.DRIVER_REJECTED)
-        rejection = DriverDeliveryRejection(self, self.now)
+        rejection = DriverRejection(self._driver, self.now)
+        route_segment.order.reject(rejection)
         self.environment.add_rejected_delivery(route_segment.order, rejection)
 
     def picking_up(self, order: Order) -> ProcessGenerator:
-        self.driver.status = DriverStatus.PICKING_UP
-        order.update_status(OrderStatus.PICKING_UP)
-        self.driver.total_distance += self.environment.map.distance(
-            self.driver.coordinate, order.establishment.coordinate
-        )
+        self._driver.picking_up(self.now, 0)  # TODO: Calculate estimated time
+        # self._driver._travelled_distance += self.environment.map.distance(
+        #     self._driver.coordinate, order._establishment._coordinate
+        # )
         self.publish_event(DriverPickingUpOrder(
-            order_id=order.order_id,
-            customer_id=order.customer.customer_id,
-            establishment_id=order.establishment.establishment_id,
-            driver_id=self.driver.driver_id,
-            distance=self.environment.map.distance(self.driver.coordinate, order.establishment.coordinate),
+            order_id=order.identifier,
+            customer_id=order.customer.identifier,
+            establishment_id=order.establishment.identifier,
+            driver_id=self._driver.identifier,
+            distance=self.environment.map.distance(self._driver.coordinate, order.establishment.coordinate),
             time=self.now
         ))
         yield self.timeout(self.time_to_picking_up_order(order))
@@ -163,71 +138,72 @@ class DriverActor(Actor):
 
     def picked_up(self, order: Order) -> None:
         self.publish_event(DriverPickedUpOrder(
-            order_id=order.order_id,
-            customer_id=order.customer.customer_id,
-            establishment_id=order.establishment.establishment_id,
-            driver_id=self.driver.driver_id,
+            order_id=order.identifier,
+            customer_id=order.customer.identifier,
+            establishment_id=order.establishment.identifier,
+            driver_id=self._driver.identifier,
             time=self.now
         ))
-        self.driver.coordinate = order.establishment.coordinate
+        self._driver.picked_up(self.now)
         self.process(self.sequential_processor())
 
     def delivering(self, order: Order) -> ProcessGenerator:
-        self.driver.status = DriverStatus.DELIVERING
-        order.update_status(OrderStatus.DELIVERING)
-        self.driver.total_distance += self.environment.map.distance(self.driver.coordinate, order.customer.coordinate)
+        self._driver.delivering(self.now)
+        self._driver._travelled_distance += self.environment.map.distance(self._driver.coordinate, order.customer.coordinate)
         self.publish_event(DriverDeliveringOrder(
-            order_id=order.order_id,
-            customer_id=order.customer.customer_id,
-            establishment_id=order.establishment.establishment_id,
-            driver_id=self.driver.driver_id,
-            distance=self.environment.map.distance(self.driver.coordinate, order.customer.coordinate),
+            order_id=order.identifier,
+            customer_id=order.customer.identifier,
+            establishment_id=order.establishment.identifier,
+            driver_id=self._driver.identifier,
+            distance=self.environment.map.distance(self._driver.coordinate, order.customer.coordinate),
             time=self.now
         ))
         yield self.timeout(self.time_to_deliver_order(order))
         self.process(self.wait_customer_pick_up_order(order))
 
+    # TODO: refactor this method
     def wait_customer_pick_up_order(self, order: Order) -> ProcessGenerator:
-        order.update_status(OrderStatus.DRIVER_ARRIVED_DELIVERY_LOCATION)
+        order._status = OrderStatus.DRIVER_ARRIVED_DELIVERY_LOCATION
         self.publish_event(DriverArrivedDeliveryLocation(
-            order_id=order.order_id,
-            customer_id=order.customer.customer_id,
-            establishment_id=order.establishment.establishment_id,
-            driver_id=self.driver.driver_id,
+            order_id=order.identifier,
+            customer_id=order.customer.identifier,
+            establishment_id=order.establishment.identifier,
+            driver_id=self._driver.identifier,
             time=self.now
         ))
+        # TODO: Refactor this, find a better way to get the customer actor
         customer_actor = CustomerActor(self.environment, order.customer)
-        yield self.process(customer_actor.receive_order(order, self.driver))
+        yield self.process(customer_actor.receive(order, self._driver))
         self.delivered(order)
 
     def delivered(self, order: Order) -> None:
-        self.driver.coordinate = order.customer.coordinate
         self.publish_event(DriverDeliveredOrder(
-            order_id=order.order_id,
-            customer_id=order.customer.customer_id,
-            establishment_id=order.establishment.establishment_id,
-            driver_id=self.driver.driver_id,
+            order_id=order.identifier,
+            customer_id=order.customer.identifier,
+            establishment_id=order.establishment.identifier,
+            driver_id=self._driver.identifier,
             time=self.now
         ))
-        self.driver.status = DriverStatus.AVAILABLE
-        order.update_status(OrderStatus.DELIVERED)
+        self._driver.delivered(self.now)
         self.process(self.sequential_processor())
 
     def move(self) -> ProcessGenerator:
         while True:
-            if self.driver.current_route_segment is not None:
-                self.driver.coordinate = self.environment.map.move(
-                    origin=self.driver.coordinate,
-                    destination=self.driver.current_route_segment.coordinate,
-                    rate=self.driver.movement_rate
+            if self._driver.segment is not None:
+                self._driver.move(
+                    self.environment.map.move(
+                        origin=self._driver.coordinate,
+                        destination=self._driver.segment.coordinate,
+                        rate=self._driver.movement_rate
+                    )
                 )
             yield self.timeout(1)
 
     def accept_route_condition(self, route: Route) -> bool:
-        return self.fits(route) and self.driver.available
+        return self._driver.fits(route) and self._driver.available
 
     def check_availability(self, route: Route) -> bool:
-        return self.fits(route) and self.driver.available
+        return self._driver.fits(route) and self._driver.available
 
     def time_to_accept_or_reject_route(self, route: Route) -> int:
         return random.randrange(3, 10)
@@ -237,9 +213,9 @@ class DriverActor(Actor):
 
     def time_to_picking_up_order(self, order: Order):
         return self.environment.map.estimated_time(
-            self.driver.coordinate,
+            self._driver.coordinate,
             order.establishment.coordinate,
-            self.driver.movement_rate
+            self._driver.movement_rate
         )
 
     def time_between_picked_up_and_start_delivery(self, order: Order) -> int:
@@ -251,5 +227,5 @@ class DriverActor(Actor):
         return self.environment.map.estimated_time(
             establishment_coordinates,
             customer_coordinates,
-            self.driver.movement_rate
+            self._driver.movement_rate
         )
