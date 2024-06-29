@@ -21,11 +21,11 @@ from src.main.events.driver_rejected_route import DriverRejectedRoute
 from src.main.models.route.segment import Segment
 
 if TYPE_CHECKING:
-    from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+    from src.main.environment.delivery_environment import DeliveryEnvironment
 
 
 class DriverActor(Actor):
-    def __init__(self, environment: 'FoodDeliverySimpyEnv', driver: Driver):
+    def __init__(self, environment: 'DeliveryEnvironment', driver: Driver):
         super().__init__(environment)
         self._driver = driver
         self.process(self.process_requests())

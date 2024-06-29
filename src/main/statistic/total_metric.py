@@ -1,10 +1,10 @@
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 from src.main.statistic.metric import Metric
 
 
 class TotalMetric(Metric):
 
-    def __init__(self, environment: FoodDeliverySimpyEnv, table=False):
+    def __init__(self, environment: DeliveryEnvironment, table=False):
         super().__init__(environment)
         self.table = table
 

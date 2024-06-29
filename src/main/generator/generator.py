@@ -1,9 +1,9 @@
 from abc import abstractmethod, ABC
 
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 
 
 class Generator(ABC):
 
     @abstractmethod
-    def generate(self, env: FoodDeliverySimpyEnv): pass
+    def generate(self, env: DeliveryEnvironment): pass

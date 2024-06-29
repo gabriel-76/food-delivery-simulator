@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 
 
 class Metric(ABC):
 
-    def __init__(self, environment: FoodDeliverySimpyEnv):
+    def __init__(self, environment: DeliveryEnvironment):
         self.environment = environment
 
     @abstractmethod

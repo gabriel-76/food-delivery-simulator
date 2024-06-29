@@ -6,7 +6,7 @@ from src.main.models.establishment.establishment import Establishment
 from src.main.models.order.order import Order
 
 
-class DeliveryEnvState:
+class State:
     def __init__(self):
         self._customers: List[Customer] = []
         self._establishments: List[Establishment] = []

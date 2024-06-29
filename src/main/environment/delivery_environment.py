@@ -8,21 +8,21 @@ from src.main.environment.actors.customer_actor import CustomerActor
 from src.main.environment.actors.driver_actor import DriverActor
 from src.main.environment.actors.establishment_actor import EstablishmentActor
 from src.main.models.customer.customer import Customer
-from src.main.environment.delivery_env_state import DeliveryEnvState
+from src.main.environment.state import State
 from src.main.models.driver.driver import Driver
 from src.main.models.establishment.establishment import Establishment
 from src.main.map.map import Map
 from src.main.view.food_delivery_view import FoodDeliveryView
 
 
-class FoodDeliverySimpyEnv(Environment):
+class DeliveryEnvironment(Environment):
     def __init__(self, map: Map, generators, optimizer, view: FoodDeliveryView = None):
         super().__init__()
         self.map = map
         self.generators = generators
         self.optimizer = optimizer
         self.view = view
-        self._state = DeliveryEnvState()
+        self._state = State()
         self._actors: Dict[uuid, Union[CustomerActor, EstablishmentActor, DriverActor]] = {}
         self.init()
 

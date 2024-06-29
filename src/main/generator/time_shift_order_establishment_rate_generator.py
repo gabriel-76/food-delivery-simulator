@@ -1,6 +1,6 @@
 import random
 
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.models.customer.customer import Customer
 from src.main.models.establishment.establishment import Establishment
@@ -13,7 +13,7 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
         super().__init__(function, time_shift)
         self.hash_timeout = {}
 
-    def process_establishment(self, env: FoodDeliverySimpyEnv, establishment: Establishment):
+    def process_establishment(self, env: DeliveryEnvironment, establishment: Establishment):
 
         if establishment.identifier not in self.hash_timeout or self.hash_timeout[establishment.identifier] == env.now:
 
@@ -38,7 +38,7 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
 
             self.hash_timeout[establishment.identifier] = env.now + max(timeout, 1)
 
-    def run(self, env: FoodDeliverySimpyEnv):
+    def run(self, env: DeliveryEnvironment):
         for _ in self.range(env):
             for establishment in env.state.establishments:
                 self.process_establishment(env, establishment)

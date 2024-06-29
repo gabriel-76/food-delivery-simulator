@@ -1,6 +1,6 @@
 import random
 
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 from src.main.models.commons.capacity import Capacity
 from src.main.models.commons.dimension import Dimension
 from src.main.models.commons.item import Item
@@ -14,7 +14,7 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
         self.num_establishments = num_establishments
         self.use_estimate = use_estimate
 
-    def run(self, env: FoodDeliverySimpyEnv):
+    def run(self, env: DeliveryEnvironment):
         dimension = Dimension(1, 1, 1, 1)
         catalog = Catalog([Item(dimension, 4) for _ in range(5)])
         capacity = Capacity(Dimension(100, 100, 100, 100))

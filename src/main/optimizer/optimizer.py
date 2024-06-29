@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src.main.cost.cost_function import CostFunction
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 from src.main.generator.time_shift_generator import TimeShiftGenerator
 from src.main.models.order.order import Order
 from src.main.models.order.rejection import SystemRejection
@@ -16,10 +16,10 @@ class Optimizer(TimeShiftGenerator, ABC):
         self.cost_function = cost_function
 
     @abstractmethod
-    def select_driver(self, env: FoodDeliverySimpyEnv, route: Route):
+    def select_driver(self, env: DeliveryEnvironment, route: Route):
         pass
 
-    def process_orders(self, env: FoodDeliverySimpyEnv, orders: [Order]):
+    def process_orders(self, env: DeliveryEnvironment, orders: [Order]):
         for order in orders:
             segment_pickup = PickupSegment(order)
             segment_delivery = DeliverySegment(order)
@@ -32,9 +32,9 @@ class Optimizer(TimeShiftGenerator, ABC):
             else:
                 env.add_rejected_delivery(order, SystemRejection(env.now))
 
-    def optimize(self, env: FoodDeliverySimpyEnv):
+    def optimize(self, env: DeliveryEnvironment):
         orders = env.get_ready_orders()
         self.process_orders(env, orders)
 
-    def run(self, env: FoodDeliverySimpyEnv):
+    def run(self, env: DeliveryEnvironment):
         self.optimize(env)

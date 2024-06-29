@@ -6,12 +6,12 @@ from simpy.core import SimTime
 from simpy.events import ProcessGenerator, Timeout
 
 if TYPE_CHECKING:
-    from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+    from src.main.environment.delivery_environment import DeliveryEnvironment
 
 
 class Actor(ABC):
 
-    def __init__(self, environment: 'FoodDeliverySimpyEnv') -> None:
+    def __init__(self, environment: 'DeliveryEnvironment') -> None:
         self._environment = environment
 
     def publish_event(self, event) -> None:
@@ -28,5 +28,5 @@ class Actor(ABC):
         return self._environment.now
 
     @property
-    def environment(self) -> 'FoodDeliverySimpyEnv':
+    def environment(self) -> 'DeliveryEnvironment':
         return self._environment

@@ -2,14 +2,14 @@ from collections import defaultdict
 
 import numpy as np
 
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 from src.main.events.event_type import EventType
 from src.main.statistic.metric import Metric
 
 
 class DistanceMetric(Metric):
 
-    def __init__(self, environment: FoodDeliverySimpyEnv, table=False):
+    def __init__(self, environment: DeliveryEnvironment, table=False):
         super().__init__(environment)
         self.table = table
 

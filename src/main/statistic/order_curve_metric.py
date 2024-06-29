@@ -1,12 +1,12 @@
 from collections import defaultdict
 
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 from src.main.events.event_type import EventType
 from src.main.statistic.metric import Metric
 
 
 class OrderCurveMetric(Metric):
-    def __init__(self, environment: FoodDeliverySimpyEnv):
+    def __init__(self, environment: DeliveryEnvironment):
         super().__init__(environment)
 
     def view(self, ax) -> None:

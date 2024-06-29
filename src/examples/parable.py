@@ -1,4 +1,4 @@
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 from src.main.generator.time_shift_customer_generator import TimeShiftCustomerGenerator
 from src.main.generator.time_shift_driver_generator import TimeShiftDriverGenerator
 from src.main.generator.time_shift_establishment_generator import TimeShiftEstablishmentGenerator
@@ -23,7 +23,7 @@ def parable(time):
 
 
 def run():
-    environment = FoodDeliverySimpyEnv(
+    environment = DeliveryEnvironment(
         map=GridMap(100),
         generators=[
             TimeShiftCustomerGenerator(lambda time: 3),

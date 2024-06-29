@@ -1,4 +1,4 @@
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 from src.main.generator.initial_driver_generator import InitialDriverGenerator
 from src.main.generator.initial_establishment_order_rate_generator import InitialEstablishmentOrderRateGenerator
 from src.main.generator.time_shift_order_establishment_rate_generator import TimeShiftOrderEstablishmentRateGenerator
@@ -15,7 +15,7 @@ from src.main.view.grid_view_pygame import GridViewPygame
 
 
 def run():
-    environment = FoodDeliverySimpyEnv(
+    environment = DeliveryEnvironment(
         map=GridMap(100),
         generators=[
             InitialEstablishmentOrderRateGenerator(2),

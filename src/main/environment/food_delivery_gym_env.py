@@ -1,13 +1,13 @@
 from gymnasium import Env, spaces
 
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 
 
 class FoodDeliveryGymEnv(Env):
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, simpy_env: FoodDeliverySimpyEnv, render_mode=None):
+    def __init__(self, simpy_env: DeliveryEnvironment, render_mode=None):
         self.simpy_env = simpy_env
         self.observation_space = spaces.Discrete(1)
         self.action_space = spaces.Discrete(1)
@@ -24,7 +24,7 @@ class FoodDeliveryGymEnv(Env):
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
 
-        self.simpy_env = FoodDeliverySimpyEnv(
+        self.simpy_env = DeliveryEnvironment(
             map=self.simpy_env.map,
             generators=self.simpy_env.generators,
             optimizer=self.simpy_env.optimizer,

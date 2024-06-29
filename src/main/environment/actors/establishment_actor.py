@@ -14,11 +14,11 @@ from src.main.models.establishment.establishment import Establishment
 from src.main.models.order.order import Order
 
 if TYPE_CHECKING:
-    from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+    from src.main.environment.delivery_environment import DeliveryEnvironment
 
 
 class EstablishmentActor(Actor):
-    def __init__(self, environment: 'FoodDeliverySimpyEnv', establishment: Establishment) -> None:
+    def __init__(self, environment: 'DeliveryEnvironment', establishment: Establishment) -> None:
         super().__init__(environment)
         self._establishment = establishment
         self.process(self._process_requests())

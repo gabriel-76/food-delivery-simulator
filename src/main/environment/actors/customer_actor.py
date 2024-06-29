@@ -13,11 +13,11 @@ from src.main.models.establishment.establishment import Establishment
 from src.main.models.order.order import Order
 
 if TYPE_CHECKING:
-    from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+    from src.main.environment.delivery_environment import DeliveryEnvironment
 
 
 class CustomerActor(Actor):
-    def __init__(self, environment: 'FoodDeliverySimpyEnv', customer: Customer) -> None:
+    def __init__(self, environment: 'DeliveryEnvironment', customer: Customer) -> None:
         super().__init__(environment)
         self._customer = customer
 

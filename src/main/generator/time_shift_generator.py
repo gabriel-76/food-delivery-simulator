@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 
-from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.environment.delivery_environment import DeliveryEnvironment
 from src.main.generator.generator import Generator
 
 
@@ -11,12 +11,12 @@ class TimeShiftGenerator(Generator, ABC):
         self.time_shift = time_shift
 
     @abstractmethod
-    def run(self, env: FoodDeliverySimpyEnv): pass
+    def run(self, env: DeliveryEnvironment): pass
 
-    def range(self, env: FoodDeliverySimpyEnv):
+    def range(self, env: DeliveryEnvironment):
         return range(round(self.function(env.now)))
 
-    def generate(self, env: FoodDeliverySimpyEnv):
+    def generate(self, env: DeliveryEnvironment):
         while True:
             self.run(env)
             yield env.timeout(self.time_shift)
