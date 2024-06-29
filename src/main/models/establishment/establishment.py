@@ -2,26 +2,13 @@ import uuid
 from typing import List, Optional, TYPE_CHECKING, Union
 
 from src.main.models.commons.capacity import Capacity
-from src.main.models.commons.item import Item
 from src.main.models.commons.localizable import Localizable
 from src.main.models.commons.types import Coordinate, Number
+from src.main.models.establishment.catalog import Catalog
 from src.main.models.order.rejection import EstablishmentRejection
 
 if TYPE_CHECKING:
     from src.main.models.order.order import Order
-
-
-class Catalog:
-    def __init__(self, items: List[Item]):
-        self._items = items
-
-    @property
-    def items(self) -> List[Item]:
-        return self._items
-
-    @staticmethod
-    def empty() -> 'Catalog':
-        return Catalog([])
 
 
 class Establishment(Localizable):
