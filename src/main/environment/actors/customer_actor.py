@@ -43,4 +43,4 @@ class CustomerActor(Actor):
         self.environment.delivered(order, driver)
 
     def receive_time(self, order: Order) -> SimTime:
-        return random.randrange(2, 10)
+        return random.randrange(2, 4)

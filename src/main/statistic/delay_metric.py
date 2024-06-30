@@ -23,9 +23,9 @@ class DelayMetric(Metric):
 
         # Preenchendo o dicionário com os tempos dos eventos
         for event in events:
-            order_id = event._identifier
+            order_id = event.order_id
             event_type = event.event_type
-            time = event._time
+            time = event.time
 
             order_events[order_id][event_type] = time
 

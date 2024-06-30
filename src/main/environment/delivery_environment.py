@@ -14,6 +14,7 @@ from src.main.models.driver.driver import Driver
 from src.main.models.establishment.establishment import Establishment
 from src.main.map.map import Map
 from src.main.models.order.order import Order
+from src.main.models.order.rejection import Rejection
 from src.main.models.route.route import Route
 from src.main.view.food_delivery_view import FoodDeliveryView
 
@@ -66,8 +67,12 @@ class DeliveryEnvironment(Environment):
             self._actors[driver.identifier].request(route)
 
     def receive(self, order: Order, customer: Customer, driver: Driver) -> ProcessGenerator:
-        customer_actor = self._actors[customer.identifier]
-        yield self.process(customer_actor.receive(order, driver))
+        if customer.identifier not in self._actors:
+            customer_actor = CustomerActor(self, customer)
+            self._actors[customer.identifier] = customer_actor
+            yield self.process(customer_actor.receive(order, driver))
+        else:
+            yield self.process(self._actors[customer.identifier].receive(order, driver))
 
     def delivered(self, route: Order, driver: Driver):
         if driver.identifier not in self._actors:
@@ -108,8 +113,8 @@ class DeliveryEnvironment(Environment):
     def count_ready_orders(self):
         return len(self._state.orders_awaiting_delivery)
 
-    def add_rejected_delivery(self, order, delivery_rejection):
-        order.add_delivery_rejection(delivery_rejection)
+    def add_rejected_delivery(self, order: Order, delivery_rejection: Rejection):
+        order.reject(delivery_rejection)
         self._state.orders_awaiting_delivery.append(order)
 
     def get_rejected_deliveries(self):

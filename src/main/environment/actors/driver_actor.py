@@ -156,7 +156,7 @@ class DriverActor(Actor):
             time=self.now
         ))
         yield self.timeout(self.time_to_deliver_order(order))
-        self.process(self.wait_customer_pick_up_order(order))
+        yield self.process(self.wait_customer_pick_up_order(order))
 
     # TODO: refactor this method
     def wait_customer_pick_up_order(self, order: Order) -> ProcessGenerator:
