@@ -88,6 +88,10 @@ class Order:
         # Time when the driver finished the delivery
         self._finish_delivery_at: Number = 0
 
+        self._arrived_delivery_location_at: Number = 0
+        self._received_at: Number = 0
+
+
     @property
     def identifier(self):
         return self._identifier
@@ -158,6 +162,14 @@ class Order:
     def finish_delivery(self, time: Number) -> None:
         self._status = OrderStatus.DELIVERED
         self._finish_delivery_at = time
+
+    def arrived_delivery_location(self, time: Number) -> None:
+        self._status = OrderStatus.DRIVER_ARRIVED_DELIVERY_LOCATION
+        self._arrived_delivery_location_at = time
+
+    def received(self, time: Number) -> None:
+        self._status = OrderStatus.RECEIVED
+        self._received_at = time
 
     def reject(self, rejection: Rejection) -> None:
         if rejection.rejection_type == RejectionType.ESTABLISHMENT_REJECTED:

@@ -1,11 +1,12 @@
 import unittest
 import uuid
-from src.main.models.driver.driver import Driver
-from src.main.models.order.order import Order, OrderStatus
-from src.main.models.customer.customer import Customer
-from src.main.models.establishment.establishment import Establishment
-from src.main.models.commons.item import Item
+
 from src.main.models.commons.dimension import Dimension
+from src.main.models.commons.item import Item
+from src.main.models.customer.customer import Customer
+from src.main.models.driver.driver import Driver
+from src.main.models.establishment.establishment import Establishment
+from src.main.models.order.order import Order
 
 
 class TestDriver(unittest.TestCase):

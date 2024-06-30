@@ -32,7 +32,7 @@ class CustomerActor(Actor):
 
     def receive(self, order: Order, driver: Driver) -> ProcessGenerator:
         yield self.timeout(self.receive_time(order))
-        self._customer.receive(order, driver, self.now)
+        self._customer.receive(order, self.now)
         self.publish_event(CustomerReceivedOrder(
             order_id=order.identifier,
             customer_id=self._customer.identifier,

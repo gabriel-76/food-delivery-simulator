@@ -103,6 +103,9 @@ class Driver(Localizable):
         self._status = DriverStatus.DELIVERING
         self._segment.order.start_delivery(time)
 
+    def arrived_delivery_location(self, time: Number) -> None:
+        self._segment.order.arrived_delivery_location(time)
+
     def delivered(self, time: Number) -> None:
         self._coordinate = self._segment.coordinate
         self._segment.order.finish_delivery(time)
