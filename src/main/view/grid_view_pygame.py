@@ -1,5 +1,6 @@
 import pygame
 
+from src.main.environment.delivery_environment import DeliveryEnvironment
 from src.main.models.driver.driver import DriverStatus
 from src.main.view.food_delivery_view import FoodDeliveryView
 
@@ -29,7 +30,7 @@ class GridViewPygame(FoodDeliveryView):
         return (map_coordinate(coordinate[0], self.min_x, self.max_x, 0, self.window_size[0]),
                 map_coordinate(coordinate[1], self.min_y, self.max_y, 0, self.window_size[1]))
 
-    def render(self, environment):
+    def render(self, environment: DeliveryEnvironment):
 
         self.quited = False
 

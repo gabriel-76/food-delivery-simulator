@@ -2,13 +2,13 @@ from typing import List
 
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
-from src.main.environment.actors import DriverActor
 from src.main.cost.cost_function import CostFunction
-from src.main.models.driver import Driver
+from src.main.models.driver.driver import Driver
+from src.main.models.order.rejection import SystemRejection
+
 from src.main.models.route.route import Route
 from src.main.models.route.segment import PickupSegment, DeliverySegment
 from src.main.optimizer.optimizer import Optimizer
-from src.main.models.order import OptimizationDeliveryRejection
 
 
 class OrToolsOptimizer(Optimizer):
@@ -37,7 +37,7 @@ class OrToolsOptimizer(Optimizer):
         for from_node in all_locations:
             row = []
             for to_node in all_locations:
-                row.append(env.map.distance(from_node._coordinate, to_node._coordinate))
+                row.append(env.map.distance(from_node.coordinate, to_node.coordinate))
             distance_matrix.append(row)
 
         # Índices de estabelecimentos, clientes e motoristas
@@ -135,13 +135,9 @@ class OrToolsOptimizer(Optimizer):
 
                 if driver is not None and len(segments) > 0:
                     route = Route(segments)
-                    if driver.driver_id not in env.actors:
-                        driver_actor = DriverActor(env, driver)
-                        env.add_actor(driver.driver_id, driver_actor)
-
-                    driver_actor = env.get_actor(driver.driver_id)
-                    driver_actor.request(route)
+                    env.deliver(route, driver)
         else:
             print('Nenhuma solução encontrada!')
             for order in orders:
-                env.add_rejected_delivery(order, OptimizationDeliveryRejection(env.now))
+                order.reject(SystemRejection(env.now))
+                env.add_ready_order(order)

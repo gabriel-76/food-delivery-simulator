@@ -34,6 +34,9 @@ class Segment:
     def is_ready(self) -> bool:
         return self._order.is_ready()
 
+    def has_finished_preparation(self) -> bool:
+        return self._order.has_finished_preparation()
+
     def extract_coordinate(self):
         if self.is_pickup():
             return self._order.establishment.coordinate

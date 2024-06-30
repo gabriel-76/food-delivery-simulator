@@ -81,8 +81,8 @@ class EstablishmentActor(Actor):
             time=self.now
         ))
         # TODO: Adding order in environment or filter indexes ?
-        # if self._establishment.use_estimate:
-        #     self.environment.add_ready_order(order)
+        if self._establishment.estimate:
+            self.environment.add_ready_order(order)
         return estimated_time
 
     def reject(self, order: Order) -> None:
@@ -127,8 +127,8 @@ class EstablishmentActor(Actor):
         ))
         # TODO: Adding order in environment or filter indexes ?
         # self._establishment.orders_in_preparation -= 1
-        # if not self._establishment.use_estimate:
-        #     self.environment.add_ready_order(order)
+        if not self._establishment.estimate:
+            self.environment.add_ready_order(order)
         self._establishment.finish(order, self.now)
         self.update_overload_time(0)
 

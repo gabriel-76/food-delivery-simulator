@@ -16,11 +16,6 @@ class TestDriver(unittest.TestCase):
         self.items = [Item(Dimension(2, 3, 4, 5), 10)]
         self.order = Order(self.customer, self.establishment, self.items, 10)
 
-    def test_deliver(self):
-        time = 10
-        self.driver.deliver(self.order, time)
-        self.assertEqual(self.order._status, OrderStatus.DELIVERED)
-
 
 if __name__ == '__main__':
     unittest.main()

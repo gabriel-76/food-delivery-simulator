@@ -111,6 +111,9 @@ class Order:
     def is_ready(self) -> bool:
         return self._status == OrderStatus.READY
 
+    def before_ready(self):
+        return self._status < OrderStatus.READY
+
     def placed(self, time: Number) -> None:
         self._status = OrderStatus.PLACED
         self._requested_at = time
@@ -127,6 +130,9 @@ class Order:
     def finish_preparation(self, time: Number) -> None:
         self._status = OrderStatus.READY
         self._finish_preparation_at = time
+
+    def has_finished_preparation(self) -> bool:
+        return self._status > OrderStatus.READY and self._finish_preparation_at > 0
 
     def accept_pickup(self, time: Number, estimated_time: Number) -> None:
         self._status = OrderStatus.DRIVER_ACCEPTED

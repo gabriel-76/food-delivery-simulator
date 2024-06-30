@@ -14,9 +14,13 @@ class Capacity:
     def value(self) -> Number:
         return self._dimension.volume * self._dimension.weight
 
+    def fits(self, dimension: Dimension) -> bool:
+        return self._dimension > dimension
+
     @staticmethod
     def empty() -> 'Capacity':
         return Capacity(Dimension.empty())
 
-    def fits(self, dimension: Dimension) -> bool:
-        return self._dimension > dimension
+    @staticmethod
+    def infinity() -> 'Capacity':
+        return Capacity(Dimension.infinity())

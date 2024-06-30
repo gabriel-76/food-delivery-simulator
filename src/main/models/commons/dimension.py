@@ -34,6 +34,11 @@ class Dimension:
     def empty() -> 'Dimension':
         return Dimension(0, 0, 0, 0)
 
+    @staticmethod
+    def infinity() -> 'Dimension':
+        inf = float('inf')
+        return Dimension(inf, inf, inf, inf)
+
     def _to_tuple(self) -> Tuple[Number, Number, Number, Number]:
         return self.length, self.height, self.width, self.weight
 

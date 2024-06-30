@@ -5,10 +5,6 @@ from simpy.events import ProcessGenerator
 
 from src.main.environment.actors.actor import Actor
 from src.main.environment.actors.customer_actor import CustomerActor
-from src.main.models.driver.driver import Driver
-from src.main.models.order.order import OrderStatus, Order
-from src.main.models.order.rejection import DriverRejection
-from src.main.models.route.route import Route
 from src.main.events.driver_accepted_delivery import DriverAcceptedDelivery
 from src.main.events.driver_accepted_route import DriverAcceptedRoute
 from src.main.events.driver_arrived_delivery_location import DriverArrivedDeliveryLocation
@@ -18,6 +14,10 @@ from src.main.events.driver_picked_up_order import DriverPickedUpOrder
 from src.main.events.driver_picking_up_order import DriverPickingUpOrder
 from src.main.events.driver_rejected_delivery import DriverRejectedDelivery
 from src.main.events.driver_rejected_route import DriverRejectedRoute
+from src.main.models.driver.driver import Driver
+from src.main.models.order.order import OrderStatus, Order
+from src.main.models.order.rejection import DriverRejection
+from src.main.models.route.route import Route
 from src.main.models.route.segment import Segment
 
 if TYPE_CHECKING:
@@ -29,6 +29,7 @@ class DriverActor(Actor):
         super().__init__(environment)
         self._driver = driver
         self.process(self.process_requests())
+        self.process(self.process_route())
         self.process(self.move())
 
     def request(self, route: Route) -> None:
@@ -57,7 +58,7 @@ class DriverActor(Actor):
             time=self.now
         ))
         self.accept_route_segments(route.segments)
-        self.process(self.sequential_processor())
+        # self.process(self.sequential_processor())
 
     # TODO: refactor this method
     def accept_route_segments(self, route_segments: List[Segment]) -> None:
@@ -74,27 +75,6 @@ class DriverActor(Actor):
             distance=0,  # TODO: Calculate distance posteriorly
             time=self.now
         ))
-
-    def sequential_processor(self) -> ProcessGenerator:
-        if self._driver.is_waiting_to_collect():
-            # print(f"Driver {self._driver.coordinate} is waiting for "
-            #       f"order {self._driver.current_segment.coordinate} "
-            #       f"status {self._driver.current_segment.order.status.name} "
-            #       f"estimated time {self._driver.current_segment.order._estimated_preparation_at} "
-            #       f"ready time {self._driver.current_segment.order._finish_preparation_at} "
-            #       f"current time {self.now}")
-            yield self.timeout(1)
-            self.process(self.sequential_processor())
-        elif self._driver.has_next():
-            segment = self._driver.segment
-            if segment.is_pickup():
-                timeout = self.time_between_accept_and_start_picking_up(segment.order)
-                yield self.timeout(timeout)
-                self.process(self.picking_up(segment.order))
-            if segment.is_delivery():
-                timeout = self.time_between_picked_up_and_start_delivery(segment.order)
-                yield self.timeout(timeout)
-                self.process(self.delivering(segment.order))
 
     def reject_route(self, route: Route) -> None:
         self.publish_event(DriverRejectedRoute(
@@ -122,6 +102,45 @@ class DriverActor(Actor):
         route_segment.order.reject(rejection)
         self.environment.add_rejected_delivery(route_segment.order, rejection)
 
+    # def sequential_processor(self) -> ProcessGenerator:
+    #     if self._driver.is_waiting_to_collect():
+    #         # print(f"Driver {self._driver.coordinate} is waiting for "
+    #         #       f"order {self._driver.current_segment.coordinate} "
+    #         #       f"status {self._driver.current_segment.order.status.name} "
+    #         #       f"estimated time {self._driver.current_segment.order._estimated_preparation_at} "
+    #         #       f"ready time {self._driver.current_segment.order._finish_preparation_at} "
+    #         #       f"current time {self.now}")
+    #         yield self.timeout(1)
+    #         self.process(self.sequential_processor())
+    #     elif self._driver.segment:
+    #         if self._driver.segment.is_pickup():
+    #             timeout = self.time_between_accept_and_start_picking_up(self._driver.segment.order)
+    #             yield self.timeout(timeout)
+    #             self.process(self.picking_up(self._driver.segment.order))
+    #         if self._driver.segment.is_delivery():
+    #             timeout = self.time_between_picked_up_and_start_delivery(self._driver.segment.order)
+    #             yield self.timeout(timeout)
+    #             self.process(self.delivering(self._driver.segment.order))
+
+    def process_route(self) -> ProcessGenerator:
+        while True:
+            if len(self._driver.route.segments) > 0:
+                self._driver.segment = self._driver.route.get_segment()
+                if self._driver.is_waiting_to_collect():
+                    yield self.timeout(1)
+                else:
+                    if self._driver.segment.is_pickup():
+                        timeout = self.time_between_accept_and_start_picking_up(self._driver.segment.order)
+                        yield self.timeout(timeout)
+                        yield self.process(self.picking_up(self._driver.segment.order))
+                    if self._driver.segment.is_delivery():
+                        timeout = self.time_between_picked_up_and_start_delivery(self._driver.segment.order)
+                        yield self.timeout(timeout)
+                        yield self.process(self.delivering(self._driver.segment.order))
+            else:
+                # self._driver.segment = None
+                yield self.timeout(1)
+
     def picking_up(self, order: Order) -> ProcessGenerator:
         self._driver.picking_up(self.now, 0)  # TODO: Calculate estimated time
         # self._driver._travelled_distance += self.environment.map.distance(
@@ -147,7 +166,7 @@ class DriverActor(Actor):
             time=self.now
         ))
         self._driver.picked_up(self.now)
-        self.process(self.sequential_processor())
+        # self.process(self.sequential_processor())
 
     def delivering(self, order: Order) -> ProcessGenerator:
         self._driver.delivering(self.now)
@@ -174,9 +193,8 @@ class DriverActor(Actor):
             time=self.now
         ))
         # TODO: Refactor this, find a better way to get the customer actor
-        customer_actor = CustomerActor(self.environment, order.customer)
-        yield self.process(customer_actor.receive(order, self._driver))
-        self.delivered(order)
+        yield self.process(self.environment.receive(order, order.customer, self._driver))
+        # self.delivered(order)
 
     def delivered(self, order: Order) -> None:
         self.publish_event(DriverDeliveredOrder(
@@ -187,7 +205,7 @@ class DriverActor(Actor):
             time=self.now
         ))
         self._driver.delivered(self.now)
-        self.process(self.sequential_processor())
+        # self.process(self.sequential_processor())
 
     def move(self) -> ProcessGenerator:
         while True:

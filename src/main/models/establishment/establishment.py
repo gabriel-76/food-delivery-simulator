@@ -18,7 +18,7 @@ class Establishment(Localizable):
             identifier: uuid = None,
             available: bool = True,
             coordinate: Coordinate = (0, 0),
-            capacity: Capacity = Capacity.empty(),
+            capacity: Capacity = Capacity.infinity(),
             catalog: Catalog = Catalog.empty(),
             request_rate: Optional[Number] = None,
             production_rate: Optional[Number] = None,
@@ -49,6 +49,10 @@ class Establishment(Localizable):
     @property
     def radius(self) -> Optional[Number]:
         return self._radius
+
+    @property
+    def estimate(self) -> bool:
+        return self._estimate
 
     def request(self, orders: Union['Order', List['Order']]) -> None:
         if isinstance(orders, list):
@@ -100,7 +104,7 @@ class Establishment(Localizable):
         return len(self._preparing) == 0
 
     def is_within_capacity(self) -> bool:
-        return self._occupation() <= self._capacity
+        return self._occupation() <= self._capacity.dimension
 
     # def is_full(self) -> bool:
     #     return len(self._preparing) >= self._capacity.max

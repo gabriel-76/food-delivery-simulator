@@ -2,7 +2,7 @@ import random
 
 from src.main.environment.delivery_environment import DeliveryEnvironment
 from src.main.generator.initial_generator import InitialGenerator
-from src.main.models.order import Order
+from src.main.models.order.order import Order
 
 
 class InitialOrderGenerator(InitialGenerator):
@@ -14,10 +14,8 @@ class InitialOrderGenerator(InitialGenerator):
             establishment = random.choice(env.state.establishments)
             customer = random.choice(env.state.customers)
 
-            items = random.sample(establishment._catalog._items, 2)
+            items = random.sample(establishment.catalog.items, 2)
 
-            order = Order(customer, establishment, env.now, items)
+            order = Order(customer, establishment, items)
 
-            env.state.add_orders([order])
-
-            customer.place(order, establishment)
+            env.place(order, customer, establishment)

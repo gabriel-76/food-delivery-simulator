@@ -27,4 +27,5 @@ class Customer(Localizable):
 
     @staticmethod
     def receive(order: 'Order', driver: 'Driver', time: Number) -> None:
-        driver.deliver(order, time)
+        pass
+        # driver.delivered(time)

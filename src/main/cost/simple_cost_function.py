@@ -1,8 +1,8 @@
-from src.main.models.base import Number
+from src.main.commons.types import Number
 from src.main.cost.cost_function import CostFunction
-from src.main.models.driver import Driver
 from src.main.map.map import Map
-from src.main.models.order import OrderStatus
+from src.main.models.driver.driver import Driver
+from src.main.models.order.order import OrderStatus
 from src.main.models.route.segment import Segment
 
 
@@ -13,37 +13,37 @@ class SimpleCostFunction(CostFunction):
         self.MAX_PENALTY = float('inf')
 
     def penalty(self, route_segment: Segment):
-        if route_segment.is_pickup() and route_segment._order._status <= OrderStatus.DRIVER_ACCEPTED:
+        if route_segment.is_pickup() and route_segment.order.status <= OrderStatus.DRIVER_ACCEPTED:
             return 0
-        if route_segment.is_delivery() and route_segment._order._status <= OrderStatus.PICKED_UP:
+        if route_segment.is_delivery() and route_segment.order.status <= OrderStatus.PICKED_UP:
             return 0
         return self.MAX_PENALTY
 
     def delay(self, map: Map, driver: Driver, route_segment: Segment):
         current_delay = 0
-        if driver._segment is not None:
+        if driver.segment is not None:
             current_delay = map.estimated_time(
                 driver.coordinate,
-                driver._segment._coordinate,
-                driver._movement_rate
+                driver.segment.coordinate,
+                driver.movement_rate
             )
         new_segment_delay = map.estimated_time(
             driver.coordinate,
-            route_segment._coordinate,
-            driver._movement_rate
+            route_segment.coordinate,
+            driver.movement_rate
         )
         return current_delay + new_segment_delay
 
     def distance(self, map: Map, driver: Driver, route_segment: Segment):
         current_distance = 0
-        if driver._segment is not None:
+        if driver.segment is not None:
             current_distance = map.distance(
                 driver.coordinate,
-                driver._segment._coordinate
+                driver.segment.coordinate
             )
         new_segment_distance = map.distance(
             driver.coordinate,
-            route_segment._coordinate
+            route_segment.coordinate
         )
         return current_distance + new_segment_distance
 

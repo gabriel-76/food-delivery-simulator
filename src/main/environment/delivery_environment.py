@@ -3,6 +3,7 @@ from typing import Optional, Union, List, Dict
 
 from simpy import Environment, Event
 from simpy.core import SimTime
+from simpy.events import ProcessGenerator
 
 from src.main.environment.actors.customer_actor import CustomerActor
 from src.main.environment.actors.driver_actor import DriverActor
@@ -12,6 +13,8 @@ from src.main.environment.state import State
 from src.main.models.driver.driver import Driver
 from src.main.models.establishment.establishment import Establishment
 from src.main.map.map import Map
+from src.main.models.order.order import Order
+from src.main.models.route.route import Route
 from src.main.view.food_delivery_view import FoodDeliveryView
 
 
@@ -38,7 +41,7 @@ class DeliveryEnvironment(Environment):
     def actors(self):
         return self._actors
 
-    def place(self, order, customer, establishment):
+    def place(self, order: Order, customer: Customer, establishment: Establishment):
         self._state.add_orders([order])
         if customer.identifier not in self._actors:
             customer_actor = CustomerActor(self, customer)
@@ -52,6 +55,27 @@ class DeliveryEnvironment(Environment):
             establishment_actor = EstablishmentActor(self, establishment)
             self._actors[establishment.identifier] = establishment_actor
             self._state.add_establishments([establishment])
+
+    def deliver(self, route: Route, driver: Driver):
+        if driver.identifier not in self._actors:
+            driver_actor = DriverActor(self, driver)
+            self._actors[driver.identifier] = driver_actor
+            # self._state.add_drivers([driver])
+            driver_actor.request(route)
+        else:
+            self._actors[driver.identifier].request(route)
+
+    def receive(self, order: Order, customer: Customer, driver: Driver) -> ProcessGenerator:
+        customer_actor = self._actors[customer.identifier]
+        yield self.process(customer_actor.receive(order, driver))
+
+    def delivered(self, route: Order, driver: Driver):
+        if driver.identifier not in self._actors:
+            driver_actor = DriverActor(self, driver)
+            self._actors[driver.identifier] = driver_actor
+            driver_actor.delivered(route)
+        else:
+            self._actors[driver.identifier].delivered(route)
 
     def get_actor(self, actor_id):
         return self._actors.get(actor_id)

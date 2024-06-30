@@ -1,8 +1,8 @@
 import uuid
-from typing import List, Optional
+from typing import List
 
-from src.main.models.commons.dimension import Dimension
 from src.main.commons.types import Coordinate, Number
+from src.main.models.commons.dimension import Dimension
 from src.main.models.route.segment import Segment
 
 
@@ -19,6 +19,9 @@ class Route:
     @property
     def segments(self) -> List[Segment]:
         return self._segments
+
+    def get_segment(self) -> Segment:
+        return self._segments.pop(0)
 
     @property
     def dimension(self) -> Dimension:
@@ -37,9 +40,6 @@ class Route:
         for segment in self._segments:
             dimension += segment.dimension
         return dimension
-
-    def next(self) -> Optional[Segment]:
-        return self._segments.pop(0) if self._segments else None
 
     def extend(self, route: 'Route'):
         self._dimension += route.dimension

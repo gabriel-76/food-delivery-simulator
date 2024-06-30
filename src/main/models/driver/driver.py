@@ -24,7 +24,7 @@ class Driver(Localizable):
             identifier: uuid = None,
             available: bool = True,
             coordinate: Coordinate = (0, 0),
-            capacity: Capacity = Capacity.empty(),
+            capacity: Capacity = Capacity.infinity(),
             status: DriverStatus = DriverStatus.AVAILABLE,
             movement_rate: Number = 0,
             max_distance: Number = 0
@@ -63,6 +63,10 @@ class Driver(Localizable):
     def segment(self) -> Optional[Segment]:
         return self._segment
 
+    @segment.setter
+    def segment(self, value: Segment) -> None:
+        self._segment = value
+
     @property
     def travelled_distance(self) -> Number:
         return self._travelled_distance
@@ -79,17 +83,12 @@ class Driver(Localizable):
     def accept(self, route: Route, time: Number, estimated_time: Number) -> None:
         self._route.extend(route)
         route.accept_pickup(time, estimated_time)
-        if self._segment is None:
-            self._segment = self._route.next()
 
     def is_waiting_to_collect(self) -> bool:
-        return self._route and not self._segment.is_ready()
+        return self._route and self._segment and not self._segment.has_finished_preparation()
 
-    def has_next(self) -> bool:
-        return self._route.size > 0
-
-    def _next(self):
-        self._segment = self._route.next()
+    # def _next(self):
+    #     self._segment = self._route.next()
 
     def picking_up(self, time: Number, estimated_time: Number) -> None:
         self._status = DriverStatus.PICKING_UP
@@ -98,7 +97,7 @@ class Driver(Localizable):
     def picked_up(self, time: Number) -> None:
         self._coordinate = self._segment.coordinate
         self._segment.order.start_pickup(time)
-        self._next()
+        # self._next()
 
     def delivering(self, time: Number) -> None:
         self._status = DriverStatus.DELIVERING
@@ -108,7 +107,7 @@ class Driver(Localizable):
         self._coordinate = self._segment.coordinate
         self._segment.order.finish_delivery(time)
         self._status = DriverStatus.AVAILABLE
-        self._next()
+        # self._next()
 
     def fits(self, route: Route) -> bool:
         return self._capacity.fits(route.dimension)
@@ -116,6 +115,9 @@ class Driver(Localizable):
     def move(self, coordinate: Coordinate) -> None:
         self._coordinate = coordinate
 
-    @staticmethod
-    def deliver(order: 'Order', time: Number) -> None:
-        order.finish_delivery(time)
+    def check_availability(self, route: Route) -> bool:
+        return self.fits(route) and self.available
+
+    # @staticmethod
+    # def deliver(order: 'Order', time: Number) -> None:
+    #     order.finish_delivery(time)
