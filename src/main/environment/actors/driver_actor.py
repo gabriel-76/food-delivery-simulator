@@ -116,6 +116,7 @@ class DriverActor(Actor):
                         yield self.timeout(timeout)
                         yield self.process(self.delivering(self._driver.segment.order))
             else:
+                self._driver.segment = None
                 yield self.timeout(1)
 
     def picking_up(self, order: Order) -> ProcessGenerator:
@@ -191,6 +192,14 @@ class DriverActor(Actor):
                         rate=self._driver.movement_rate
                     )
                 )
+            else:
+                # map_center = self.environment.map.size // 2
+                self._driver.move(self.environment.map.move(
+                        origin=self._driver.coordinate,
+                        destination=self.environment.map.random_point(),
+                        # destination=(map_center, map_center),
+                        rate=0.5
+                    ))
             yield self.timeout(1)
 
     def accept_route_condition(self, route: Route) -> bool:

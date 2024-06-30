@@ -96,6 +96,8 @@ class DeliveryEnvironment(Environment):
 
     def add_drivers(self, drivers: List[Driver]):
         self._state.add_drivers(drivers)
+        for driver in drivers:
+            self._actors[driver.identifier] = DriverActor(self, driver)
 
     def available_drivers(self, route):
         return [driver for driver in self._state.drivers if driver.check_availability(route)]

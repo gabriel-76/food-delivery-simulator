@@ -13,9 +13,9 @@ def run():
         map=GridMap(100),
         generators=[
             InitialEstablishmentOrderRateGenerator(1),
-            InitialCustomerGenerator(10),
-            InitialDriverGenerator(2),
-            InitialOrderGenerator(30),
+            InitialCustomerGenerator(30),
+            InitialDriverGenerator(10),
+            InitialOrderGenerator(100),
         ],
         optimizer=RandomDriverOptimizer(),
         view=GridViewPygame()

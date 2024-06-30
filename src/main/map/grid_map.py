@@ -40,7 +40,7 @@ class GridMap(Map):
 
         x, y = origin
         dest_x, dest_y = destination
-        rate = round(rate)
+        # rate = round(rate)
 
         if x < dest_x:
             x += min(rate, dest_x - x)
