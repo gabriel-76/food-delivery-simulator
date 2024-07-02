@@ -14,7 +14,7 @@ class Route:
         self.required_capacity = self.calculate_required_capacity()
         self.distance = self.calculate_total_distance()
 
-    def calculate_required_capacity(self):
+    def calculate_required_capacity(self):    #TODO: Está considerando o peso do item 2 vezes?
         dimensions = Dimensions(0, 0, 0, 0)
         for route_segment in self.route_segments:
             dimensions += route_segment.required_capacity
