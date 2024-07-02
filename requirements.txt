@@ -1,0 +1,7 @@
+simpy
+matplotlib
+pygame
+gymnasium
+numpy<2
+ortools
+stable-baselines3
