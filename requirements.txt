@@ -4,3 +4,5 @@ pygame
 gymnasium
 numpy
 ortools
+stable-baselines3
+sb3-contrib

@@ -18,6 +18,16 @@ class FoodDeliverySimpyEnv(Environment):
         self.view = view
         self._state = DeliveryEnvState()
         self.init()
+        self.next_client_ready_order_event = None
+
+    def setNextClientReadyOrderEvent(self, event):
+        self.next_client_ready_order_event = event
+    
+    def getNextClientReadyOrderEvent(self):
+        return self.next_client_ready_order_event
+    
+    def clearNextClientReadyOrderEvent(self):
+        self.next_client_ready_order_event = None
 
     @property
     def events(self):
@@ -39,8 +49,9 @@ class FoodDeliverySimpyEnv(Environment):
     def available_drivers(self, route):
         return [driver for driver in self._state.drivers if driver.check_availability(route)]
 
-    def add_ready_order(self, order):
+    def add_ready_order(self, order, event):
         self._state.orders_awaiting_delivery.append(order)
+        self.setNextClientReadyOrderEvent(event)
 
     def get_ready_orders(self):
         read_orders = []

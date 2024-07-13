@@ -87,13 +87,14 @@ class Establishment(MapActor):
 
     def estimate_preparation_time(self, order) -> SimTime:
         estimated_time = self.time_estimate_to_prepare_order(order)
-        self.publish_event(EstimatedOrderPreparationTime(
+        event = EstimatedOrderPreparationTime(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             estimated_time=self.time_estimate_to_prepare_order(order),
             time=self.now
-        ))
+        )
+        self.publish_event(event)
         if self.use_estimate:
             self.environment.add_ready_order(order)
         return estimated_time
@@ -130,16 +131,17 @@ class Establishment(MapActor):
         self.finish_order(order)
 
     def finish_order(self, order) -> None:
-        self.publish_event(EstablishmentFinishedOrder(
+        event = EstablishmentFinishedOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             time=self.now
-        ))
+        )
+        self.publish_event(event)
         order.update_status(OrderStatus.READY)
         self.orders_in_preparation -= 1
         if not self.use_estimate:
-            self.environment.add_ready_order(order)
+            self.environment.add_ready_order(order, event)
         self.update_overload_time(0)
 
     def is_empty(self) -> bool:
