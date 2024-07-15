@@ -34,7 +34,7 @@ def main():
         view=GridViewPygame()
     )
 
-    gym_env = FoodDeliveryGymMatrixEnv(environment, num_drivers=NUM_DRIVERS, num_orders=NUM_ORDERS)
+    gym_env = FoodDeliveryGymMatrixEnv(environment, num_drivers=NUM_DRIVERS, num_establishments=10, num_orders=NUM_ORDERS)
 
     # Verificar se o ambiente está implementado corretamente
     check_env(gym_env, warn=True)
@@ -56,7 +56,7 @@ def main():
         map=GridMap(100),
         generators=[
             InitialCustomerGenerator(NUM_ORDERS),
-            InitialEstablishmentGenerator(20),
+            InitialEstablishmentGenerator(10),
             InitialDriverGenerator(NUM_DRIVERS),
             InitialOrderGenerator(NUM_ORDERS)
         ],
@@ -64,7 +64,7 @@ def main():
         view=GridViewPygame()
     )
 
-    gym_env = FoodDeliveryGymMatrixEnv(environment, num_drivers=NUM_DRIVERS, num_orders=NUM_ORDERS, render_mode='human')
+    gym_env = FoodDeliveryGymMatrixEnv(environment, num_drivers=NUM_DRIVERS, num_establishments=10, num_orders=NUM_ORDERS, render_mode='human')
 
     # Testar o modelo treinado
     obs, info = gym_env.reset()

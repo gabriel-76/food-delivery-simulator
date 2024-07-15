@@ -21,11 +21,11 @@ def main():
         view=GridViewMatplotlib()
     )
 
-    eventTime = 0
+    enviromentTime = 0
     while True:
         while environment.getNextClientReadyOrderEvent() is None:
-            environment.run(1 + eventTime, render_mode='human')
-            eventTime += 1
+            environment.run(1 + enviromentTime, render_mode='human')
+            enviromentTime += 1
         print('Next client ready order event')
         environment.clearNextClientReadyOrderEvent()
 

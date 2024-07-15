@@ -12,8 +12,9 @@ from src.main.route.route import Route
 class FoodDeliveryGymMatrixEnv(Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, simpy_env: FoodDeliverySimpyEnv, num_drivers, num_orders, render_mode=None):
+    def __init__(self, simpy_env: FoodDeliverySimpyEnv, num_drivers, num_establishments, num_orders, render_mode=None):
         self.num_drivers = num_drivers
+        self.num_establishments = num_establishments
         self.num_orders = num_orders
         self.simpy_env = simpy_env
 
@@ -21,6 +22,8 @@ class FoodDeliveryGymMatrixEnv(Env):
             # 'num_drivers': Discrete(self.num_drivers + 1),
             'drivers': Box(low=-np.inf, high=np.inf, shape=(self.num_drivers, 6), dtype=np.float32),
             # (x, y, available, capacity, status, current_route_size)
+            'establishments': Box(low=-np.inf, high=np.inf, shape=(self.num_establishments, 5), dtype=np.float32),
+            # (x, y, available, production_capacity, orders_in_preparation)
             'num_orders': Discrete(self.num_orders + 1),
             'orders': Box(low=-np.inf, high=np.inf, shape=(self.num_orders, 6), dtype=np.float32),
             # (pickup_x, pickup_y, delivery_x, delivery_y, status, required_capacity)
@@ -65,6 +68,21 @@ class FoodDeliveryGymMatrixEnv(Env):
         if len(driver_matrix) > 0:
             final_driver_matrix[:driver_matrix.shape[0], :driver_matrix.shape[1]] = driver_matrix
 
+        establishments = self.simpy_env.state.establishments
+        final_establishment_matrix = np.zeros((self.num_establishments, 5), dtype=np.float32)
+        establishment_matrix = np.array([
+            np.array([
+                establishment.coordinate[0],
+                establishment.coordinate[1],
+                establishment.available,
+                establishment.production_capacity,
+                establishment.orders_in_preparation
+            ], dtype=np.float32)
+            for establishment in establishments
+        ])
+        if len(establishment_matrix) > 0:
+            final_establishment_matrix[:establishment_matrix.shape[0], :establishment_matrix.shape[1]] = establishment_matrix
+
         final_order_matrix = np.zeros((self.num_orders, 6), dtype=np.float32)
         order_matrix = np.array([
             np.array([
@@ -83,6 +101,7 @@ class FoodDeliveryGymMatrixEnv(Env):
         obs = {
             # 'num_drivers': len(drivers),
             'drivers': final_driver_matrix,
+            'establishments': final_establishment_matrix,
             'num_orders': len(ready_orders),
             'orders': final_order_matrix
         }
