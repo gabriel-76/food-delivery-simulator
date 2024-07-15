@@ -21,14 +21,18 @@ def main():
         view=GridViewMatplotlib()
     )
 
-    enviromentTime = 0
-    while True:
-        while environment.getNextClientReadyOrderEvent() is None:
-            environment.run(1 + enviromentTime, render_mode='human')
-            enviromentTime += 1
-        print('Next client ready order event')
-        environment.clearNextClientReadyOrderEvent()
-
+    until = 100
+    contar_eventos = 0
+    while environment.peek() < until:
+        print(environment.peek())
+        # environment.step(render_mode='human')
+        environment.step()
+        if environment.getNextClientReadyOrderEvent():            
+            print('Next client ready order event')
+            contar_eventos += 1
+            environment.clearNextClientReadyOrderEvent()
+    
+    print(f'Contar eventos: {contar_eventos}')
 
 
 if __name__ == '__main__':

@@ -102,6 +102,13 @@ class FoodDeliverySimpyEnv(Environment):
         if self.view is not None and self.view.quited:
             self.view.quit()
 
+    def step(self, render_mode=None):
+        super().step()
+        if render_mode == "human" and self.view is not None:
+            self.view.render(self)
+            if self.view.quited:
+                self.view.quit()
+
     def render(self):
         if self.view is not None and not self.view.quited:
             self.view.render(self)
