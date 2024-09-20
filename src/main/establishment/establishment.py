@@ -72,12 +72,19 @@ class Establishment(MapActor):
 
     def update_overload_time(self, estimated_time) -> None:
         env_now = self.now
+        #   Se o restaurante está vazio, ele ajusta o tempo de sobrecarga para ser pelo menos o tempo atual, pois o restaurante 
+        # não está mais processando pedidos.
         if self.is_empty():
             self.overloaded_until = max(self.overloaded_until - env_now, env_now)
+        #   Se o restaurante está dentro de sua capacidade, o tempo de sobrecarga é ajustado com base no tempo de preparação do 
+        # pedido atual.
         elif self.is_within_capacity():
+            # Atualiza self.overloaded_until para refletir o tempo atual mais o tempo necessário para processar o pedido.
             self.overloaded_until = env_now + max(self.overloaded_until - env_now, estimated_time)
         else:
             batch_size = len(self.orders_accepted) // self.production_capacity
+            #   Atualiza o tempo de sobrecarga, considerando o número de lotes a serem processados. Multiplica-se o tempo estimado 
+            # de preparação pelo tamanho do lote para garantir que a sobrecarga reflita a carga adicional de pedidos.
             self.overloaded_until = env_now + max(self.overloaded_until - env_now, batch_size * estimated_time)
 
         # print(f"{self.now} "
@@ -91,7 +98,7 @@ class Establishment(MapActor):
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
-            estimated_time=self.time_estimate_to_prepare_order(order),
+            estimated_time=estimated_time,
             time=self.now
         )
         self.publish_event(event)
