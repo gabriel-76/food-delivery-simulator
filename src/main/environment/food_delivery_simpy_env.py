@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from simpy import Environment, Event
 from simpy.core import SimTime
@@ -18,16 +18,20 @@ class FoodDeliverySimpyEnv(Environment):
         self.view = view
         self._state = DeliveryEnvState()
         self.init()
-        self.next_client_ready_order_event = None
 
-    def setNextClientReadyOrderEvent(self, event):
-        self.next_client_ready_order_event = event
+        self.ready_order_events: List[Event] = []
+
+    def add_ready_order_event(self, event):
+        self.ready_order_events.append(event)
     
-    def getNextClientReadyOrderEvent(self):
-        return self.next_client_ready_order_event
+    def dequeue_ready_order_event(self):
+        if self.ready_order_events:
+            return self.ready_order_events.pop(0)
+        else:
+            return None
     
-    def clearNextClientReadyOrderEvent(self):
-        self.next_client_ready_order_event = None
+    def clear_ready_order_events(self):
+        self.ready_order_events.clear()
 
     @property
     def events(self):
@@ -51,7 +55,7 @@ class FoodDeliverySimpyEnv(Environment):
 
     def add_ready_order(self, order, event):
         self._state.orders_awaiting_delivery.append(order)
-        self.setNextClientReadyOrderEvent(event)
+        self.add_ready_order_event(event)
 
     def get_ready_orders(self):
         read_orders = []
