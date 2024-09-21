@@ -136,4 +136,11 @@ class OrToolsOptimizer(Optimizer):
         else:
             print('Nenhuma solução encontrada!')
             for order in orders:
-                env.add_rejected_delivery(order, OptimizationDeliveryRejection(env.now))
+                event = OptimizationDeliveryRejection(
+                    order_id=order.order_id,
+                    customer_id=order.customer.customer_id,
+                    establishment_id=order.establishment.establishment_id,
+                    time=self.env.now
+                )
+                self._environment.add_event(event)
+                env.add_rejected_delivery(order, OptimizationDeliveryRejection(env.now),event)

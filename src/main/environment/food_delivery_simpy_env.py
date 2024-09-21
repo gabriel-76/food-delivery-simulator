@@ -19,19 +19,19 @@ class FoodDeliverySimpyEnv(Environment):
         self._state = DeliveryEnvState()
         self.init()
 
-        self.ready_order_events: List[Event] = []
+        self.core_events: List[Event] = []
 
-    def add_ready_order_event(self, event):
-        self.ready_order_events.append(event)
+    def add_core_event(self, event):
+        self.core_events.append(event)
     
-    def dequeue_ready_order_event(self):
-        if self.ready_order_events:
-            return self.ready_order_events.pop(0)
+    def dequeue_core_event(self):
+        if self.core_events:
+            return self.core_events.pop(0)
         else:
             return None
     
-    def clear_ready_order_events(self):
-        self.ready_order_events.clear()
+    def clear_core_events(self):
+        self.core_events.clear()
 
     @property
     def events(self):
@@ -55,7 +55,7 @@ class FoodDeliverySimpyEnv(Environment):
 
     def add_ready_order(self, order, event):
         self._state.orders_awaiting_delivery.append(order)
-        self.add_ready_order_event(event)
+        self.add_core_event(event)
 
     def get_ready_orders(self):
         read_orders = []
@@ -67,9 +67,10 @@ class FoodDeliverySimpyEnv(Environment):
     def count_ready_orders(self):
         return len(self._state.orders_awaiting_delivery)
 
-    def add_rejected_delivery(self, order, delivery_rejection: DeliveryRejection):
+    def add_rejected_delivery(self, order, delivery_rejection: DeliveryRejection, event):
         order.add_delivery_rejection(delivery_rejection)
         self._state.orders_awaiting_delivery.append(order)
+        self.add_core_event(event)
 
     def get_rejected_deliveries(self):
         rejected_orders = []

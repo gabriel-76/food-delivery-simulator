@@ -27,7 +27,7 @@ def main():
         print(environment.peek())
         # environment.step(render_mode='human')
         environment.step()
-        if environment.dequeue_ready_order_event():            
+        if environment.dequeue_core_event():            
             print('Next client ready order event')
             contar_eventos += 1
     
