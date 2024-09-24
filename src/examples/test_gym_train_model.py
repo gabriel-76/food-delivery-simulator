@@ -2,7 +2,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from src.main.environment.food_delivery_gym_matrix_env import FoodDeliveryGymMatrixEnv
+from src.main.environment.food_delivery_gym_env import FoodDeliveryGymMatrixEnv
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_customer_generator import InitialCustomerGenerator
 from src.main.generator.initial_driver_generator import InitialDriverGenerator

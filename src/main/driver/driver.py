@@ -41,6 +41,9 @@ class Driver(MapActor):
         self.capacity = capacity
         self.status = status
         self.movement_rate = movement_rate
+        
+        self.start_time_to_last_order = 0
+        self.time_spent_to_last_order = 0
 
         self.current_route: Optional[Route] = None
         self.current_route_segment: Optional[RouteSegment] = None
@@ -165,9 +168,9 @@ class Driver(MapActor):
         self.environment.add_rejected_delivery(route_segment.order, rejection, event)
 
     def picking_up(self, order: Order) -> ProcessGenerator:
+        self.start_time_to_last_order = self.now
         self.status = DriverStatus.PICKING_UP
         order.update_status(OrderStatus.PICKING_UP)
-        self.total_distance += self.environment.map.distance(self.coordinate, order.establishment.coordinate)
         self.publish_event(DriverPickingUpOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
@@ -193,7 +196,6 @@ class Driver(MapActor):
     def delivering(self, order: Order) -> ProcessGenerator:
         self.status = DriverStatus.DELIVERING
         order.update_status(OrderStatus.DELIVERING)
-        self.total_distance += self.environment.map.distance(self.coordinate, order.customer.coordinate)
         self.publish_event(DriverDeliveringOrder(
             order_id=order.order_id,
             customer_id=order.customer.customer_id,
@@ -217,6 +219,7 @@ class Driver(MapActor):
         ))
         yield self.process(order.customer.receive_order(order, self))
         self.delivered(order)
+        
 
     def delivered(self, order: Order) -> None:
         self.coordinate = order.customer.coordinate
@@ -234,11 +237,13 @@ class Driver(MapActor):
     def move(self) -> ProcessGenerator:
         while True:
             if self.current_route_segment is not None:
+                old_coordinate = self.coordinate
                 self.coordinate = self.environment.map.move(
                     origin=self.coordinate,
                     destination=self.current_route_segment.coordinate,
                     rate=self.movement_rate
                 )
+                self.total_distance += self.environment.map.distance(old_coordinate, self.coordinate)
             yield self.timeout(1)
 
     def accept_route_condition(self, route: Route) -> bool:
@@ -325,3 +330,11 @@ class Driver(MapActor):
                 valid_coordinate = order.customer.coordinate
 
         return total_busy_time
+    
+    def update_time_spent_to_last_order(self) -> None:
+        self.time_spent_to_last_order = self.now - self.start_time_to_last_order
+
+    def get_and_clear_time_spent_to_last_order(self) -> int:
+        time_spent = self.time_spent_to_last_order
+        self.time_spent_to_last_order = 0
+        return time_spent 
