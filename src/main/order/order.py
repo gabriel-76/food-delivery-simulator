@@ -21,6 +21,7 @@ class Order:
         self.request_date = request_date
         self.items = items
         self.status: OrderStatus = OrderStatus.CREATED
+        self.time_preparation_started = 0
         self.estimated_time_to_ready = 0
         self.time_it_was_ready = 0
         self.required_capacity = self.calculate_required_capacity()
@@ -35,8 +36,9 @@ class Order:
     def update_status(self, status: OrderStatus):
         self.status = status
 
-    def establishment_accepted(self, estimated_time_to_ready: int):
+    def establishment_accepted(self, estimated_time_to_ready: int, now):
         self.status = OrderStatus.ESTABLISHMENT_ACCEPTED
+        self.time_preparation_started = now
         self.estimated_time_to_ready = estimated_time_to_ready
 
     def add_delivery_rejection(self, delivery_rejection: DeliveryRejection):

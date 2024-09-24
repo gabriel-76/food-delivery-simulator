@@ -177,3 +177,7 @@ class Establishment(MapActor):
 
     def condition_to_accept(self, order) -> bool:
         return self.available
+    
+    def estimate_time_to_next_order_ready(self) -> SimTime:
+        next_order = self.orders_accepted[0]
+        return (self.now - next_order.time_preparation_started) + next_order.estimated_time_to_ready 

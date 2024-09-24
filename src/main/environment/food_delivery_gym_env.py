@@ -18,14 +18,13 @@ class FoodDeliveryGymEnv(Env):
         self.num_orders = num_orders
         self.simpy_env = simpy_env
 
-        self.last_order = None
         self.last_driver_selected = None
 
         # Espaço de Observação
         self.observation_space = Dict({
             'drivers_busy_time': Box(low=0, high=np.inf, shape=(self.num_drivers, 1), dtype=np.int32),
             'pending_orders': Discrete(self.num_orders + 1),
-            'establishment_busy_time': Box(low=0, high=np.inf, shape=(self.num_establishments, 1), dtype=np.int32),
+            'establishment_next_order_ready_time': Box(low=0, high=np.inf, shape=(self.num_establishments, 1), dtype=np.int32),
             'current_time_step': Discrete(1000)
         })
 
@@ -50,10 +49,10 @@ class FoodDeliveryGymEnv(Env):
         # 2. pending_orders: Número de pedidos pendentes
         pending_orders = len([order for order in self.simpy_env.state.orders if order.status == OrderStatus.READY])
 
-        # 3. establishment_busy_time: Tempo que falta para o último pedido em preparação de cada restaurante
-        establishment_busy_time = np.zeros((self.num_establishments, 1), dtype=np.int32)
+        # 3. establishment_next_order_ready_time: Tempo que falta para o próximo pedido em preparação de cada restaurante ficar pronto
+        establishment_next_order_ready_time = np.zeros((self.num_establishments, 1), dtype=np.int32)
         for i, establishment in enumerate(self.simpy_env.state.establishments):
-            establishment_busy_time[i] = establishment.overloaded_until
+            establishment_next_order_ready_time[i] = establishment.estimate_time_to_next_order_ready()
 
         # 4. current_time_step: O tempo atual da simulação (número do passo)
         current_time_step = self.simpy_env.now
@@ -62,7 +61,7 @@ class FoodDeliveryGymEnv(Env):
         obs = {
             'drivers_busy_time': drivers_busy_time,
             'pending_orders': pending_orders,
-            'establishment_busy_time': establishment_busy_time,
+            'establishment_next_order_ready_time': establishment_next_order_ready_time,
             'current_time_step': current_time_step
         }
 
@@ -106,7 +105,6 @@ class FoodDeliveryGymEnv(Env):
         sum_distance_drivers = 0
         for driver in self.simpy_env.state.drivers:
             sum_distance_drivers += driver.total_distance
-            driver.get_and_clear_time_spent_to_last_order()
         
         # Objetivo 1: Minimizar o tempo de entrega -> Recompensa negativa
         reward_time = -time_to_complete_order
@@ -123,11 +121,9 @@ class FoodDeliveryGymEnv(Env):
         core_event = None
         while (self.simpy_env.peek() < self.simpy_env.now + 1) or core_event is not None:
             print(self.simpy_env.peek())
-            # simpy_env.step(render_mode='human')
             self.simpy_env.step()
             core_event = self.simpy_env.dequeue_core_event()
         
-        # Verificar se o episódio terminou
         terminated = False
         truncated = False
         observation = self._get_obs()
@@ -140,9 +136,8 @@ class FoodDeliveryGymEnv(Env):
         selected_driver = self.drivers[action]
         self.apply_action(selected_driver, core_event.order)
 
-        reward = self.calculate_reward(last_driver_selected) # type: ignore
+        reward = self.select_driver_to_order(last_driver_selected) # type: ignore
 
-        self.last_order = core_event.order
         self.last_driver_selected = selected_driver
 
         return observation, reward, terminated, truncated, info
