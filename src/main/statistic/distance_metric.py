@@ -21,6 +21,10 @@ class DistanceMetric(Metric):
             EventType.DRIVER_DELIVERED_ORDER
         ], self.environment.events))
 
+        print("tamanho de self.environment.events: " + str(len(self.environment.events)))
+        print(self.environment.events)
+        print("tamanho de events: " + str(len(events)))
+
         # events = list(filter(
         #     lambda env: (hasattr(env, "distance") and env.distance > 0) or not hasattr(env, "distance"),
         #     events

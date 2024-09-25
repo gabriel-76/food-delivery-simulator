@@ -66,7 +66,7 @@ class Establishment(MapActor):
             time=self.now
         ))
         estimated_time = self.estimate_preparation_time(order)
-        order.establishment_accepted(self.now + estimated_time)
+        order.establishment_accepted(self.now + estimated_time, self.now)
         self.update_overload_time(estimated_time)
         self.orders_accepted.append(order)
 
@@ -179,5 +179,7 @@ class Establishment(MapActor):
         return self.available
     
     def estimate_time_to_next_order_ready(self) -> SimTime:
+        if (len(self.orders_accepted) == 0):
+            return 0
         next_order = self.orders_accepted[0]
-        return (self.now - next_order.time_preparation_started) + next_order.estimated_time_to_ready 
+        return next_order.estimated_time_to_ready - next_order.time_preparation_started

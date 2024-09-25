@@ -2,7 +2,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from src.main.environment.food_delivery_gym_env import FoodDeliveryGymMatrixEnv
+from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_customer_generator import InitialCustomerGenerator
 from src.main.generator.initial_driver_generator import InitialDriverGenerator
@@ -34,7 +34,7 @@ def main():
         view=GridViewPygame()
     )
 
-    gym_env = FoodDeliveryGymMatrixEnv(environment, num_drivers=NUM_DRIVERS, num_establishments=10, num_orders=NUM_ORDERS)
+    gym_env = FoodDeliveryGymEnv(environment, num_drivers=NUM_DRIVERS, num_establishments=10, num_orders=NUM_ORDERS)
 
     # Verificar se o ambiente está implementado corretamente
     check_env(gym_env, warn=True)
@@ -64,7 +64,7 @@ def main():
         view=GridViewPygame()
     )
 
-    gym_env = FoodDeliveryGymMatrixEnv(environment, num_drivers=NUM_DRIVERS, num_establishments=10, num_orders=NUM_ORDERS, render_mode='human')
+    gym_env = FoodDeliveryGymEnv(environment, num_drivers=NUM_DRIVERS, num_establishments=10, num_orders=NUM_ORDERS, render_mode='human')
 
     # Testar o modelo treinado
     obs, info = gym_env.reset()

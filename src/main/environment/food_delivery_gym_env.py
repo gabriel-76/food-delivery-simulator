@@ -25,7 +25,7 @@ class FoodDeliveryGymEnv(Env):
             'drivers_busy_time': Box(low=0, high=np.inf, shape=(self.num_drivers, 1), dtype=np.int32),
             'pending_orders': Discrete(self.num_orders + 1),
             'establishment_next_order_ready_time': Box(low=0, high=np.inf, shape=(self.num_establishments, 1), dtype=np.int32),
-            'current_time_step': Discrete(1000)
+            'current_time_step': Discrete(1000) # TODO: Perguntar como definir o limite de tempo de forma correta
         })
 
         # Espaço de Ação
@@ -34,7 +34,7 @@ class FoodDeliveryGymEnv(Env):
         # Inicializando variáveis internas
         self.drivers = np.zeros((self.num_drivers, 1))  # Tempo para coletar o pedido
         self.pending_orders = 0  # Número de pedidos pendentes
-        self.restaurant_wait_time = np.zeros(self.num_restaurants, 1)  # Tempo até o próximo pedido
+        self.restaurant_wait_time = np.zeros((self.num_establishments, 1))  # Tempo até o próximo pedido
         self.current_time_step = self.simpy_env.now  # Tempo atual
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
@@ -69,6 +69,9 @@ class FoodDeliveryGymEnv(Env):
        
     def _get_info(self):
         return {'info': self.simpy_env.now}
+    
+    def _get_obs(self):
+        return self.get_observation()
 
     def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
@@ -101,7 +104,7 @@ class FoodDeliveryGymEnv(Env):
         if last_driver_selected is not None:
             time_to_complete_order = last_driver_selected.get_and_clear_time_spent_to_last_order()
         
-        # Distância total percorrida pelos drivers
+        # Distância total percorrida pelos drivers #TODO: Será que uma recompensa negativa que sempre aumenta está certo?
         sum_distance_drivers = 0
         for driver in self.simpy_env.state.drivers:
             sum_distance_drivers += driver.total_distance
@@ -118,18 +121,25 @@ class FoodDeliveryGymEnv(Env):
         if self.render_mode == "human":
             truncated = self.simpy_env.view.quited
 
+        terminated = False
         core_event = None
         while (self.simpy_env.peek() < self.simpy_env.now + 1) or core_event is not None:
-            print(self.simpy_env.peek())
-            self.simpy_env.step()
-            core_event = self.simpy_env.dequeue_core_event()
+            if (self.simpy_env.state.orders_delivered < self.num_orders):
+                # print('self.simpy_env.peek(): ' + str(self.simpy_env.peek()))
+                self.simpy_env.step()
+                core_event = self.simpy_env.dequeue_core_event()
+            else:
+                terminated = True
         
-        terminated = False
         truncated = False
         observation = self._get_obs()
         assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
         info = self._get_info()
 
+        # TODO: Perguntar como tratar o caso de não haver mais pedidos
+        if core_event is None:
+            return observation, 0, True, truncated, info
+        
         print('Next client ready order event')
         print(action)
         print(core_event.order)

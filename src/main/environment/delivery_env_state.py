@@ -12,6 +12,7 @@ class DeliveryEnvState:
 
         # Orders ready for picking up
         self.orders_awaiting_delivery: List[Order] = []
+        self.orders_delivered = 0
 
         self.events = []
 
@@ -42,6 +43,9 @@ class DeliveryEnvState:
 
     def add_orders(self, orders: List) -> None:
         self._orders += orders
+
+    def increment_orders_delivered(self) -> None:
+        self.orders_delivered += 1
 
     def add_event(self, event) -> None:
         self.events.append(event)

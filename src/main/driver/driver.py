@@ -233,6 +233,7 @@ class Driver(MapActor):
         self.status = DriverStatus.AVAILABLE
         order.update_status(OrderStatus.DELIVERED)
         self.process(self.sequential_processor())
+        self.environment.state.increment_orders_delivered()
 
     def move(self) -> ProcessGenerator:
         while True:
