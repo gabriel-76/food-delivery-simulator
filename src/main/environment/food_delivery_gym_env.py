@@ -18,7 +18,7 @@ class FoodDeliveryGymEnv(Env):
         self.num_orders = num_orders
         self.simpy_env = simpy_env
 
-        self.last_driver_selected = None
+        self.last_order = None
 
         # Espaço de Observação
         self.observation_space = Dict({
@@ -52,7 +52,7 @@ class FoodDeliveryGymEnv(Env):
         # 3. establishment_next_order_ready_time: Tempo que falta para o próximo pedido em preparação de cada restaurante ficar pronto
         establishment_next_order_ready_time = np.zeros((self.num_establishments, 1), dtype=np.int32)
         for i, establishment in enumerate(self.simpy_env.state.establishments):
-            establishment_next_order_ready_time[i] = establishment.estimate_time_to_next_order_ready()
+            establishment_next_order_ready_time[i] = establishment.estimate_time_to_next_order_ready() # TODO: Usar o tempo em que o restaurante está ocupado
 
         # 4. current_time_step: O tempo atual da simulação (número do passo)
         current_time_step = self.simpy_env.now
@@ -84,6 +84,16 @@ class FoodDeliveryGymEnv(Env):
             view=self.simpy_env.view
         )
 
+        # Separar esse while em um método próprio
+        core_event = None
+        while core_event is None:
+            if (self.simpy_env.state.orders_delivered < self.num_orders):
+                # print('self.simpy_env.peek(): ' + str(self.simpy_env.peek()))
+                self.simpy_env.step()
+                core_event = self.simpy_env.dequeue_core_event()
+
+        self.last_order = core_event.order
+
         observation = self._get_obs()
         info = self._get_info()
 
@@ -102,13 +112,15 @@ class FoodDeliveryGymEnv(Env):
         # Se o driver for nulo ou pedido não foi entregue, o tempo é 0
         time_to_complete_order = 0
         if last_driver_selected is not None:
-            time_to_complete_order = last_driver_selected.get_and_clear_time_spent_to_last_order()
+            time_to_complete_order = last_driver_selected.get_and_clear_time_spent_to_last_order() #TODO: Deveria ser o tempo que o motorista eestá ocupado
         
         # Distância total percorrida pelos drivers #TODO: Será que uma recompensa negativa que sempre aumenta está certo?
         sum_distance_drivers = 0
         for driver in self.simpy_env.state.drivers:
             sum_distance_drivers += driver.total_distance
         
+        # TODO: tratar os objetivos de forma separada em um if else
+
         # Objetivo 1: Minimizar o tempo de entrega -> Recompensa negativa
         reward_time = -time_to_complete_order
         
@@ -122,33 +134,30 @@ class FoodDeliveryGymEnv(Env):
             truncated = self.simpy_env.view.quited
 
         terminated = False
+
+        print('Next client ready order event')
+        print(action)
+        print(core_event.order)
+        selected_driver = self.drivers[action]
+        self.select_driver_to_order(selected_driver, core_event.order)
+
         core_event = None
-        while (self.simpy_env.peek() < self.simpy_env.now + 1) or core_event is not None:
+        while (not terminated) and (core_event is None):
             if (self.simpy_env.state.orders_delivered < self.num_orders):
                 # print('self.simpy_env.peek(): ' + str(self.simpy_env.peek()))
                 self.simpy_env.step()
                 core_event = self.simpy_env.dequeue_core_event()
             else:
                 terminated = True
+
+        self.last_order = core_event.order
         
         truncated = False
         observation = self._get_obs()
         assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
         info = self._get_info()
 
-        # TODO: Perguntar como tratar o caso de não haver mais pedidos
-        if core_event is None:
-            return observation, 0, True, truncated, info
-        
-        print('Next client ready order event')
-        print(action)
-        print(core_event.order)
-        selected_driver = self.drivers[action]
-        self.apply_action(selected_driver, core_event.order)
-
-        reward = self.select_driver_to_order(last_driver_selected) # type: ignore
-
-        self.last_driver_selected = selected_driver
+        reward = self.calculate_reward(selected_driver)
 
         return observation, reward, terminated, truncated, info
 

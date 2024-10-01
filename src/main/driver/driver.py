@@ -286,7 +286,7 @@ class Driver(MapActor):
                 # Se o segmento atual é de coleta, considera o tempo para pegar o pedido
                 if self.current_route_segment.is_pickup():
                     if self.status == DriverStatus.PICKING_UP_WAINTING:
-                        total_busy_time += self.estimate_time_to_driver_receive_order()
+                        total_busy_time += self.estimate_time_to_driver_receive_order() # TODO: não precisa ser uma estimativa a informação de quanto tempo falta está na própria ordem 
                     else:
                         total_busy_time += self.environment.map.estimated_time(
                             self.coordinate, self.current_route_segment.order.establishment.coordinate, self.movement_rate
@@ -332,6 +332,7 @@ class Driver(MapActor):
 
         return total_busy_time
     
+    # TODO: Chamar esse método no lugar apropriado
     def update_time_spent_to_last_order(self) -> None:
         self.time_spent_to_last_order = self.now - self.start_time_to_last_order
 

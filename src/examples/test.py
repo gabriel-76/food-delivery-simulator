@@ -28,6 +28,8 @@ def main():
         view=GridViewMatplotlib()
     )
 
+    # TODO: Definir uma semente para testar o ambiente gymnasium
+
     until = 100
     contar_eventos = 0
     while environment.peek() < until:
