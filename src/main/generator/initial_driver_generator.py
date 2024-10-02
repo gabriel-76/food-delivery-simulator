@@ -8,11 +8,15 @@ from src.main.generator.initial_generator import InitialGenerator
 
 
 class InitialDriverGenerator(InitialGenerator):
-    def __init__(self, num_drivers):
+    def __init__(self, num_drivers, desconsider_capacity=False):
         self.num_drivers = num_drivers
+        self.desconsider_capacity = desconsider_capacity
 
     def run(self, env: FoodDeliverySimpyEnv):
         capacity = Capacity(Dimensions(100, 100, 100, 100))
+        if self.desconsider_capacity:
+            capacity = Capacity(Dimensions(float('inf'), float('inf'), float('inf'), float('inf')))
+
         drivers = [
             Driver(
                 environment=env,

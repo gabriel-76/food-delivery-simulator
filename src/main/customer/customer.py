@@ -21,7 +21,7 @@ class Customer(MapActor):
 
     def place_order(self, order: Order, establishment: Establishment) -> None:
         self.publish_event(CustomerPlacedOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=self.customer_id,
             establishment_id=establishment.establishment_id,
             time=self.now
@@ -32,7 +32,7 @@ class Customer(MapActor):
     def receive_order(self, order: Order, driver: Driver) -> ProcessGenerator:
         yield self.timeout(self.time_to_receive_order(order))
         self.publish_event(CustomerReceivedOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=self.customer_id,
             establishment_id=order.establishment.establishment_id,
             driver_id=driver.driver_id,

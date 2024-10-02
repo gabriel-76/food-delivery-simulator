@@ -60,7 +60,7 @@ class Establishment(MapActor):
 
     def accept_order(self, order) -> None:
         self.publish_event(EstablishmentAcceptedOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             time=self.now
@@ -69,6 +69,13 @@ class Establishment(MapActor):
         order.establishment_accepted(self.now + estimated_time, self.now)
         self.update_overload_time(estimated_time)
         self.orders_accepted.append(order)
+
+    def get_establishment_busy_time(self) -> SimTime:
+        establishment_busy_time = self.overloaded_until - self.now
+        if establishment_busy_time < 0:
+            return 0
+        else:
+            return establishment_busy_time
 
     def update_overload_time(self, estimated_time) -> None:
         env_now = self.now
@@ -95,7 +102,7 @@ class Establishment(MapActor):
     def estimate_preparation_time(self, order) -> SimTime:
         estimated_time = self.time_estimate_to_prepare_order(order)
         event = EstimatedOrderPreparationTime(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             estimated_time=estimated_time,
@@ -103,12 +110,12 @@ class Establishment(MapActor):
         )
         self.publish_event(event)
         if self.use_estimate:
-            self.environment.add_ready_order(order)
+            self.environment.add_ready_order(order, event)
         return estimated_time
 
     def reject_order(self, order) -> None:
         self.publish_event(EstablishmentRejectedOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             time=self.now
@@ -126,7 +133,7 @@ class Establishment(MapActor):
 
     def prepare_order(self, order) -> ProcessGenerator:
         self.publish_event(EstablishmentPreparingOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             time=self.now
@@ -139,7 +146,7 @@ class Establishment(MapActor):
 
     def finish_order(self, order) -> None:
         event = EstablishmentFinishedOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             time=self.now

@@ -93,7 +93,7 @@ class Driver(MapActor):
     def accept_route_segment(self, route_segment: RouteSegment) -> None:
         self.publish_event(DriverAcceptedDelivery(
             driver_id=self.driver_id,
-            order_id=route_segment.order.order_id,
+            order=route_segment.order,
             customer_id=route_segment.order.customer.customer_id,
             establishment_id=route_segment.order.establishment.establishment_id,
             distance=self.current_route.distance,
@@ -157,7 +157,7 @@ class Driver(MapActor):
     def reject_route_segment(self, route_segment: RouteSegment) -> None:
         event = DriverRejectedDelivery(
             driver_id=self.driver_id,
-            order_id=route_segment.order.order_id,
+            order=route_segment.order,
             customer_id=route_segment.order.customer.customer_id,
             establishment_id=route_segment.order.establishment.establishment_id,
             time=self.now
@@ -172,7 +172,7 @@ class Driver(MapActor):
         self.status = DriverStatus.PICKING_UP
         order.update_status(OrderStatus.PICKING_UP)
         self.publish_event(DriverPickingUpOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=order.establishment.establishment_id,
             driver_id=self.driver_id,
@@ -184,7 +184,7 @@ class Driver(MapActor):
 
     def picked_up(self, order: Order) -> None:
         self.publish_event(DriverPickedUpOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=order.establishment.establishment_id,
             driver_id=self.driver_id,
@@ -197,7 +197,7 @@ class Driver(MapActor):
         self.status = DriverStatus.DELIVERING
         order.update_status(OrderStatus.DELIVERING)
         self.publish_event(DriverDeliveringOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=order.establishment.establishment_id,
             driver_id=self.driver_id,
@@ -211,7 +211,7 @@ class Driver(MapActor):
         self.status = DriverStatus.DELIVERING_WAITING
         order.update_status(OrderStatus.DRIVER_ARRIVED_DELIVERY_LOCATION)
         self.publish_event(DriverArrivedDeliveryLocation(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=order.establishment.establishment_id,
             driver_id=self.driver_id,
@@ -224,7 +224,7 @@ class Driver(MapActor):
     def delivered(self, order: Order) -> None:
         self.coordinate = order.customer.coordinate
         self.publish_event(DriverDeliveredOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=order.establishment.establishment_id,
             driver_id=self.driver_id,
@@ -285,11 +285,13 @@ class Driver(MapActor):
             if self.current_route_segment is not None:
                 # Se o segmento atual é de coleta, considera o tempo para pegar o pedido
                 if self.current_route_segment.is_pickup():
+                    current_order = self.current_route_segment.order
+
                     if self.status == DriverStatus.PICKING_UP_WAINTING:
-                        total_busy_time += self.estimate_time_to_driver_receive_order() # TODO: não precisa ser uma estimativa a informação de quanto tempo falta está na própria ordem 
+                        total_busy_time += current_order.estimated_time_to_ready - self.now
                     else:
                         total_busy_time += self.environment.map.estimated_time(
-                            self.coordinate, self.current_route_segment.order.establishment.coordinate, self.movement_rate
+                            self.coordinate, current_order.establishment.coordinate, self.movement_rate
                         )
                     total_busy_time += self.time_between_picked_up_and_start_delivery()
                     total_busy_time += self.time_to_deliver_order(self.current_route_segment.order)
@@ -331,12 +333,3 @@ class Driver(MapActor):
                 valid_coordinate = order.customer.coordinate
 
         return total_busy_time
-    
-    # TODO: Chamar esse método no lugar apropriado
-    def update_time_spent_to_last_order(self) -> None:
-        self.time_spent_to_last_order = self.now - self.start_time_to_last_order
-
-    def get_and_clear_time_spent_to_last_order(self) -> int:
-        time_spent = self.time_spent_to_last_order
-        self.time_spent_to_last_order = 0
-        return time_spent 
