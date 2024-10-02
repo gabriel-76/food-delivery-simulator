@@ -21,10 +21,6 @@ class DistanceMetric(Metric):
             EventType.DRIVER_DELIVERED_ORDER
         ], self.environment.events))
 
-        print("tamanho de self.environment.events: " + str(len(self.environment.events)))
-        print(self.environment.events)
-        print("tamanho de events: " + str(len(events)))
-
         # events = list(filter(
         #     lambda env: (hasattr(env, "distance") and env.distance > 0) or not hasattr(env, "distance"),
         #     events
@@ -36,7 +32,7 @@ class DistanceMetric(Metric):
         # Preenchendo o dicionário com os tempos dos eventos
         for event in events:
             driver_id = event.driver_id
-            order_id = event.order_id
+            order_id = event.order.order_id
             event_type = event.event_type
             distance = 0
             if hasattr(event, "distance"):

@@ -73,6 +73,35 @@ class FoodDeliveryGymEnv(Env):
     
     def _get_obs(self):
         return self.get_observation()
+    
+    # Avança na simulação até que um evento principal ocorra ou que a simulação termine/trunque.
+    def advance_simulation_until_event(self):
+        terminated = False
+        truncated = False
+        core_event = None
+
+        while (not terminated) and (not truncated) and (core_event is None):
+            if self.simpy_env.state.orders_delivered < self.num_orders:
+                self.simpy_env.step()
+
+                # Verifica se um pedido foi entregue
+                if self.simpy_env.state.orders_delivered > self.last_num_orders_delivered:
+                    print("Pedido entregue!")
+                    print(f"Número de pedidos entregues: {self.simpy_env.state.orders_delivered}")
+                    self.last_num_orders_delivered = self.simpy_env.state.orders_delivered
+
+                # Verifica o próximo evento principal
+                core_event = self.simpy_env.dequeue_core_event()
+
+                # Verifica se atingiu o limite de tempo
+                if self.simpy_env.now >= self.observation_space['current_time_step'].n:
+                    print("Limite de tempo atingido!")
+                    truncated = True
+            else:
+                print("Todos os pedidos foram entregues!")
+                terminated = True
+
+        return core_event, terminated, truncated
 
     def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
@@ -85,15 +114,8 @@ class FoodDeliveryGymEnv(Env):
             view=self.simpy_env.view
         )
 
-        # TODO: Separar em uma função -> Evitar replicação de código
-        core_event = None
-        while core_event is None:
-            if (self.simpy_env.state.orders_delivered < self.num_orders):
-                # print('self.simpy_env.peek(): ' + str(self.simpy_env.peek()))
-                self.simpy_env.step()
-                core_event = self.simpy_env.dequeue_core_event()
-
-        self.last_order = core_event.order
+        core_event, _, _ = self.advance_simulation_until_event()
+        self.last_order = core_event.order if core_event else None
 
         observation = self._get_obs()
         info = self._get_info()
@@ -140,30 +162,21 @@ class FoodDeliveryGymEnv(Env):
         selected_driver = self.simpy_env.state.drivers[action]
         self.select_driver_to_order(selected_driver, self.last_order)
 
-        # TODO: Separar em uma função -> Evitar replicação de código
-        core_event = None
-        while (not terminated) and (core_event is None):
-            if (self.simpy_env.state.orders_delivered < self.num_orders):
-                # print('self.simpy_env.peek(): ' + str(self.simpy_env.peek()))
-                self.simpy_env.step()
+        core_event, terminated, truncated = self.advance_simulation_until_event()
 
-                if (self.simpy_env.state.orders_delivered > self.last_num_orders_delivered):
-                    print("Pedido entregue!")
-                    print("Número de pedidos entregues: {}".format(self.simpy_env.state.orders_delivered))
-                    self.last_num_orders_delivered = self.simpy_env.state.orders_delivered
-
-                core_event = self.simpy_env.dequeue_core_event()
-            else:
-                terminated = True
-
-        self.last_order = core_event.order
-        
-        truncated = False
-        reward = self.calculate_reward(selected_driver)
-        print("reward: {}".format(reward))
         observation = self._get_obs()
         assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
         info = self._get_info()
+
+        if terminated or truncated:
+            print("Terminated or truncated!")
+            reward = 0
+            print(f"reward: {reward}")
+            return observation, reward, terminated, truncated, info
+
+        self.last_order = core_event.order if core_event else None
+        reward = self.calculate_reward(selected_driver)
+        print(f"reward: {reward}")
 
         return observation, reward, terminated, truncated, info
 
