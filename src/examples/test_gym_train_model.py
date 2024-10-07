@@ -20,70 +20,49 @@ from src.main.view.grid_view_pygame import GridViewPygame
 
 NUM_DRIVERS = 1
 NUM_ORDERS = 5
+NUM_ESTABLISHMENTS = 10
+NUM_COSTUMERS = NUM_ORDERS
 
 def main():
-    environment = FoodDeliverySimpyEnv(
-        map=GridMap(100),
-        generators=[
-            InitialCustomerGenerator(NUM_ORDERS),
-            InitialEstablishmentGenerator(10, use_estimate=True),
-            InitialDriverGenerator(NUM_DRIVERS, desconsider_capacity=True),
-            InitialOrderGenerator(NUM_ORDERS)
-        ],
-        optimizer=None,
-        view=GridViewPygame()
-    )
+    try:
+        gym_env = FoodDeliveryGymEnv(num_drivers=NUM_DRIVERS, num_establishments=NUM_ESTABLISHMENTS, num_orders=NUM_ORDERS, num_costumers=NUM_COSTUMERS, use_estimate=True, desconsider_capacity=True, max_time_step=10000, reward_objective=1)
 
-    gym_env = FoodDeliveryGymEnv(environment, num_drivers=NUM_DRIVERS, num_establishments=10, num_orders=NUM_ORDERS, max_time_step=10000, reward_objective=1)
+        # Verificar se o ambiente está implementado corretamente
+        check_env(gym_env, warn=True)
 
-    # Verificar se o ambiente está implementado corretamente
-    check_env(gym_env, warn=True)
+        # Vectorize environment
+        env = DummyVecEnv([lambda: gym_env])
 
-    # Vectorize environment
-    env = DummyVecEnv([lambda: gym_env])
+        # Treinar o modelo
+        model = PPO('MultiInputPolicy', env, verbose=1)
+        model.learn(total_timesteps=10000)
 
-    # Treinar o modelo
-    model = PPO('MultiInputPolicy', env, verbose=1)
-    model.learn(total_timesteps=10000)
+        # Salvar o modelo
+        model.save("ppo_delivery")
 
-    # Salvar o modelo
-    model.save("ppo_delivery")
+        # Carregar o modelo
+        model = PPO.load("ppo_delivery")
 
-    # Carregar o modelo
-    model = PPO.load("ppo_delivery")
+        # Testar o modelo treinado
+        obs, info = gym_env.reset(options={"render_mode": "human"})
+        for _ in range(1000):
+            action, _states = model.predict(obs)
+            obs, reward, done, truncated, info = gym_env.step(action)
+            # print(obs, rewards, dones, info)
+            gym_env.render()
 
-    environment = FoodDeliverySimpyEnv(
-        map=GridMap(100),
-        generators=[
-            InitialCustomerGenerator(NUM_ORDERS),
-            InitialEstablishmentGenerator(10),
-            InitialDriverGenerator(NUM_DRIVERS),
-            InitialOrderGenerator(NUM_ORDERS)
-        ],
-        optimizer=None,
-        view=GridViewPygame()
-    )
+        custom_board = CustomBoard(metrics=[
+            OrderCurveMetric(gym_env.simpy_env),
+            TotalMetric(gym_env.simpy_env),
+            DistanceMetric(gym_env.simpy_env),
+            DelayMetric(gym_env.simpy_env),
+            DriverStatusMetric(gym_env.simpy_env),
+            OrderStatusMetric(gym_env.simpy_env),
+        ])
+        custom_board.view()
 
-    gym_env = FoodDeliveryGymEnv(environment, num_drivers=NUM_DRIVERS, num_establishments=10, num_orders=NUM_ORDERS, max_time_step=10000, reward_objective=1, render_mode='human')
-
-    # Testar o modelo treinado
-    obs, info = gym_env.reset()
-    for _ in range(1000):
-        action, _states = model.predict(obs)
-        obs, rewards, dones, truncated, info = gym_env.step(action)
-        # print(obs, rewards, dones, info)
-        gym_env.render()
-
-    custom_board = CustomBoard(metrics=[
-        OrderCurveMetric(gym_env.simpy_env),
-        TotalMetric(gym_env.simpy_env),
-        DistanceMetric(gym_env.simpy_env),
-        DelayMetric(gym_env.simpy_env),
-        DriverStatusMetric(gym_env.simpy_env),
-        OrderStatusMetric(gym_env.simpy_env),
-    ])
-    custom_board.view()
-
+    except ValueError as e:
+        print(e)
 
 
 if __name__ == '__main__':

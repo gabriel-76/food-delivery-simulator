@@ -3,20 +3,41 @@ from gymnasium import Env
 from gymnasium.spaces import Dict, Sequence, Box, Discrete, Tuple, MultiDiscrete
 
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.generator.initial_customer_generator import InitialCustomerGenerator
+from src.main.generator.initial_driver_generator import InitialDriverGenerator
+from src.main.generator.initial_establishment_generator import InitialEstablishmentGenerator
+from src.main.generator.initial_order_generator import InitialOrderGenerator
+from src.main.map.grid_map import GridMap
 from src.main.order.order_status import OrderStatus
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
 from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route import Route
+from src.main.view.grid_view_pygame import GridViewPygame
 
 
 class FoodDeliveryGymEnv(Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, simpy_env: FoodDeliverySimpyEnv, num_drivers, num_establishments, num_orders, max_time_step=10000, reward_objective=1, render_mode=None):
+    def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, grid_map_size=100, use_estimate=True, desconsider_capacity=True, max_time_step=10000, reward_objective=1, render_mode=None):
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
         self.num_orders = num_orders
-        self.simpy_env = simpy_env
+        self.num_costumers = num_costumers
+
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+
+        self.simpy_env = FoodDeliverySimpyEnv(
+            map=GridMap(grid_map_size),
+            generators=[
+                InitialCustomerGenerator(self.num_orders),
+                InitialEstablishmentGenerator(self.num_establishments, use_estimate=use_estimate),
+                InitialDriverGenerator(self.num_drivers, desconsider_capacity=desconsider_capacity),
+                InitialOrderGenerator(self.num_orders)
+            ],
+            optimizer=None,
+            view=GridViewPygame() if self.render_mode == "human" else None
+        )
 
         self.last_order = None
         self.last_num_orders_delivered = 0
@@ -37,9 +58,6 @@ class FoodDeliveryGymEnv(Env):
 
         # Espaço de Ação
         self.action_space = Discrete(self.num_drivers)  # Escolher qual driver pegará o pedido
-
-        assert render_mode is None or render_mode in self.metadata["render_modes"]
-        self.render_mode = render_mode
 
     def get_observation(self):
         # 1. drivers_busy_time: Tempo de ocupação de cada motorista
@@ -83,6 +101,7 @@ class FoodDeliveryGymEnv(Env):
         while (not terminated) and (not truncated) and (core_event is None):
             if self.simpy_env.state.orders_delivered < self.num_orders:
                 self.simpy_env.step()
+                self.render()
 
                 # Verifica se um pedido foi entregue
                 if self.simpy_env.state.orders_delivered > self.last_num_orders_delivered:
@@ -107,11 +126,14 @@ class FoodDeliveryGymEnv(Env):
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
 
+        if options:
+            self.render_mode = options.get("render_mode", None)
+
         self.simpy_env = FoodDeliverySimpyEnv(
             map=self.simpy_env.map,
             generators=self.simpy_env.generators,
             optimizer=self.simpy_env.optimizer,
-            view=self.simpy_env.view
+            view=GridViewPygame() if self.render_mode == "human" else None
         )
 
         core_event, _, _ = self.advance_simulation_until_event()

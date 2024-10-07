@@ -1,5 +1,6 @@
 from typing import List, Optional, Union
 
+import numpy as np
 from simpy import Environment, Event
 from simpy.core import SimTime
 
@@ -121,3 +122,7 @@ class FoodDeliverySimpyEnv(Environment):
     def close(self):
         if self.view is not None and not self.view.quited:
             self.view.quit()
+
+    def seed(self, seed: Optional[int] = None):
+        if seed is not None:
+            np.random.seed(seed)
