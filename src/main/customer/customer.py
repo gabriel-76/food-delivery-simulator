@@ -11,12 +11,15 @@ from src.main.events.customer_placed_order import CustomerPlacedOrder
 from src.main.events.customer_received_order import CustomerReceivedOrder
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
+from src.main.customer.custumer_status import CustumerStatus
 from src.main.establishment.establishment import Establishment
 
 
 class Customer(MapActor):
-    def __init__(self, environment: FoodDeliverySimpyEnv, coordinate: Coordinate, available: bool) -> None:
+    def __init__(self, environment: FoodDeliverySimpyEnv, coordinate: Coordinate, available: bool, single_order: bool = False) -> None:
         self.customer_id = uuid.uuid4()
+        self.single_order = single_order
+        self.status = CustumerStatus.WAITING_DELIVERY
         super().__init__(environment, coordinate, available)
 
     def place_order(self, order: Order, establishment: Establishment) -> None:
@@ -38,6 +41,10 @@ class Customer(MapActor):
             driver_id=driver.driver_id,
             time=self.now
         ))
+
+        if self.single_order:
+            self.status = CustumerStatus.DELIVERED
+
         order.update_status(OrderStatus.RECEIVED)
 
     def time_to_receive_order(self, order: Order):

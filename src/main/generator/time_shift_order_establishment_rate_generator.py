@@ -23,7 +23,8 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
                     establishment.operating_radius,
                     env.map.size
                 ),
-                available=True
+                available=True,
+                single_order=True
             )
 
             items = random.sample(establishment.catalog.items, 2)
