@@ -12,13 +12,20 @@ from src.main.order.order_status import OrderStatus
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
 from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route import Route
+from src.main.statistic.custom_board import CustomBoard
+from src.main.statistic.delay_metric import DelayMetric
+from src.main.statistic.distance_metric import DistanceMetric
+from src.main.statistic.driver_status_metric import DriverStatusMetric
+from src.main.statistic.order_curve_metric import OrderCurveMetric
+from src.main.statistic.order_status_metric import OrderStatusMetric
+from src.main.statistic.total_metric import TotalMetric
 from src.main.view.grid_view_pygame import GridViewPygame
 
 
 class FoodDeliveryGymEnv(Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, grid_map_size=100, use_estimate=True, desconsider_capacity=True, max_time_step=10000, reward_objective=1, render_mode=None):
+    def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, grid_map_size=100, use_estimate=True, desconsider_capacity=True, max_time_step=10000, reward_objective=1, seed=None, render_mode=None):
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
         self.num_orders = num_orders
@@ -38,6 +45,8 @@ class FoodDeliveryGymEnv(Env):
             optimizer=None,
             view=GridViewPygame() if self.render_mode == "human" else None
         )
+
+        self.simpy_env.seed(seed)
 
         self.last_order = None
         self.last_num_orders_delivered = 0
@@ -125,6 +134,7 @@ class FoodDeliveryGymEnv(Env):
     def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
+        self.simpy_env.seed(seed)
 
         if options:
             self.render_mode = options.get("render_mode", None)
@@ -205,6 +215,17 @@ class FoodDeliveryGymEnv(Env):
     def render(self):
         if self.render_mode == "human":
             self.simpy_env.render()
+
+    def show_statistcs_board(self):
+        custom_board = CustomBoard(metrics=[
+            OrderCurveMetric(self.simpy_env),
+            TotalMetric(self.simpy_env),
+            DistanceMetric(self.simpy_env),
+            DelayMetric(self.simpy_env),
+            DriverStatusMetric(self.simpy_env),
+            OrderStatusMetric(self.simpy_env),
+        ])
+        custom_board.view()
 
     def close(self):
         self.simpy_env.close()

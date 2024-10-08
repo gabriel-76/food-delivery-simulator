@@ -1,6 +1,7 @@
 from typing import List, Optional, Union
 
 import numpy as np
+import random
 from simpy import Environment, Event
 from simpy.core import SimTime
 
@@ -126,3 +127,4 @@ class FoodDeliverySimpyEnv(Environment):
     def seed(self, seed: Optional[int] = None):
         if seed is not None:
             np.random.seed(seed)
+            random.seed(seed)
