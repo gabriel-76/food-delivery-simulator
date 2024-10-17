@@ -53,3 +53,44 @@ class DeliveryEnvState:
     def log_events(self) -> None:
         for event in self.events:
             print(event)
+
+    def print_state(self, options=None):
+        if options is None:
+            options = {
+                "customers": True,
+                "establishments": True,
+                "drivers": True,
+                "orders": True,
+                "events": True,
+                "orders_delivered": True
+            }
+
+        print("=== Estado do DeliveryEnvState ===")
+
+        if options.get("customers", False):
+            print("Clientes:")
+            for idx, customer in enumerate(self.customers, start=1):
+                print(f"Cliente {idx}: {customer.__dict__}")
+
+        if options.get("establishments", False):
+            print("\nEstabelecimentos:")
+            for idx, establishment in enumerate(self.establishments, start=1):
+                print(f"Estabelecimento {idx}: Coordenadas = {establishment.coordinate}, Pedidos em preparação = {establishment.orders_in_preparation}")
+
+        if options.get("drivers", False):
+            print("\nMotoristas:")
+            for idx, driver in enumerate(self.drivers, start=1):
+                print(f"Motorista {idx}: Coordenadas = {driver.coordinate}, Status = {driver.status}")
+
+        if options.get("orders", False):
+            print("\nPedidos:")
+            for idx, order in enumerate(self.orders, start=1):
+                print(f"Pedido {idx}: {order.__dict__}")
+
+        if options.get("events", False):
+            print("\nEventos:")
+            for idx, event in enumerate(self.events, start=1):
+                print(f"Evento {idx}: {event}")
+
+        if options.get("orders_delivered", False):
+            print(f"\nTotal de pedidos entregues: {self.orders_delivered}")

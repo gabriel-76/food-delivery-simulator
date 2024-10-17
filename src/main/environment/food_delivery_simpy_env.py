@@ -128,3 +128,6 @@ class FoodDeliverySimpyEnv(Environment):
         if seed is not None:
             np.random.seed(seed)
             random.seed(seed)
+
+    def print_enviroment_state(self, options):
+        self._state.print_state(options)

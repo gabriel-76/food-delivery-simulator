@@ -75,7 +75,7 @@ class FoodDeliveryGymEnv(Env):
             drivers_busy_time[i] = driver.estimate_total_busy_time()
 
         # 2. pending_orders: Número de pedidos pendentes
-        pending_orders = len([order for order in self.simpy_env.state.orders if order.status == OrderStatus.READY])
+        pending_orders = len(self.simpy_env.get_ready_orders())
 
         # 3. establishment_next_order_ready_time: Tempo que falta para o próximo pedido em preparação de cada restaurante ficar pronto
         establishment_busy_time = np.zeros((self.num_establishments, 1), dtype=np.int32)
@@ -152,8 +152,6 @@ class FoodDeliveryGymEnv(Env):
         observation = self._get_obs()
         info = self._get_info()
 
-        self.render()
-
         return observation, info
     
     def select_driver_to_order(self, selected_driver, order):
@@ -169,7 +167,7 @@ class FoodDeliveryGymEnv(Env):
         if last_driver_selected is not None:
             time_to_complete_order = last_driver_selected.estimate_total_busy_time()
         
-        # Distância total percorrida pelos drivers #TODO: Será que uma recompensa negativa que sempre aumenta está certo?
+        # Distância total percorrida pelos drivers
         sum_distance_drivers = 0
         for driver in self.simpy_env.state.drivers:
             sum_distance_drivers += driver.total_distance
@@ -188,7 +186,6 @@ class FoodDeliveryGymEnv(Env):
             truncated = self.simpy_env.view.quited
 
         terminated = False
-        print("------------------> Step <------------------")
         print("action: {}".format(action))
         print("last_order: {}".format(vars(self.last_order)))
         selected_driver = self.simpy_env.state.drivers[action]
@@ -208,7 +205,8 @@ class FoodDeliveryGymEnv(Env):
 
         self.last_order = core_event.order if core_event else None
         reward = self.calculate_reward(selected_driver)
-        print(f"reward: {reward}")
+        #print(f"reward: {reward}")
+        #print(f'observação: {observation}')
 
         return observation, reward, terminated, truncated, info
 
@@ -226,6 +224,9 @@ class FoodDeliveryGymEnv(Env):
             OrderStatusMetric(self.simpy_env),
         ])
         custom_board.view()
+
+    def print_enviroment_state(self, options):
+        self.simpy_env.print_enviroment_state(options)
 
     def close(self):
         self.simpy_env.close()

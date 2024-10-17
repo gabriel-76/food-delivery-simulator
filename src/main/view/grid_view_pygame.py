@@ -12,7 +12,6 @@ GRAY = (137, 137, 137)
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 
-
 def map_coordinate(value, min_val, max_val, min_screen, max_screen):
     return min_screen + (value - min_val) * (max_screen - min_screen) / (max_val - min_val)
 
