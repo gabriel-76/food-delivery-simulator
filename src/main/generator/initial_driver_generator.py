@@ -14,14 +14,13 @@ class InitialDriverGenerator(InitialGenerator):
 
     def run(self, env: FoodDeliverySimpyEnv):
         capacity = Capacity(Dimensions(100, 100, 100, 100))
-        if self.desconsider_capacity:
-            capacity = Capacity(Dimensions(float('inf'), float('inf'), float('inf'), float('inf')))
 
         drivers = [
             Driver(
                 environment=env,
                 coordinate=env.map.random_point(),
-                capacity=capacity,
+                desconsider_capacity=self.desconsider_capacity,
+                capacity=None if self.desconsider_capacity else capacity,
                 available=True,
                 status=DriverStatus.AVAILABLE,
                 movement_rate=random.uniform(1, 10),

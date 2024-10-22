@@ -14,6 +14,8 @@ class DeliveryEnvState:
         self.orders_awaiting_delivery: List[Order] = []
         self.orders_delivered = 0
 
+        self.successfully_assigned_routes = 0
+
         self.events = []
 
     @property
@@ -46,6 +48,9 @@ class DeliveryEnvState:
 
     def get_length_orders(self) -> int:
         return len(self._orders)
+
+    def increment_assigned_routes(self) -> None:
+        self.successfully_assigned_routes += 1
 
     def increment_orders_delivered(self) -> None:
         self.orders_delivered += 1

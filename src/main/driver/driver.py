@@ -5,6 +5,7 @@ from typing import Optional, List
 from simpy.events import ProcessGenerator
 
 from src.main.actors.map_actor import MapActor
+from src.main.base.dimensions import Dimensions
 from src.main.base.types import Coordinate, Number
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver_status import DriverStatus
@@ -32,13 +33,21 @@ class Driver(MapActor):
             environment: FoodDeliverySimpyEnv,
             coordinate: Coordinate,
             available: bool,
-            capacity: Capacity,
-            status: DriverStatus,
-            movement_rate: Number
+            desconsider_capacity: bool = False,
+            capacity: Optional[Capacity] = Capacity(Dimensions(100, 100, 100, 100)),
+            status: Optional[DriverStatus] = DriverStatus.AVAILABLE,
+            movement_rate: Optional[Number] = 5
     ):
         self.driver_id = uuid.uuid4()
         super().__init__(environment, coordinate, available)
-        self.capacity = capacity
+
+        self.desconsider_capacity = desconsider_capacity
+
+        if desconsider_capacity:
+            self.capacity = Capacity(Dimensions(float('inf'), float('inf'), float('inf'), float('inf')))
+        else:
+            self.capacity = capacity
+        
         self.status = status
         self.movement_rate = movement_rate
         
@@ -58,6 +67,8 @@ class Driver(MapActor):
 
     def receive_route_requests(self, route: Route) -> None:
         self.route_requests.append(route)
+        if self.desconsider_capacity:
+            self.environment.state.increment_assigned_routes()
 
     def process_route_requests(self) -> ProcessGenerator:
         while True:
@@ -73,6 +84,8 @@ class Driver(MapActor):
         self.accept_route(route) if accept else self.reject_route(route)
 
     def accept_route(self, route: Route) -> None:
+        if not self.desconsider_capacity:
+            self.environment.state.increment_assigned_routes()
         if self.current_route is None:
             self.current_route = route
             self.publish_event(DriverAcceptedRoute(

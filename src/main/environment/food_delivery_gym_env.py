@@ -61,7 +61,7 @@ class FoodDeliveryGymEnv(Env):
         # Espaço de Observação
         self.observation_space = Dict({
             'drivers_busy_time': Box(low=0, high=np.inf, shape=(self.num_drivers, 1), dtype=np.int32),
-            'pending_orders': Discrete(self.num_orders + 1),
+            'remaining_orders': Discrete(self.num_orders + 1),
             'establishment_busy_time': Box(low=0, high=np.inf, shape=(self.num_establishments, 1), dtype=np.int32),
             'current_time_step': Discrete(max_time_step)
         })
@@ -75,12 +75,8 @@ class FoodDeliveryGymEnv(Env):
         for i, driver in enumerate(self.simpy_env.state.drivers):
             drivers_busy_time[i] = driver.estimate_total_busy_time()
 
-        # 2. pending_orders: Número de pedidos pendentes
-        pending_orders = len(self.simpy_env.get_ready_orders())
-
-        # TODO - REMOVER ESSE TRECHO DE CÓDIGO
-        if pending_orders > 1:
-            raise RuntimeError(f"Erro: Número de pedidos pendentes é maior que 1! Pending orders: {pending_orders}")
+        # 2. orders_remaining: Número de pedidos que faltam ser atribuidos a um motorista
+        orders_remaining = self.num_orders - self.simpy_env.state.successfully_assigned_routes
 
         # 3. establishment_next_order_ready_time: Tempo que falta para o próximo pedido em preparação de cada restaurante ficar pronto
         establishment_busy_time = np.zeros((self.num_establishments, 1), dtype=np.int32)
@@ -93,7 +89,7 @@ class FoodDeliveryGymEnv(Env):
         # Criando a observação final no formato esperado
         obs = {
             'drivers_busy_time': drivers_busy_time,
-            'pending_orders': pending_orders,
+            'remaining_orders': orders_remaining,
             'establishment_busy_time': establishment_busy_time,
             'current_time_step': current_time_step
         }

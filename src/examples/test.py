@@ -6,7 +6,7 @@ from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
 
 NUM_DRIVERS = 10
 NUM_ORDERS = 500
-NUM_ESTABLISHMENTS = 20
+NUM_ESTABLISHMENTS = 10
 NUM_COSTUMERS = NUM_ORDERS
 
 def main():
@@ -46,7 +46,6 @@ def main():
             acao = gym_env.action_space.sample() # Ação aleatória
             print("------------------> Step " + str(i) +" <------------------")
             print(f'{acao=}')
-            print(f'estado_antes={estado}')
             gym_env.print_enviroment_state(options)
             estado, recompensa, done, truncado, info = gym_env.step(acao)
             print(f'estado_depois={estado}')
