@@ -73,10 +73,7 @@ class Establishment(MapActor):
     def get_establishment_busy_time(self) -> SimTime:
         self.update_overload_time(0)
         establishment_busy_time = self.overloaded_until - self.now
-        if establishment_busy_time < 0:
-            return 0
-        else:
-            return establishment_busy_time
+        return establishment_busy_time if establishment_busy_time > 0 else 0
 
     def update_overload_time(self, estimated_time) -> None:
         env_now = self.now

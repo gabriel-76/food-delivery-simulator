@@ -311,14 +311,17 @@ class Driver(MapActor):
 
                 # Se o segmento atual é de entrega, considera o tempo de entrega
                 if self.current_route_segment.is_delivery():
-                    if self.status != DriverStatus.DELIVERING_WAITING:
+                    if self.status == DriverStatus.DELIVERING:
                         total_busy_time += self.environment.map.estimated_time(
                             self.coordinate, self.current_route_segment.order.customer.coordinate, self.movement_rate
                         )
-                total_busy_time += self.estimate_time_to_costumer_receive_order(self.current_route_segment.order)
+
+                if self.status != DriverStatus.AVAILABLE:
+                    total_busy_time += self.estimate_time_to_costumer_receive_order(self.current_route_segment.order)
+
             # Atualiza a posição do motorista para o local da entrega
             valid_coordinate = self.current_route_segment.order.customer.coordinate
-
+        
         # Considera o tempo para processar todas as rotas na fila de pedidos
         for route in self.route_requests:
             # Tempo para aceitar ou rejeitar a rota
