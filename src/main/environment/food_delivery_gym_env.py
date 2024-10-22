@@ -32,6 +32,7 @@ class FoodDeliveryGymEnv(Env):
         self.num_establishments = num_establishments
         self.num_orders = num_orders
         self.num_costumers = num_costumers
+        self.max_time_step = max_time_step
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
@@ -123,7 +124,7 @@ class FoodDeliveryGymEnv(Env):
                 core_event = self.simpy_env.dequeue_core_event()
                 
                 # Verifica se atingiu o limite de tempo
-                if self.simpy_env.now >= self.observation_space['current_time_step'].n:
+                if self.simpy_env.now >= self.max_time_step:
                     print("Limite de tempo atingido!")
                     truncated = True
             else:
@@ -194,6 +195,7 @@ class FoodDeliveryGymEnv(Env):
         core_event, terminated, truncated = self.advance_simulation_until_event()
 
         observation = self._get_obs()
+        print(f'observação: {observation}')
         assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
         info = self._get_info()
 
@@ -206,7 +208,6 @@ class FoodDeliveryGymEnv(Env):
         self.last_order = core_event.order if core_event else None
         reward = self.calculate_reward(selected_driver)
         # print(f"reward: {reward}")
-        # print(f'observação: {observation}')
 
         return observation, reward, terminated, truncated, info
 

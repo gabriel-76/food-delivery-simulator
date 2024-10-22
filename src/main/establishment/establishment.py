@@ -71,6 +71,7 @@ class Establishment(MapActor):
         self.orders_accepted.append(order)
 
     def get_establishment_busy_time(self) -> SimTime:
+        self.update_overload_time(0)
         establishment_busy_time = self.overloaded_until - self.now
         if establishment_busy_time < 0:
             return 0
