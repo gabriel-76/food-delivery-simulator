@@ -5,7 +5,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
 
 NUM_DRIVERS = 10
-NUM_ORDERS = 200
+NUM_ORDERS = 10000
 NUM_ESTABLISHMENTS = 10
 NUM_COSTUMERS = NUM_ORDERS
 
@@ -40,7 +40,7 @@ def main():
         model = PPO.load("ppo_delivery")
 
         # Testar o modelo treinado
-        obs, info = gym_env.reset()
+        obs, info = gym_env.reset(options={ 'render_mode': 'human' })
         for _ in range(1000):
             action, _states = model.predict(obs)
             obs, reward, done, truncated, info = gym_env.step(action)

@@ -6,7 +6,9 @@ from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_customer_generator import InitialCustomerGenerator
 from src.main.generator.initial_driver_generator import InitialDriverGenerator
 from src.main.generator.initial_establishment_generator import InitialEstablishmentGenerator
+from src.main.generator.initial_establishment_order_rate_generator import InitialEstablishmentOrderRateGenerator
 from src.main.generator.initial_order_generator import InitialOrderGenerator
+from src.main.generator.time_shift_order_establishment_rate_generator import TimeShiftOrderEstablishmentRateGenerator
 from src.main.map.grid_map import GridMap
 from src.main.order.order_status import OrderStatus
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
@@ -37,10 +39,9 @@ class FoodDeliveryGymEnv(Env):
         self.simpy_env = FoodDeliverySimpyEnv(
             map=GridMap(grid_map_size),
             generators=[
-                InitialCustomerGenerator(self.num_orders),
-                InitialEstablishmentGenerator(self.num_establishments, use_estimate=use_estimate),
+                InitialEstablishmentOrderRateGenerator(self.num_establishments, use_estimate=use_estimate),
                 InitialDriverGenerator(self.num_drivers, desconsider_capacity=desconsider_capacity),
-                InitialOrderGenerator(self.num_orders)
+                TimeShiftOrderEstablishmentRateGenerator(lambda time: 14, time_shift=4, num_orders=self.num_orders),
             ],
             optimizer=None,
             view=GridViewPygame() if self.render_mode == "human" else None
@@ -62,7 +63,7 @@ class FoodDeliveryGymEnv(Env):
             'drivers_busy_time': Box(low=0, high=np.inf, shape=(self.num_drivers, 1), dtype=np.int32),
             'pending_orders': Discrete(self.num_orders + 1),
             'establishment_busy_time': Box(low=0, high=np.inf, shape=(self.num_establishments, 1), dtype=np.int32),
-            'current_time_step': Discrete(max_time_step) #TODO: Perguntar como definir o limite de tempo de forma correta
+            'current_time_step': Discrete(max_time_step)
         })
 
         # Espaço de Ação
@@ -76,6 +77,10 @@ class FoodDeliveryGymEnv(Env):
 
         # 2. pending_orders: Número de pedidos pendentes
         pending_orders = len(self.simpy_env.get_ready_orders())
+
+        # TODO - REMOVER ESSE TRECHO DE CÓDIGO
+        if pending_orders > 1:
+            raise RuntimeError(f"Erro: Número de pedidos pendentes é maior que 1! Pending orders: {pending_orders}")
 
         # 3. establishment_next_order_ready_time: Tempo que falta para o próximo pedido em preparação de cada restaurante ficar pronto
         establishment_busy_time = np.zeros((self.num_establishments, 1), dtype=np.int32)
@@ -120,7 +125,7 @@ class FoodDeliveryGymEnv(Env):
 
                 # Verifica o próximo evento principal
                 core_event = self.simpy_env.dequeue_core_event()
-
+                
                 # Verifica se atingiu o limite de tempo
                 if self.simpy_env.now >= self.observation_space['current_time_step'].n:
                     print("Limite de tempo atingido!")
@@ -132,7 +137,6 @@ class FoodDeliveryGymEnv(Env):
         return core_event, terminated, truncated
 
     def reset(self, seed=None, options=None):
-        # We need the following line to seed self.np_random
         super().reset(seed=seed)
         self.simpy_env.seed(seed)
 
@@ -186,8 +190,8 @@ class FoodDeliveryGymEnv(Env):
             truncated = self.simpy_env.view.quited
 
         terminated = False
-        print("action: {}".format(action))
-        print("last_order: {}".format(vars(self.last_order)))
+        # print("action: {}".format(action))
+        # print("last_order: {}".format(vars(self.last_order)))
         selected_driver = self.simpy_env.state.drivers[action]
         self.select_driver_to_order(selected_driver, self.last_order)
 
@@ -200,13 +204,13 @@ class FoodDeliveryGymEnv(Env):
         if terminated or truncated:
             print("Terminated or truncated!")
             reward = 0
-            print(f"reward: {reward}")
+            # print(f"reward: {reward}")
             return observation, reward, terminated, truncated, info
 
         self.last_order = core_event.order if core_event else None
         reward = self.calculate_reward(selected_driver)
-        #print(f"reward: {reward}")
-        #print(f'observação: {observation}')
+        # print(f"reward: {reward}")
+        # print(f'observação: {observation}')
 
         return observation, reward, terminated, truncated, info
 

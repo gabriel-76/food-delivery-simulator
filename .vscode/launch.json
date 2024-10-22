@@ -8,7 +8,7 @@
             "name": "Python Debugger: Module",
             "type": "debugpy",
             "request": "launch",
-            "module": "src/examples/test.py"
+            "module": "src.examples.test"
         }
     ]
 }

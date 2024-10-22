@@ -8,13 +8,14 @@ from src.main.order.order import Order
 
 
 class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
-    def __init__(self, function, time_shift=1):
+    def __init__(self, function, time_shift=1, num_orders=None):
         super().__init__(function, time_shift)
         self.hash_timeout = {}
+        self.num_orders = num_orders
 
     def process_establishment(self, env: FoodDeliverySimpyEnv, establishment):
 
-        if establishment.establishment_id not in self.hash_timeout or self.hash_timeout[establishment.establishment_id] == env.now:
+        if establishment.establishment_id not in self.hash_timeout or self.hash_timeout[establishment.establishment_id] <= env.now:
 
             customer = Customer(
                 environment=env,
@@ -43,5 +44,11 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
 
     def run(self, env: FoodDeliverySimpyEnv):
         for _ in self.range(env):
-            for establishment in env.state.establishments:
-                self.process_establishment(env, establishment)
+            # Verificar se o número de pedidos foi atingido
+            if self.num_orders and (env.state.get_length_orders() >= self.num_orders):
+                return
+            # for establishment in env.state.establishments:
+            #     self.process_establishment(env, establishment)
+
+            establishment = random.choice(env.state.establishments)
+            self.process_establishment(env, establishment)

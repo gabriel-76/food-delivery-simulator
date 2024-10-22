@@ -4,9 +4,9 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 
 from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
 
-NUM_DRIVERS = 5
-NUM_ORDERS = 200
-NUM_ESTABLISHMENTS = 5
+NUM_DRIVERS = 10
+NUM_ORDERS = 500
+NUM_ESTABLISHMENTS = 20
 NUM_COSTUMERS = NUM_ORDERS
 
 def main():
@@ -21,7 +21,7 @@ def main():
             desconsider_capacity=True, 
             max_time_step=10000, 
             reward_objective=1,
-            render_mode='human'
+            #render_mode='human'
         )
 
         # Verificar se o ambiente está implementado corretamente
@@ -31,28 +31,33 @@ def main():
         print(f'estado inicial {estado}')
 
         # done : bool = False
-        for i in range(10):
+        i = 1
+        done = False
+        options = {
+            "customers": False,
+            "establishments": True,
+            "drivers": True,
+            "orders": False,
+            "events": False,
+            "orders_delivered": True
+        }
+        while not done:
             # acao = 1
             acao = gym_env.action_space.sample() # Ação aleatória
-            print("------------------> Step " + str(i+1) +" <------------------")
+            print("------------------> Step " + str(i) +" <------------------")
             print(f'{acao=}')
             print(f'estado_antes={estado}')
-            options = {
-                "customers": False,
-                "establishments": True,
-                "drivers": True,
-                "orders": False,
-                "events": False,
-                "orders_delivered": True
-            }
             gym_env.print_enviroment_state(options)
             estado, recompensa, done, truncado, info = gym_env.step(acao)
             print(f'estado_depois={estado}')
             print(f'{recompensa=}')
-
-            if done:
-                print("Done!")
-                break
+            i += 1
+        
+        print("--------------> Fim do ambiente <--------------")
+        gym_env.print_enviroment_state(options)
+        print(f'observação final = {gym_env.get_observation()}')
+        print(f'quantidade de rotas criadas = {gym_env.simpy_env.state.get_length_orders()}')
+        print(f'quantidade de rotas entregues = {gym_env.simpy_env.state.orders_delivered}')
 
         # gym_env.show_statistcs_board()
 

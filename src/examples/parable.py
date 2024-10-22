@@ -13,9 +13,9 @@ from src.main.statistic.order_curve_metric import OrderCurveMetric
 from src.main.statistic.order_status_metric import OrderStatusMetric
 from src.main.statistic.total_metric import TotalMetric
 
-a = -4/225
-b = 250
-c = 400
+a = -4/225 # Largura e direção
+b = 250 # Ponto de inflexão
+c = 400 # Pico da parabola
 
 
 def parable(time):

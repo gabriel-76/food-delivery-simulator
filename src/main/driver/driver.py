@@ -332,4 +332,4 @@ class Driver(MapActor):
                 # Atualiza a posição após cada entrega
                 valid_coordinate = order.customer.coordinate
 
-        return total_busy_time
+        return total_busy_time if total_busy_time > 0 else 0

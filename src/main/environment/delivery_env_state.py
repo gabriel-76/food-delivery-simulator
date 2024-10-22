@@ -44,6 +44,9 @@ class DeliveryEnvState:
     def add_orders(self, orders: List) -> None:
         self._orders += orders
 
+    def get_length_orders(self) -> int:
+        return len(self._orders)
+
     def increment_orders_delivered(self) -> None:
         self.orders_delivered += 1
 
@@ -75,7 +78,7 @@ class DeliveryEnvState:
         if options.get("establishments", False):
             print("\nEstabelecimentos:")
             for idx, establishment in enumerate(self.establishments, start=1):
-                print(f"Estabelecimento {idx}: Coordenadas = {establishment.coordinate}, Pedidos em preparação = {establishment.orders_in_preparation}")
+                print(f"Estabelecimento {idx}: Coordenadas = {establishment.coordinate}, Pedidos em preparação = {establishment.orders_in_preparation}, Tempo ocupado = {establishment.get_establishment_busy_time()}")
 
         if options.get("drivers", False):
             print("\nMotoristas:")
