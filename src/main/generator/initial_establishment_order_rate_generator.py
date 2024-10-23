@@ -1,5 +1,7 @@
 import random
 
+import numpy as np
+
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_generator import InitialGenerator
@@ -22,7 +24,7 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
                 coordinate=env.map.random_point(),
                 available=True,
                 catalog=catalog,
-                production_capacity=float('inf'),
+                production_capacity=np.inf,
                 use_estimate=self.use_estimate,
                 order_request_time_rate=random.uniform(5.0, 10.0),
                 order_production_time_rate=random.uniform(5.0, 10.0),

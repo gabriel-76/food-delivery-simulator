@@ -42,7 +42,7 @@ class FoodDeliveryGymEnv(Env):
             generators=[
                 InitialEstablishmentOrderRateGenerator(self.num_establishments, use_estimate=use_estimate),
                 InitialDriverGenerator(self.num_drivers, desconsider_capacity=desconsider_capacity),
-                TimeShiftOrderEstablishmentRateGenerator(lambda time: 14, time_shift=4, num_orders=self.num_orders),
+                TimeShiftOrderEstablishmentRateGenerator(lambda time: 1, time_shift=4, max_orders=self.num_orders),
             ],
             optimizer=None,
             view=GridViewPygame() if self.render_mode == "human" else None
@@ -109,10 +109,17 @@ class FoodDeliveryGymEnv(Env):
         truncated = False
         core_event = None
 
+        last_time_step = self.simpy_env.now
+
         while (not terminated) and (not truncated) and (core_event is None):
             if self.simpy_env.state.orders_delivered < self.num_orders:
                 self.simpy_env.step()
                 self.render()
+                
+                if last_time_step < self.simpy_env.now:
+
+                    self.print_enviroment_state()
+                    last_time_step = self.simpy_env.now
 
                 # Verifica se um pedido foi entregue
                 if self.simpy_env.state.orders_delivered > self.last_num_orders_delivered:
@@ -195,7 +202,7 @@ class FoodDeliveryGymEnv(Env):
         core_event, terminated, truncated = self.advance_simulation_until_event()
 
         observation = self._get_obs()
-        print(f'observação: {observation}')
+        # print(f'observação: {observation}')
         assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
         info = self._get_info()
 
@@ -226,7 +233,17 @@ class FoodDeliveryGymEnv(Env):
         ])
         custom_board.view()
 
-    def print_enviroment_state(self, options):
+    def print_enviroment_state(self, options=None):
+        if options is None:
+            options = {
+                "customers": False,
+                "establishments": True,
+                "drivers": True,
+                "orders": False,
+                "events": False,
+                "orders_delivered": True
+            }
+        print(f'time_step = {self.simpy_env.now}')
         self.simpy_env.print_enviroment_state(options)
 
     def close(self):

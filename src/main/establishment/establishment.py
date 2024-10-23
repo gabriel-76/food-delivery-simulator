@@ -73,14 +73,14 @@ class Establishment(MapActor):
     def get_establishment_busy_time(self) -> SimTime:
         self.update_overload_time(0)
         establishment_busy_time = self.overloaded_until - self.now
-        return establishment_busy_time if establishment_busy_time > 0 else 0
+        return establishment_busy_time
 
     def update_overload_time(self, estimated_time) -> None:
         env_now = self.now
         #   Se o restaurante está vazio, ele ajusta o tempo de sobrecarga para ser pelo menos o tempo atual, pois o restaurante 
         # não está mais processando pedidos.
         if self.is_empty():
-            self.overloaded_until = max(self.overloaded_until - env_now, env_now)
+            self.overloaded_until = env_now + estimated_time
         #   Se o restaurante está dentro de sua capacidade, o tempo de sobrecarga é ajustado com base no tempo de preparação do 
         # pedido atual.
         elif self.is_within_capacity():
