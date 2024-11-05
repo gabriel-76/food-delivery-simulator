@@ -57,7 +57,6 @@ class FoodDeliverySimpyEnv(Environment):
 
     def add_ready_order(self, order, event):
         self._state.orders_awaiting_delivery.append(order)
-        self.add_core_event(event)
 
     def get_ready_orders(self):
         read_orders = []
@@ -72,7 +71,6 @@ class FoodDeliverySimpyEnv(Environment):
     def add_rejected_delivery(self, order, delivery_rejection: DeliveryRejection, event):
         order.add_delivery_rejection(delivery_rejection)
         self._state.orders_awaiting_delivery.append(order)
-        self.add_core_event(event)
 
     def get_rejected_deliveries(self):
         rejected_orders = []

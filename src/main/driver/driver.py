@@ -34,11 +34,17 @@ class Driver(MapActor):
             coordinate: Coordinate,
             available: bool,
             desconsider_capacity: bool = False,
+            id: Number = None,
             capacity: Optional[Capacity] = Capacity(Dimensions(100, 100, 100, 100)),
             status: Optional[DriverStatus] = DriverStatus.AVAILABLE,
             movement_rate: Optional[Number] = 5
     ):
-        self.driver_id = uuid.uuid4()
+        
+        if id is not None:
+            self.driver_id = id
+        else:
+            self.driver_id = uuid.uuid4()
+
         super().__init__(environment, coordinate, available)
 
         self.desconsider_capacity = desconsider_capacity
@@ -147,6 +153,9 @@ class Driver(MapActor):
                 yield self.timeout(timeout)
                 self.process(self.picking_up(route_segment.order))
             if route_segment.is_delivery():
+                print(self.current_route.order.status)
+                print(f"Driver {self.driver_id} retirou o pedido no estabelecimento {self.current_route.order.establishment.establishment_id} no tempo {self.now}")
+                print(self.current_route.order.status)
                 timeout = self.time_between_picked_up_and_start_delivery()
                 yield self.timeout(timeout)
                 self.process(self.delivering(route_segment.order))
@@ -183,7 +192,7 @@ class Driver(MapActor):
     def picking_up(self, order: Order) -> ProcessGenerator:
         self.start_time_to_last_order = self.now
         self.status = DriverStatus.PICKING_UP
-        order.update_status(OrderStatus.PICKING_UP)
+        order.update_status(OrderStatus.PICKING_UP) # TODO: Erro aqui
         self.publish_event(DriverPickingUpOrder(
             order=order,
             customer_id=order.customer.customer_id,
@@ -247,6 +256,7 @@ class Driver(MapActor):
         order.update_status(OrderStatus.DELIVERED)
         self.process(self.sequential_processor())
         self.environment.state.increment_orders_delivered()
+        print(f"Driver {self.driver_id} entregou o pedido ao cliente no tempo {self.now}")
 
     def move(self) -> ProcessGenerator:
         while True:

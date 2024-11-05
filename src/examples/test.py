@@ -10,7 +10,7 @@ NUM_ORDERS = 20
 NUM_ESTABLISHMENTS = 10
 NUM_COSTUMERS = NUM_ORDERS
 MAX_TIME_STEP = 100000
-SEED = 12345
+SEED = 101010
 
 def main():
     try:
@@ -30,7 +30,9 @@ def main():
         # Verificar se o ambiente está implementado corretamente
         # check_env(gym_env, warn=True)
 
-        # TODO - Motorista siau pra buscar o pedido antes de ele entrar em preparação
+        # TODO - Motorista saiu pra buscar o pedido antes de ele entrar em preparação
+        # TODO - Adicionar tempo em que o motorista levaria para entregar o novo ao novo cliente
+        # TODO - Adicionar um atributo ao driver para guaradar o último lugar que ele estaria e atualizá-lo
 
         estado : list[int] = gym_env.reset()
         print(f'estado inicial {estado}')

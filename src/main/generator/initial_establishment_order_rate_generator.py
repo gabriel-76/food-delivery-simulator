@@ -20,6 +20,7 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
         catalog = Catalog([Item(f"type_{i}", dimension, 4) for i in range(5)])
         establishment = [
             EstablishmentOrderRate(
+                id=i+1,
                 environment=env,
                 coordinate=env.map.random_point(),
                 available=True,
@@ -30,6 +31,6 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
                 order_production_time_rate=random.uniform(5.0, 10.0),
                 operating_radius=random.randint(5, 30),
             )
-            for _ in range(self.num_establishments)
+            for i in range(self.num_establishments)
         ]
         env.add_establishments(establishment)

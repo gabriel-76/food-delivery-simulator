@@ -25,10 +25,16 @@ class Establishment(MapActor):
             coordinate: Coordinate,
             available: bool,
             catalog: Catalog,
+            id: Number = None,
             production_capacity: Number = float('inf'),
             use_estimate: bool = False
     ) -> None:
-        self.establishment_id = uuid.uuid4()
+        
+        if id is not None:
+            self.establishment_id = id
+        else:
+            self.establishment_id = uuid.uuid4()
+            
         super().__init__(environment, coordinate, available)
         self.catalog = catalog
         self.production_capacity = production_capacity
@@ -37,7 +43,7 @@ class Establishment(MapActor):
         self.overloaded_until: SimTime = int(self.now)
 
         self.order_requests: List[Order] = []
-        self.orders_accepted: List[Order] = []
+        self.orders_accepted: List[Order] = [] # TODO - O momento da adição do pedido nessa lista deveria ser core_event
         self.orders_rejected: List[Order] = []
 
         self.process(self.process_order_requests())
@@ -59,16 +65,18 @@ class Establishment(MapActor):
         self.accept_order(order) if accept else self.reject_order(order)
 
     def accept_order(self, order) -> None:
-        self.publish_event(EstablishmentAcceptedOrder(
+        event = EstablishmentAcceptedOrder(
             order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             time=self.now
-        ))
+        )
+        self.publish_event(event)
         estimated_time = self.estimate_preparation_time(order)
         order.establishment_accepted(self.now + estimated_time, self.now)
         self.update_overload_time(estimated_time)
         self.orders_accepted.append(order)
+        self.environment.add_core_event(event)
 
     def get_establishment_busy_time(self) -> SimTime:
         self.update_overload_time(0)
@@ -152,9 +160,11 @@ class Establishment(MapActor):
         self.publish_event(event)
         order.update_status(OrderStatus.READY)
         self.orders_in_preparation -= 1
+        self.update_overload_time(0)
+        print(f"\nPedido pronto no estabelecimento {self.establishment_id}: ")
+        print(order)
         if not self.use_estimate:
             self.environment.add_ready_order(order, event)
-        self.update_overload_time(0)
 
     def is_empty(self) -> bool:
         return self.orders_in_preparation == 0

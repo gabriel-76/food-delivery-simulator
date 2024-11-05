@@ -82,13 +82,13 @@ class DeliveryEnvState:
 
         if options.get("establishments", False):
             print("\nEstabelecimentos:")
-            for idx, establishment in enumerate(self.establishments, start=1):
-                print(f"Estabelecimento {idx}: Coordenadas = {establishment.coordinate}, Pedidos em preparação = {establishment.orders_in_preparation}, Tempo ocupado = {establishment.get_establishment_busy_time()}")
+            for _, establishment in enumerate(self.establishments):
+                print(f"Estabelecimento {establishment.establishment_id}: Coordenadas = {establishment.coordinate}, Pedidos em preparação = {establishment.orders_in_preparation}, Tempo ocupado = {establishment.get_establishment_busy_time()}")
 
         if options.get("drivers", False):
             print("\nMotoristas:")
-            for idx, driver in enumerate(self.drivers, start=1):
-                print(f"Motorista {idx}: Coordenadas = {driver.coordinate}, Status = {driver.status}")
+            for _, driver in enumerate(self.drivers):
+                print(f"Motorista {driver.driver_id}: Coordenadas = {driver.coordinate}, Status = {driver.status}")
 
         if options.get("orders", False):
             print("\nPedidos:")

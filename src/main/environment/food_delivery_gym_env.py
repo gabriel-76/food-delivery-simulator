@@ -111,13 +111,13 @@ class FoodDeliveryGymEnv(Env):
 
         last_time_step = self.simpy_env.now
 
+        # TODO - Mexer na lógica do core_event
         while (not terminated) and (not truncated) and (core_event is None):
             if self.simpy_env.state.orders_delivered < self.num_orders:
                 self.simpy_env.step()
                 self.render()
                 
                 if last_time_step < self.simpy_env.now:
-
                     self.print_enviroment_state()
                     last_time_step = self.simpy_env.now
 
@@ -129,6 +129,10 @@ class FoodDeliveryGymEnv(Env):
 
                 # Verifica o próximo evento principal
                 core_event = self.simpy_env.dequeue_core_event()
+
+                if core_event is not None:
+                    print('\n----> Novo pedido <----')
+                    print(core_event.order)
                 
                 # Verifica se atingiu o limite de tempo
                 if self.simpy_env.now >= self.max_time_step:

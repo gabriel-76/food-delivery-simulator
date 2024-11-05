@@ -17,6 +17,7 @@ class InitialDriverGenerator(InitialGenerator):
 
         drivers = [
             Driver(
+                id=i+1,
                 environment=env,
                 coordinate=env.map.random_point(),
                 desconsider_capacity=self.desconsider_capacity,
@@ -24,6 +25,6 @@ class InitialDriverGenerator(InitialGenerator):
                 available=True,
                 status=DriverStatus.AVAILABLE,
                 movement_rate=random.uniform(1, 10),
-            ) for _ in range(self.num_drivers)
+            ) for i in range(self.num_drivers)
         ]
         env.add_drivers(drivers)
