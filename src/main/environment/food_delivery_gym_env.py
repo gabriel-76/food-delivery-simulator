@@ -110,8 +110,7 @@ class FoodDeliveryGymEnv(Env):
         core_event = None
 
         last_time_step = self.simpy_env.now
-
-        # TODO - Mexer na lógica do core_event
+        
         while (not terminated) and (not truncated) and (core_event is None):
             if self.simpy_env.state.orders_delivered < self.num_orders:
                 self.simpy_env.step()

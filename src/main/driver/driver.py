@@ -153,9 +153,7 @@ class Driver(MapActor):
                 yield self.timeout(timeout)
                 self.process(self.picking_up(route_segment.order))
             if route_segment.is_delivery():
-                print(self.current_route.order.status)
                 print(f"Driver {self.driver_id} retirou o pedido no estabelecimento {self.current_route.order.establishment.establishment_id} no tempo {self.now}")
-                print(self.current_route.order.status)
                 timeout = self.time_between_picked_up_and_start_delivery()
                 yield self.timeout(timeout)
                 self.process(self.delivering(route_segment.order))
@@ -192,7 +190,10 @@ class Driver(MapActor):
     def picking_up(self, order: Order) -> ProcessGenerator:
         self.start_time_to_last_order = self.now
         self.status = DriverStatus.PICKING_UP
-        order.update_status(OrderStatus.PICKING_UP) # TODO: Erro aqui
+        if order.status == OrderStatus.PREPARING:
+            order.update_status(OrderStatus.PREPARING_AND_PICKING_UP)
+        else:
+            order.update_status(OrderStatus.PICKING_UP)
         self.publish_event(DriverPickingUpOrder(
             order=order,
             customer_id=order.customer.customer_id,

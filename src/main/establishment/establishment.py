@@ -43,7 +43,7 @@ class Establishment(MapActor):
         self.overloaded_until: SimTime = int(self.now)
 
         self.order_requests: List[Order] = []
-        self.orders_accepted: List[Order] = [] # TODO - O momento da adição do pedido nessa lista deveria ser core_event
+        self.orders_accepted: List[Order] = []
         self.orders_rejected: List[Order] = []
 
         self.process(self.process_order_requests())
