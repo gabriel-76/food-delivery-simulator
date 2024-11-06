@@ -62,6 +62,7 @@ class FoodDeliveryGymEnv(Env):
         # Espaço de Observação
         self.observation_space = Dict({
             'drivers_busy_time': Box(low=0, high=np.inf, shape=(self.num_drivers, 1), dtype=np.int32),
+            'time_to_drivers_complete_order': Box(low=0, high=np.inf, shape=(self.num_drivers, 1), dtype=np.int32),
             'remaining_orders': Discrete(self.num_orders + 1),
             'establishment_busy_time': Box(low=0, high=np.inf, shape=(self.num_establishments, 1), dtype=np.int32),
             'current_time_step': Discrete(max_time_step)
@@ -76,20 +77,26 @@ class FoodDeliveryGymEnv(Env):
         for i, driver in enumerate(self.simpy_env.state.drivers):
             drivers_busy_time[i] = driver.estimate_total_busy_time()
 
-        # 2. orders_remaining: Número de pedidos que faltam ser atribuidos a um motorista
+        # 2. time_to_drivers_complete_order: Tempo estimado para cada motorista completar o próximo pedido
+        time_to_drivers_complete_order = np.zeros((self.num_drivers, 1), dtype=np.int32)
+        for i, driver in enumerate(self.simpy_env.state.drivers):
+            time_to_drivers_complete_order[i] = driver.estimate_time_to_complete_next_order(self.last_order)
+
+        # 3. orders_remaining: Número de pedidos que faltam ser atribuidos a um motorista
         orders_remaining = self.num_orders - self.simpy_env.state.successfully_assigned_routes
 
-        # 3. establishment_next_order_ready_time: Tempo que falta para o próximo pedido em preparação de cada restaurante ficar pronto
+        # 4. establishment_next_order_ready_time: Tempo que falta para o próximo pedido em preparação de cada restaurante ficar pronto
         establishment_busy_time = np.zeros((self.num_establishments, 1), dtype=np.int32)
         for i, establishment in enumerate(self.simpy_env.state.establishments):
             establishment_busy_time[i] = establishment.get_establishment_busy_time()
 
-        # 4. current_time_step: O tempo atual da simulação (número do passo)
+        # 5. current_time_step: O tempo atual da simulação (número do passo)
         current_time_step = self.simpy_env.now
 
         # Criando a observação final no formato esperado
         obs = {
             'drivers_busy_time': drivers_busy_time,
+            'time_to_drivers_complete_order': time_to_drivers_complete_order,
             'remaining_orders': orders_remaining,
             'establishment_busy_time': establishment_busy_time,
             'current_time_step': current_time_step
@@ -204,6 +211,8 @@ class FoodDeliveryGymEnv(Env):
 
         core_event, terminated, truncated = self.advance_simulation_until_event()
 
+        self.last_order = core_event.order if core_event else None
+
         observation = self._get_obs()
         # print(f'observação: {observation}')
         assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
@@ -215,7 +224,6 @@ class FoodDeliveryGymEnv(Env):
             # print(f"reward: {reward}")
             return observation, reward, terminated, truncated, info
 
-        self.last_order = core_event.order if core_event else None
         reward = self.calculate_reward(selected_driver)
         # print(f"reward: {reward}")
 

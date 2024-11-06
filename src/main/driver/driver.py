@@ -64,7 +64,7 @@ class Driver(MapActor):
         self.current_route_segment: Optional[RouteSegment] = None
         self.total_distance: Number = 0
         self.route_requests: List[Route] = []
-        self.last_future_coordinate: Coordinate = None
+        self.last_future_coordinate: Coordinate = coordinate
 
         self.process(self.process_route_requests())
         self.process(self.move())
@@ -301,7 +301,7 @@ class Driver(MapActor):
         return self.environment.map.estimated_time(establishment_coordinates, customer_coordinates, self.movement_rate)
     
     def estimate_time_to_costumer_receive_order(self, order: Order) -> int:
-        return order.customer.time_to_receive_order(order)
+        return order.customer.time_to_receive_order()
 
     def estimate_total_busy_time(self) -> Number:
         total_busy_time = 0
@@ -363,3 +363,10 @@ class Driver(MapActor):
                 valid_coordinate = order.customer.coordinate
 
         return total_busy_time if total_busy_time > 0 else 0
+    
+    def estimate_time_to_complete_next_order(self, nextOrder: Order):
+        estimated_time = self.environment.map.estimated_time(self.last_future_coordinate, nextOrder.establishment.coordinate, self.movement_rate)
+        estimated_time += self.time_between_picked_up_and_start_delivery()
+        estimated_time += self.environment.map.estimated_time(nextOrder.establishment.coordinate, nextOrder.customer.coordinate, self.movement_rate)
+        estimated_time += self.estimate_time_to_costumer_receive_order(nextOrder)
+        return estimated_time
