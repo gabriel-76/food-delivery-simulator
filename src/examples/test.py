@@ -32,7 +32,7 @@ def main():
 
         # TODO - Motorista saiu pra buscar o pedido antes de ele entrar em preparação
         # TODO - Adicionar tempo em que o motorista levaria para entregar o novo ao novo cliente no observation space
-        # TODO - Adicionar um atributo ao driver para guaradar o último lugar que ele estaria e atualizá-lo
+        # TODO - Adicionar um atributo ao driver para guardar o último lugar que ele estaria e atualizá-lo
 
         estado : list[int] = gym_env.reset()
         print(f'estado inicial {estado}')

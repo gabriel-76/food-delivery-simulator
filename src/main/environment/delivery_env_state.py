@@ -88,7 +88,7 @@ class DeliveryEnvState:
         if options.get("drivers", False):
             print("\nMotoristas:")
             for _, driver in enumerate(self.drivers):
-                print(f"Motorista {driver.driver_id}: Coordenadas = {driver.coordinate}, Status = {driver.status}")
+                print(f"Motorista {driver.driver_id}: Coordenadas = {driver.coordinate}, Última coordenada futura = {driver.last_future_coordinate}, Status = {driver.status}")
 
         if options.get("orders", False):
             print("\nPedidos:")

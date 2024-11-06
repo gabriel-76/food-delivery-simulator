@@ -64,6 +64,7 @@ class Driver(MapActor):
         self.current_route_segment: Optional[RouteSegment] = None
         self.total_distance: Number = 0
         self.route_requests: List[Route] = []
+        self.last_future_coordinate: Coordinate = None
 
         self.process(self.process_route_requests())
         self.process(self.move())
@@ -101,6 +102,7 @@ class Driver(MapActor):
                 time=self.now
             ))
             self.accept_route_segments(self.current_route.route_segments)
+            self.last_future_coordinate = self.current_route.order.customer.coordinate
             self.process(self.sequential_processor())
         else:
             self.accepted_route_extension(route)
@@ -131,6 +133,7 @@ class Driver(MapActor):
             time=self.now
         ))
         self.accept_route_segments(route.route_segments)
+        self.last_future_coordinate = route.order.customer.coordinate
 
     def sequential_processor(self) -> ProcessGenerator:
         # Faz o motorista esperar o pedido estar pronto

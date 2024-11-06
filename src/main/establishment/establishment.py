@@ -132,7 +132,7 @@ class Establishment(MapActor):
     def process_accepted_orders(self) -> ProcessGenerator:
         while True:
             while len(self.orders_accepted) > 0 and self.is_within_capacity():
-                self.orders_in_preparation += 1
+                self.orders_in_preparation += 1 # TODO: O Motorista sai para buscar o pedido antes de entrar em preparação porque o pedido foi aceito antes de ser preparado
                 order = self.orders_accepted.pop(0)
                 self.process(self.prepare_order(order))
             yield self.timeout(self.time_check_to_start_preparation())
