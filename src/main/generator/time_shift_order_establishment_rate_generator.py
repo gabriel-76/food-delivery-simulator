@@ -17,6 +17,9 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
 
         # TODO - Remover hash timeout e deixar o restaurante aceitar todos os pedidos
 
+        # Hash timemout -> tem a função de garantir que um estabelecimento não tenha um novo pedido antes da sua taxa de pedido
+        # garantindo uma distribuição mais realista
+
         if establishment.establishment_id not in self.hash_timeout or self.hash_timeout[establishment.establishment_id] <= env.now:
 
             customer = Customer(
