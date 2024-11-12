@@ -30,8 +30,6 @@ def main():
         # Verificar se o ambiente está implementado corretamente
         # check_env(gym_env, warn=True)
 
-        # TODO - Motorista saiu pra buscar o pedido antes de ele entrar em preparação
-
         estado : list[int] = gym_env.reset()
         print(f'estado inicial {estado}')
 

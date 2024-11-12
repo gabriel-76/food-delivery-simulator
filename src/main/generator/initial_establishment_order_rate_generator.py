@@ -25,7 +25,7 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
                 coordinate=env.map.random_point(),
                 available=True,
                 catalog=catalog,
-                production_capacity=np.inf,
+                production_capacity=1,
                 use_estimate=self.use_estimate,
                 order_request_time_rate=random.uniform(5.0, 10.0),
                 order_production_time_rate=random.uniform(5.0, 10.0),

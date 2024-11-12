@@ -30,4 +30,4 @@ class EstablishmentOrderRate(Establishment):
         return time_to_prepare
 
     def time_estimate_to_prepare_order(self, order):
-        return self.overloaded_until + self.time_to_prepare_order(order)
+        return self.time_to_prepare_order(order)

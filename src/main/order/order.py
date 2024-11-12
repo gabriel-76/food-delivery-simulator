@@ -22,6 +22,7 @@ class Order:
         self.items = items
         self.status: OrderStatus = OrderStatus.CREATED
         self.time_preparation_started = 0
+        self.estimated_time_to_prepare = 0
         self.estimated_time_to_ready = 0
         self.time_it_was_ready = None
         self.required_capacity = self.calculate_required_capacity()
@@ -36,9 +37,10 @@ class Order:
     def update_status(self, status: OrderStatus):
         self.status = status
 
-    def establishment_accepted(self, estimated_time_to_ready: int, now):
+    def establishment_accepted(self, now, estimated_time_to_prepare: int, estimated_time_to_ready: int):
         self.status = OrderStatus.ESTABLISHMENT_ACCEPTED
         self.time_preparation_started = now
+        self.estimated_time_to_prepare = estimated_time_to_prepare
         self.estimated_time_to_ready = estimated_time_to_ready
 
     def add_delivery_rejection(self, delivery_rejection: DeliveryRejection):
@@ -50,6 +52,7 @@ class Order:
             f"Restaurante: {self.establishment.establishment_id}\n"
             f"Status: {self.status.name}\n"
             f"Tempo em que a preparação começou: {self.time_preparation_started}\n"
+            f"Tempo estimado de preparação: {self.estimated_time_to_prepare}\n"
             f"Tempo estimado para ficar pronto: {self.estimated_time_to_ready}\n"
             f"Tempo em que ficou pronto: {self.time_it_was_ready}\n"
         )

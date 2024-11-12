@@ -40,7 +40,10 @@ class Establishment(MapActor):
         self.production_capacity = production_capacity
         self.use_estimate = use_estimate
         self.orders_in_preparation: int = 0
-        self.overloaded_until: SimTime = int(self.now)
+        
+        self.overloaded_until = 0
+        self.current_order_duration = 0
+        self.order_list_duration = 0
 
         self.order_requests: List[Order] = []
         self.orders_accepted: List[Order] = []
@@ -73,37 +76,29 @@ class Establishment(MapActor):
         )
         self.publish_event(event)
         estimated_time = self.estimate_preparation_time(order)
-        order.establishment_accepted(self.now + estimated_time, self.now)
         self.update_overload_time(estimated_time)
+        order.establishment_accepted(self.now, estimated_time, self.overloaded_until)
         self.orders_accepted.append(order)
         self.environment.add_core_event(event)
 
     def get_establishment_busy_time(self) -> SimTime:
-        self.update_overload_time(0)
+        self.update_overload_time()
         establishment_busy_time = self.overloaded_until - self.now
         return establishment_busy_time
 
-    def update_overload_time(self, estimated_time) -> None:
-        env_now = self.now
-        #   Se o restaurante está vazio, ele ajusta o tempo de sobrecarga para ser pelo menos o tempo atual, pois o restaurante 
-        # não está mais processando pedidos.
-        if self.is_empty():
-            self.overloaded_until = env_now + estimated_time
-        #   Se o restaurante está dentro de sua capacidade, o tempo de sobrecarga é ajustado com base no tempo de preparação do 
-        # pedido atual.
-        elif self.is_within_capacity():
-            # Atualiza self.overloaded_until para refletir o tempo atual mais o tempo necessário para processar o pedido.
-            self.overloaded_until = env_now + max(self.overloaded_until - env_now, estimated_time)
-        else:
-            batch_size = len(self.orders_accepted) // self.production_capacity
-            #   Atualiza o tempo de sobrecarga, considerando o número de lotes a serem processados. Multiplica-se o tempo estimado 
-            # de preparação pelo tamanho do lote para garantir que a sobrecarga reflita a carga adicional de pedidos.
-            self.overloaded_until = env_now + max(self.overloaded_until - env_now, batch_size * estimated_time)
+    def update_overload_time(self, estimated_time = None) -> None:
+        if estimated_time is not None:
+            if self.is_empty():
+                if self.order_list_duration != 0:
+                    self.order_list_duration -= estimated_time
 
-        # print(f"{self.now} "
-        #       f"full_until_time = {self.full_until_time} "
-        #       f"orders_in_preparation = {self.orders_in_preparation} "
-        #       f"order_waiting = {len(self.confirmed_orders.items)} ")
+                self.current_order_duration = estimated_time
+            else:
+                self.order_list_duration += estimated_time + self.time_check_to_start_preparation()
+
+            self.overloaded_until = self.now + self.current_order_duration + self.order_list_duration
+        else:
+            self.overloaded_until = max(self.overloaded_until, self.now)
 
     def estimate_preparation_time(self, order) -> SimTime:
         estimated_time = self.time_estimate_to_prepare_order(order)
@@ -132,10 +127,11 @@ class Establishment(MapActor):
     def process_accepted_orders(self) -> ProcessGenerator:
         while True:
             while len(self.orders_accepted) > 0 and self.is_within_capacity():
-                self.orders_in_preparation += 1 # TODO: O Motorista sai para buscar o pedido antes de entrar em preparação porque o pedido foi aceito antes de ser preparado
                 order = self.orders_accepted.pop(0)
+                self.update_overload_time(order.estimated_time_to_prepare)
+                self.orders_in_preparation += 1 # TODO: O Motorista sai para buscar o pedido antes de entrar em preparação porque o pedido foi aceito antes de ser preparado
                 self.process(self.prepare_order(order))
-            yield self.timeout(self.time_check_to_start_preparation())
+            yield self.timeout(self.time_check_to_start_preparation()) # TODO: Mostrar isso ao Julio
 
     def prepare_order(self, order) -> ProcessGenerator:
         self.publish_event(EstablishmentPreparingOrder(
@@ -160,7 +156,7 @@ class Establishment(MapActor):
         self.publish_event(event)
         order.update_status(OrderStatus.READY)
         self.orders_in_preparation -= 1
-        self.update_overload_time(0)
+        self.current_order_duration = 0
         print(f"\nPedido pronto no estabelecimento {self.establishment_id}: ")
         print(order)
         if not self.use_estimate:
