@@ -15,12 +15,7 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
 
     def process_establishment(self, env: FoodDeliverySimpyEnv, establishment):
 
-        # TODO - Remover hash timeout e deixar o restaurante aceitar todos os pedidos
-
-        # Hash timemout -> tem a função de garantir que um estabelecimento não tenha um novo pedido antes da sua taxa de pedido
-        # garantindo uma distribuição mais realista
-
-        if establishment.establishment_id not in self.hash_timeout or self.hash_timeout[establishment.establishment_id] <= env.now:
+        if establishment.establishment_id:
 
             customer = Customer(
                 environment=env,
@@ -42,18 +37,12 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
 
             customer.place_order(order, establishment)
 
-            timeout = round(random.expovariate(1 / establishment.order_request_time_rate))
-            # print("generated in time", env.now, timeout)
-
-            self.hash_timeout[establishment.establishment_id] = env.now + max(timeout, 1)
-
     def run(self, env: FoodDeliverySimpyEnv):
         for _ in self.range(env):
             # Verificar se o número de pedidos foi atingido
             if self.max_orders and (env.state.get_length_orders() >= self.max_orders):
+                print(f'Número máximo de pedidos atingido: {self.max_orders}')
                 return
-            # for establishment in env.state.establishments:
-            #     self.process_establishment(env, establishment)
 
             establishment = random.choice(env.state.establishments)
             self.process_establishment(env, establishment)

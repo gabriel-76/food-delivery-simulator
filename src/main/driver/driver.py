@@ -195,7 +195,7 @@ class Driver(MapActor):
         self.status = DriverStatus.PICKING_UP
         if order.status == OrderStatus.PREPARING:
             order.update_status(OrderStatus.PREPARING_AND_PICKING_UP)
-        else:
+        elif order.status != OrderStatus.READY:
             order.update_status(OrderStatus.PICKING_UP)
         self.publish_event(DriverPickingUpOrder(
             order=order,
@@ -365,6 +365,9 @@ class Driver(MapActor):
         return total_busy_time if total_busy_time > 0 else 0
     
     def estimate_time_to_complete_next_order(self, nextOrder: Order):
+        if nextOrder == None:   # TODO: Verificar com o Julio se devo adicionar essa verificação no método estimate_total_busy_time
+            return 0
+
         estimated_time = self.environment.map.estimated_time(self.last_future_coordinate, nextOrder.establishment.coordinate, self.movement_rate)
         estimated_time += self.time_between_picked_up_and_start_delivery()
         estimated_time += self.environment.map.estimated_time(nextOrder.establishment.coordinate, nextOrder.customer.coordinate, self.movement_rate)

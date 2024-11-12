@@ -24,7 +24,7 @@ def main():
             desconsider_capacity=True, 
             max_time_step=MAX_TIME_STEP, 
             reward_objective=1,
-            # render_mode='human'
+            render_mode='human'
         )
 
         # Verificar se o ambiente está implementado corretamente

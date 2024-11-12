@@ -33,7 +33,7 @@ class Customer(MapActor):
         order.update_status(OrderStatus.PLACED)
 
     def receive_order(self, order: Order, driver: Driver) -> ProcessGenerator:
-        yield self.timeout(self.time_to_receive_order(order))
+        yield self.timeout(self.time_to_receive_order())
         self.publish_event(CustomerReceivedOrder(
             order=order,
             customer_id=self.customer_id,
