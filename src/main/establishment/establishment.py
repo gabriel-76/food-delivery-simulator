@@ -82,21 +82,41 @@ class Establishment(MapActor):
         self.environment.add_core_event(event)
 
     def get_establishment_busy_time(self) -> SimTime:
+        # É necessário verificar se tempo de ocupação é pelo menos o momento atual para evitar valores negativos
         self.update_overload_time()
         establishment_busy_time = self.overloaded_until - self.now
         return establishment_busy_time
 
     def update_overload_time(self, estimated_time = None) -> None:
+        # Se uma estimativa é passada, ela é usada para calcular o tempo de sobrecarga
         if estimated_time is not None:
+
+            # Se o estabelecimento estiver vazio, o tempo de preparação do pedido atual é atualizado
             if self.is_empty():
+
+                #   Se o tempo de preparação do pedido atual for diferente de 0 siginifica que esse é primeiro pedido 
+                # a ser preparado ou primeiro pedido depois de algum tempo que restaurante ficou vazio
+                #   Dessa forma não é necessário redefinir a duração do pedido atual
+                if self.current_order_duration != 0:
+                    # Garantindo que o tempo de sobrecarga não seja menor que o tempo atual
+                    self.overloaded_until = max(self.overloaded_until, self.now)
+                    return
+
+                #   Se a duração do pedido atual é igual a 0 e a duração dos pedidos da lista de pedidos aceitos for diferente
+                # de 0, significa que o restaurante preparou um pedido e está pronto para preparar o próximo, dessa forma, 
+                # é necessário subtrair a estimativa
                 if self.order_list_duration != 0:
                     self.order_list_duration -= estimated_time
 
                 self.current_order_duration = estimated_time
+            
+            # Se o estabelecimento não estiver vazio, o estimativa é adicionada a duração da lista de pedidos aceitos
             else:
                 self.order_list_duration += estimated_time
 
             self.overloaded_until = self.now + self.current_order_duration + self.order_list_duration
+        
+        # Se nenhuma estimativa é passada, o tempo de sobrecarga é atualizado com o tempo atual
         else:
             self.overloaded_until = max(self.overloaded_until, self.now)
 
