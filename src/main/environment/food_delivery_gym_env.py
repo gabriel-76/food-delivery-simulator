@@ -27,7 +27,7 @@ from src.main.view.grid_view_pygame import GridViewPygame
 class FoodDeliveryGymEnv(Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, grid_map_size=100, use_estimate=True, desconsider_capacity=True, max_time_step=10000, reward_objective=1, seed=None, render_mode=None):
+    def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, function, time_shift, grid_map_size=100, use_estimate=True, desconsider_capacity=True, max_time_step=10000, reward_objective=1, seed=None, render_mode=None):
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
         self.num_orders = num_orders
@@ -42,7 +42,7 @@ class FoodDeliveryGymEnv(Env):
             generators=[
                 InitialEstablishmentOrderRateGenerator(self.num_establishments, use_estimate=use_estimate),
                 InitialDriverGenerator(self.num_drivers, desconsider_capacity=desconsider_capacity),
-                TimeShiftOrderEstablishmentRateGenerator(lambda time: 1, time_shift=4, max_orders=self.num_orders),
+                TimeShiftOrderEstablishmentRateGenerator(function, time_shift=time_shift, max_orders=self.num_orders),
             ],
             optimizer=None,
             view=GridViewPygame() if self.render_mode == "human" else None

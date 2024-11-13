@@ -6,11 +6,13 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
 
 NUM_DRIVERS = 10
-NUM_ORDERS = 20
+NUM_ORDERS = 10
 NUM_ESTABLISHMENTS = 10
 NUM_COSTUMERS = NUM_ORDERS
 MAX_TIME_STEP = 100000
 SEED = 101010
+FUNCTION = lambda time: 3
+TIME_SHIFT = 8
 
 def main():
     try:
@@ -24,7 +26,8 @@ def main():
             desconsider_capacity=True, 
             max_time_step=MAX_TIME_STEP, 
             reward_objective=1,
-            render_mode='human'
+            function=FUNCTION,
+            time_shift=TIME_SHIFT
         )
 
         # Verificar se o ambiente está implementado corretamente

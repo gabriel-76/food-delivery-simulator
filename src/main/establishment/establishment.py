@@ -75,7 +75,7 @@ class Establishment(MapActor):
             time=self.now
         )
         self.publish_event(event)
-        estimated_time = self.estimate_preparation_time(order)
+        estimated_time = self.estimate_preparation_time(order) + self.time_check_to_start_preparation()
         self.update_overload_time(estimated_time)
         order.establishment_accepted(self.now, estimated_time, self.overloaded_until)
         self.orders_accepted.append(order)
@@ -94,7 +94,7 @@ class Establishment(MapActor):
 
                 self.current_order_duration = estimated_time
             else:
-                self.order_list_duration += estimated_time + self.time_check_to_start_preparation()
+                self.order_list_duration += estimated_time
 
             self.overloaded_until = self.now + self.current_order_duration + self.order_list_duration
         else:
