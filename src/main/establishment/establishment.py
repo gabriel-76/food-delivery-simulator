@@ -87,32 +87,36 @@ class Establishment(MapActor):
         establishment_busy_time = self.overloaded_until - self.now
         return establishment_busy_time
 
-    def update_overload_time(self, estimated_time = None) -> None:
-        # Se uma estimativa é passada, ela é usada para calcular o tempo de sobrecarga
+    def update_overload_time(self, estimated_time = None, calledInProcessAcceptedOrders = False) -> None:
+        # Se uma estimativa é passada, ela é usada para calcular o tempo de ocupação
         if estimated_time is not None:
 
-            # Se o estabelecimento estiver vazio, o tempo de preparação do pedido atual é atualizado
-            if self.is_empty():
+            # Se esse método for chamado dentro do método process_accepted_orders
+            if calledInProcessAcceptedOrders:
 
-                #   Se o tempo de preparação do pedido atual for diferente de 0 siginifica que esse é primeiro pedido 
-                # a ser preparado ou primeiro pedido depois de algum tempo que restaurante ficou vazio
-                #   Dessa forma não é necessário redefinir a duração do pedido atual
-                if self.current_order_duration != 0:
-                    # Garantindo que o tempo de sobrecarga não seja menor que o tempo atual
+                #   Garantimos que as durações sejam atualizadas somente se o restaurante estiver vazio e com a duração 
+                # do pedido atual igual a 0, pois se a duração do pedido atual é diferente de 0, significa que esse é o 
+                # primeiro pedido ou o primeiro pedido depois certo tempo vazio
+                if self.is_empty() and self.current_order_duration == 0:
+
+                    if self.order_list_duration != 0:
+                        self.order_list_duration -= estimated_time
+
+                    self.current_order_duration = estimated_time
+
+                else:
                     self.overloaded_until = max(self.overloaded_until, self.now)
                     return
 
-                #   Se a duração do pedido atual é igual a 0 e a duração dos pedidos da lista de pedidos aceitos for diferente
-                # de 0, significa que o restaurante preparou um pedido e está pronto para preparar o próximo, dessa forma, 
-                # é necessário subtrair a estimativa
-                if self.order_list_duration != 0:
-                    self.order_list_duration -= estimated_time
-
-                self.current_order_duration = estimated_time
-            
-            # Se o estabelecimento não estiver vazio, o estimativa é adicionada a duração da lista de pedidos aceitos
+            #   Se esse método for chamado fora do método process_accepted_orders só irá atualizar a duração do pedido atual 
+            # caso seja o primeiro pedido ou o primeiro pedido depois certo tempo vazio
+            #   Além disso a estimativa só será adicionada na duração da lista de pedidos aceitos se for chamado fora do método
+            # process_accepted_orders
             else:
-                self.order_list_duration += estimated_time
+                if self.is_empty() and self.order_list_duration != 0:
+                    self.current_order_duration = estimated_time
+                else:
+                    self.order_list_duration += estimated_time
 
             self.overloaded_until = self.now + self.current_order_duration + self.order_list_duration
         
@@ -148,7 +152,7 @@ class Establishment(MapActor):
         while True:
             while len(self.orders_accepted) > 0 and self.is_within_capacity():
                 order = self.orders_accepted.pop(0)
-                self.update_overload_time(order.estimated_time_to_prepare)
+                self.update_overload_time(order.estimated_time_to_prepare, True)
                 self.orders_in_preparation += 1 # TODO: O Motorista sai para buscar o pedido antes de entrar em preparação porque o pedido foi aceito antes de ser preparado
                 self.process(self.prepare_order(order))
             yield self.timeout(self.time_check_to_start_preparation()) # TODO: Mostrar isso ao Julio
