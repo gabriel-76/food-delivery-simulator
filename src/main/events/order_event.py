@@ -2,9 +2,9 @@ from src.main.events.event import Event
 
 
 class OrderEvent(Event):
-    def __init__(self, order_id, customer_id, establishment_id, time, event_type):
+    def __init__(self, order, customer_id, establishment_id, time, event_type):
         super().__init__(time, event_type)
-        self.order_id = order_id
+        self.order = order
         self.customer_id = customer_id
         self.establishment_id = establishment_id
 

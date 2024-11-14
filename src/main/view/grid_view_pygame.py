@@ -1,15 +1,16 @@
 import pygame
 
 from src.main.driver.driver_status import DriverStatus
+from src.main.customer.custumer_status import CustumerStatus
 from src.main.view.food_delivery_view import FoodDeliveryView
 
 # Definindo cores
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 GREEN = (0, 255, 0)
+GRAY = (137, 137, 137)
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
-
 
 def map_coordinate(value, min_val, max_val, min_screen, max_screen):
     return min_screen + (value - min_val) * (max_screen - min_screen) / (max_val - min_val)
@@ -17,7 +18,7 @@ def map_coordinate(value, min_val, max_val, min_screen, max_screen):
 
 class GridViewPygame(FoodDeliveryView):
 
-    def __init__(self, window_size=(800, 600), fps=30):
+    def __init__(self, window_size=(900, 700), fps=30):
         super().__init__(window_size, fps)
         pygame.init()
         pygame.display.init()
@@ -28,9 +29,52 @@ class GridViewPygame(FoodDeliveryView):
     def coordinate(self, coordinate):
         return (map_coordinate(coordinate[0], self.min_x, self.max_x, 0, self.window_size[0]),
                 map_coordinate(coordinate[1], self.min_y, self.max_y, 0, self.window_size[1]))
+    
+    def draw_grid(self, canvas, color=GRAY):
+        # Desenha a grade
+        grid_size_x = self.window_size[0] // 100
+        grid_size_y = self.window_size[1] // 100
+
+        for x in range(0, self.window_size[0], grid_size_x):
+            pygame.draw.line(canvas, color, (x, 0), (x, self.window_size[1]), 1)
+        for y in range(0, self.window_size[1], grid_size_y):
+            pygame.draw.line(canvas, color, (0, y), (self.window_size[0], y), 1)
+    
+    def draw_driver(self, canvas, mapped_x, mapped_y):
+        # Corpo do carro
+        car_length = 18
+        car_height = 6
+        pygame.draw.rect(canvas, RED, (mapped_x - car_length // 2, mapped_y - car_height // 2, car_length, car_height), border_radius=3)
+
+        # Rodas do carro
+        wheel_radius = 2
+        pygame.draw.circle(canvas, BLACK, (mapped_x - car_length // 3, mapped_y + car_height // 2), wheel_radius)
+        pygame.draw.circle(canvas, BLACK, (mapped_x + car_length // 3, mapped_y + car_height // 2), wheel_radius)
+
+        # Teto do carro
+        top_width = 8
+        top_height = 4.5
+        pygame.draw.rect(canvas, BLACK, (mapped_x - top_width // 2, mapped_y - top_height, top_width, top_height))
+
+
+    def draw_establishment(self, canvas, mapped_x, mapped_y):
+        # Corpo do restaurante
+        house_size = 15
+        pygame.draw.rect(canvas, GREEN, (mapped_x - house_size // 2, mapped_y - house_size // 2, house_size, house_size))
+
+        # Telhado da restaurante
+        pygame.draw.polygon(canvas, GREEN, [(mapped_x, mapped_y - house_size),
+                                            (mapped_x - house_size // 2, mapped_y - house_size // 2),
+                                            (mapped_x + house_size // 2, mapped_y - house_size // 2)])
+
+    def draw_customer(self, canvas, mapped_x, mapped_y):
+        # Corpo (círculo) do cliente
+        pygame.draw.circle(canvas, BLUE, (int(mapped_x), int(mapped_y)), 5)
+        # Pequeno "pino" embaixo do cliente
+        pygame.draw.line(canvas, BLUE, (mapped_x, mapped_y + 5), (mapped_x, mapped_y + 10), 2)
+
 
     def render(self, environment):
-
         self.quited = False
 
         for event in pygame.event.get():
@@ -44,27 +88,33 @@ class GridViewPygame(FoodDeliveryView):
 
         canvas.fill(WHITE)
 
-        for customer in environment.state.customers:
-            mapped_x, mapped_y = self.coordinate(customer.coordinate)
-            pygame.draw.circle(canvas, BLUE, (int(mapped_x), int(mapped_y)), 5)
+        self.draw_grid(canvas)
 
+        # Desenhar os clientes
+        for customer in environment.state.customers:
+            if customer.status == CustumerStatus.WAITING_DELIVERY:
+                mapped_x, mapped_y = self.coordinate(customer.coordinate)
+                self.draw_customer(canvas, mapped_x, mapped_y)
+
+        # Desenhar os estabelecimentos
         for establishment in environment.state.establishments:
             mapped_x, mapped_y = self.coordinate(establishment.coordinate)
-            pygame.draw.circle(canvas, GREEN, (int(mapped_x), int(mapped_y)), 5)
+            self.draw_establishment(canvas, mapped_x, mapped_y)
 
             if hasattr(establishment, "operating_radius"):
                 operating_radius_mapped = map_coordinate(establishment.operating_radius, 0, 100, 0, min(self.window_size))
                 pygame.draw.circle(canvas, GREEN, (int(mapped_x), int(mapped_y)), int(operating_radius_mapped), 1)
 
+        # Desenhar os motoristas
         for driver in environment.state.drivers:
             mapped_x, mapped_y = self.coordinate(driver.coordinate)
-            pygame.draw.circle(canvas, RED, (int(mapped_x), int(mapped_y)), 5)
+            self.draw_driver(canvas, mapped_x, mapped_y)
+
             if driver.status in [DriverStatus.PICKING_UP, DriverStatus.DELIVERING]:
                 target_mapped_x, target_mapped_y = self.coordinate(driver.current_route_segment.coordinate)
                 pygame.draw.line(canvas, RED, (mapped_x, mapped_y), (target_mapped_x, target_mapped_y), 2)
 
         self.screen.blit(canvas, canvas.get_rect())
-        # pygame.event.pump()
         pygame.display.update()
         self.clock.tick(self.fps)
 

@@ -10,11 +10,12 @@ class Route:
     def __init__(self, environment: FoodDeliverySimpyEnv, route_segments: List[RouteSegment]):
         self.route_id = uuid.uuid4()
         self.environment = environment
+        self.order = route_segments[0].order
         self.route_segments = route_segments
         self.required_capacity = self.calculate_required_capacity()
         self.distance = self.calculate_total_distance()
 
-    def calculate_required_capacity(self):    #TODO: Está considerando o peso do item 2 vezes?
+    def calculate_required_capacity(self):
         dimensions = Dimensions(0, 0, 0, 0)
         for route_segment in self.route_segments:
             dimensions += route_segment.required_capacity

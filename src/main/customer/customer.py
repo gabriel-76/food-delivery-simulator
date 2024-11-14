@@ -11,17 +11,20 @@ from src.main.events.customer_placed_order import CustomerPlacedOrder
 from src.main.events.customer_received_order import CustomerReceivedOrder
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
+from src.main.customer.custumer_status import CustumerStatus
 from src.main.establishment.establishment import Establishment
 
 
 class Customer(MapActor):
-    def __init__(self, environment: FoodDeliverySimpyEnv, coordinate: Coordinate, available: bool) -> None:
+    def __init__(self, environment: FoodDeliverySimpyEnv, coordinate: Coordinate, available: bool, single_order: bool = False) -> None:
         self.customer_id = uuid.uuid4()
+        self.single_order = single_order
+        self.status = CustumerStatus.WAITING_DELIVERY
         super().__init__(environment, coordinate, available)
 
     def place_order(self, order: Order, establishment: Establishment) -> None:
         self.publish_event(CustomerPlacedOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=self.customer_id,
             establishment_id=establishment.establishment_id,
             time=self.now
@@ -30,16 +33,20 @@ class Customer(MapActor):
         order.update_status(OrderStatus.PLACED)
 
     def receive_order(self, order: Order, driver: Driver) -> ProcessGenerator:
-        yield self.timeout(self.time_to_receive_order(order))
+        yield self.timeout(self.time_to_receive_order())
         self.publish_event(CustomerReceivedOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=self.customer_id,
             establishment_id=order.establishment.establishment_id,
             driver_id=driver.driver_id,
             time=self.now
         ))
+
+        if self.single_order:
+            self.status = CustumerStatus.DELIVERED
+
         order.update_status(OrderStatus.RECEIVED)
 
-    def time_to_receive_order(self, order: Order):
+    def time_to_receive_order(self):
         return random.randrange(2, 10)
 

@@ -43,3 +43,7 @@ class Dimensions:
     @property
     def volume(self) -> Number:
         return self.length * self.height * self.width
+
+    @property
+    def value(self) -> Number:
+        return self.volume * self.weight

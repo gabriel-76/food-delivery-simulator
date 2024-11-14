@@ -8,13 +8,14 @@ from src.main.order.order import Order
 
 
 class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
-    def __init__(self, function, time_shift=1):
+    def __init__(self, function, time_shift=1, max_orders=None):
         super().__init__(function, time_shift)
         self.hash_timeout = {}
+        self.max_orders = max_orders
 
     def process_establishment(self, env: FoodDeliverySimpyEnv, establishment):
 
-        if establishment.establishment_id not in self.hash_timeout or self.hash_timeout[establishment.establishment_id] == env.now:
+        if establishment.establishment_id:
 
             customer = Customer(
                 environment=env,
@@ -23,7 +24,8 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
                     establishment.operating_radius,
                     env.map.size
                 ),
-                available=True
+                available=True,
+                single_order=True
             )
 
             items = random.sample(establishment.catalog.items, 2)
@@ -35,12 +37,13 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
 
             customer.place_order(order, establishment)
 
-            timeout = round(random.expovariate(1 / establishment.order_request_time_rate))
-            # print("generated in time", env.now, timeout)
-
-            self.hash_timeout[establishment.establishment_id] = env.now + max(timeout, 1)
-
     def run(self, env: FoodDeliverySimpyEnv):
         for _ in self.range(env):
-            for establishment in env.state.establishments:
-                self.process_establishment(env, establishment)
+            # Verificar se o número de pedidos foi atingido
+            if self.max_orders and (env.state.get_length_orders() >= self.max_orders):
+                print(f'Número máximo de pedidos atingido: {self.max_orders}')
+                return
+
+            establishment = random.choice(env.state.establishments)
+            #establishment = env.state.establishments[2]
+            self.process_establishment(env, establishment)

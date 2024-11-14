@@ -31,7 +31,14 @@ class Optimizer(TimeShiftGenerator, ABC):
             if driver is not None:
                 driver.receive_route_requests(route)
             else:
-                env.add_rejected_delivery(order, OptimizationDeliveryRejection(env.now))
+                event = OptimizationDeliveryRejection(
+                    order_id=order.order_id,
+                    customer_id=order.customer.customer_id,
+                    establishment_id=order.establishment.establishment_id,
+                    time=self.env.now
+                )
+                self._environment.add_event(event)
+                env.add_rejected_delivery(order, OptimizationDeliveryRejection(env.now), event)
 
     def optimize(self, env: FoodDeliverySimpyEnv):
         orders = env.get_ready_orders()

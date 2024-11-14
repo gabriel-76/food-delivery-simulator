@@ -13,9 +13,9 @@ class SimpleCostFunction(CostFunction):
         self.MAX_PENALTY = float('inf')
 
     def penalty(self, route_segment: RouteSegment):
-        if route_segment.is_pickup() and route_segment.order.status <= OrderStatus.DRIVER_ACCEPTED:
+        if route_segment.is_pickup() and route_segment.order.status <= OrderStatus.DRIVER_ACCEPTED:  # TODO: Checar sequência de prioridade de status na classe OrderStatus
             return 0
-        if route_segment.is_delivery() and route_segment.order.status <= OrderStatus.PICKED_UP:
+        if route_segment.is_delivery() and route_segment.order.status <= OrderStatus.PICKED_UP: # TODO: Checar sequência de prioridade de status na classe OrderStatus
             return 0
         return self.MAX_PENALTY
 

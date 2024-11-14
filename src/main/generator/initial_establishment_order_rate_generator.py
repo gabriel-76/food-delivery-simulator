@@ -1,5 +1,7 @@
 import random
 
+import numpy as np
+
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.initial_generator import InitialGenerator
@@ -18,16 +20,17 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
         catalog = Catalog([Item(f"type_{i}", dimension, 4) for i in range(5)])
         establishment = [
             EstablishmentOrderRate(
+                id=i+1,
                 environment=env,
                 coordinate=env.map.random_point(),
                 available=True,
                 catalog=catalog,
-                production_capacity=float('inf'),
+                production_capacity=1,
                 use_estimate=self.use_estimate,
                 order_request_time_rate=random.uniform(5.0, 10.0),
                 order_production_time_rate=random.uniform(5.0, 10.0),
                 operating_radius=random.randint(5, 30),
             )
-            for _ in range(self.num_establishments)
+            for i in range(self.num_establishments)
         ]
         env.add_establishments(establishment)

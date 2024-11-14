@@ -1,5 +1,7 @@
-from typing import Optional, Union
+from typing import List, Optional, Union
 
+import numpy as np
+import random
 from simpy import Environment, Event
 from simpy.core import SimTime
 
@@ -18,6 +20,20 @@ class FoodDeliverySimpyEnv(Environment):
         self.view = view
         self._state = DeliveryEnvState()
         self.init()
+
+        self.core_events: List[Event] = []
+
+    def add_core_event(self, event):
+        self.core_events.append(event)
+    
+    def dequeue_core_event(self):
+        if self.core_events:
+            return self.core_events.pop(0)
+        else:
+            return None
+    
+    def clear_core_events(self):
+        self.core_events.clear()
 
     @property
     def events(self):
@@ -39,7 +55,7 @@ class FoodDeliverySimpyEnv(Environment):
     def available_drivers(self, route):
         return [driver for driver in self._state.drivers if driver.check_availability(route)]
 
-    def add_ready_order(self, order):
+    def add_ready_order(self, order, event):
         self._state.orders_awaiting_delivery.append(order)
 
     def get_ready_orders(self):
@@ -52,7 +68,7 @@ class FoodDeliverySimpyEnv(Environment):
     def count_ready_orders(self):
         return len(self._state.orders_awaiting_delivery)
 
-    def add_rejected_delivery(self, order, delivery_rejection: DeliveryRejection):
+    def add_rejected_delivery(self, order, delivery_rejection: DeliveryRejection, event):
         order.add_delivery_rejection(delivery_rejection)
         self._state.orders_awaiting_delivery.append(order)
 
@@ -91,6 +107,13 @@ class FoodDeliverySimpyEnv(Environment):
         if self.view is not None and self.view.quited:
             self.view.quit()
 
+    def step(self, render_mode=None):
+        super().step()
+        if render_mode == "human" and self.view is not None:
+            self.view.render(self)
+            if self.view.quited:
+                self.view.quit()
+
     def render(self):
         if self.view is not None and not self.view.quited:
             self.view.render(self)
@@ -98,3 +121,11 @@ class FoodDeliverySimpyEnv(Environment):
     def close(self):
         if self.view is not None and not self.view.quited:
             self.view.quit()
+
+    def seed(self, seed: Optional[int] = None):
+        if seed is not None:
+            np.random.seed(seed)
+            random.seed(seed)
+
+    def print_enviroment_state(self, options):
+        self._state.print_state(options)

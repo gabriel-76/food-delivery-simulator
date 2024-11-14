@@ -25,16 +25,25 @@ class Establishment(MapActor):
             coordinate: Coordinate,
             available: bool,
             catalog: Catalog,
+            id: Number = None,
             production_capacity: Number = float('inf'),
             use_estimate: bool = False
     ) -> None:
-        self.establishment_id = uuid.uuid4()
+        
+        if id is not None:
+            self.establishment_id = id
+        else:
+            self.establishment_id = uuid.uuid4()
+            
         super().__init__(environment, coordinate, available)
         self.catalog = catalog
         self.production_capacity = production_capacity
         self.use_estimate = use_estimate
         self.orders_in_preparation: int = 0
-        self.overloaded_until: SimTime = int(self.now)
+        
+        self.overloaded_until = 0
+        self.current_order_duration = 0
+        self.order_list_duration = 0
 
         self.order_requests: List[Order] = []
         self.orders_accepted: List[Order] = []
@@ -59,48 +68,79 @@ class Establishment(MapActor):
         self.accept_order(order) if accept else self.reject_order(order)
 
     def accept_order(self, order) -> None:
-        self.publish_event(EstablishmentAcceptedOrder(
-            order_id=order.order_id,
+        event = EstablishmentAcceptedOrder(
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             time=self.now
-        ))
-        estimated_time = self.estimate_preparation_time(order)
-        order.establishment_accepted(self.now + estimated_time)
+        )
+        self.publish_event(event)
+        estimated_time = self.estimate_preparation_time(order) + self.time_check_to_start_preparation()
         self.update_overload_time(estimated_time)
+        order.establishment_accepted(self.now, estimated_time, self.overloaded_until)
         self.orders_accepted.append(order)
+        self.environment.add_core_event(event)
 
-    def update_overload_time(self, estimated_time) -> None:
-        env_now = self.now
-        if self.is_empty():
-            self.overloaded_until = max(self.overloaded_until - env_now, env_now)
-        elif self.is_within_capacity():
-            self.overloaded_until = env_now + max(self.overloaded_until - env_now, estimated_time)
+    def get_establishment_busy_time(self) -> SimTime:
+        # É necessário verificar se tempo de ocupação é pelo menos o momento atual para evitar valores negativos
+        self.update_overload_time()
+        establishment_busy_time = self.overloaded_until - self.now
+        return establishment_busy_time
+
+    def update_overload_time(self, estimated_time = None, afterAcceptOrder = False) -> None:
+        # Se uma estimativa é passada, ela é usada para calcular o tempo de ocupação
+        if estimated_time is not None:
+
+            # Se esse método for chamado dentro do método process_accepted_orders
+            if afterAcceptOrder:
+
+                #   Garantimos que as durações sejam atualizadas somente se o restaurante estiver vazio e com a duração 
+                # do pedido atual igual a 0, pois se a duração do pedido atual é diferente de 0, significa que esse é o 
+                # primeiro pedido ou o primeiro pedido depois certo tempo vazio
+                if self.is_empty() and self.current_order_duration == 0:
+
+                    if self.order_list_duration != 0:
+                        self.order_list_duration -= estimated_time
+
+                    self.current_order_duration = estimated_time
+
+                else:
+                    self.overloaded_until = max(self.overloaded_until, self.now)
+                    return
+
+            #   Se esse método for chamado fora do método process_accepted_orders só irá atualizar a duração do pedido atual 
+            # caso seja o primeiro pedido ou o primeiro pedido depois certo tempo vazio
+            #   Além disso a estimativa só será adicionada na duração da lista de pedidos aceitos se for chamado fora do método
+            # process_accepted_orders
+            else:
+                if self.is_empty() and self.order_list_duration != 0:
+                    self.current_order_duration = estimated_time
+                else:
+                    self.order_list_duration += estimated_time
+
+            self.overloaded_until = self.now + self.current_order_duration + self.order_list_duration
+        
+        # Se nenhuma estimativa é passada, o tempo de sobrecarga é atualizado com o tempo atual
         else:
-            batch_size = len(self.orders_accepted) // self.production_capacity
-            self.overloaded_until = env_now + max(self.overloaded_until - env_now, batch_size * estimated_time)
-
-        # print(f"{self.now} "
-        #       f"full_until_time = {self.full_until_time} "
-        #       f"orders_in_preparation = {self.orders_in_preparation} "
-        #       f"order_waiting = {len(self.confirmed_orders.items)} ")
+            self.overloaded_until = max(self.overloaded_until, self.now)
 
     def estimate_preparation_time(self, order) -> SimTime:
         estimated_time = self.time_estimate_to_prepare_order(order)
-        self.publish_event(EstimatedOrderPreparationTime(
-            order_id=order.order_id,
+        event = EstimatedOrderPreparationTime(
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
-            estimated_time=self.time_estimate_to_prepare_order(order),
+            estimated_time=estimated_time,
             time=self.now
-        ))
+        )
+        self.publish_event(event)
         if self.use_estimate:
-            self.environment.add_ready_order(order)
+            self.environment.add_ready_order(order, event)
         return estimated_time
 
     def reject_order(self, order) -> None:
         self.publish_event(EstablishmentRejectedOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             time=self.now
@@ -111,14 +151,15 @@ class Establishment(MapActor):
     def process_accepted_orders(self) -> ProcessGenerator:
         while True:
             while len(self.orders_accepted) > 0 and self.is_within_capacity():
-                self.orders_in_preparation += 1
                 order = self.orders_accepted.pop(0)
+                self.update_overload_time(order.estimated_time_to_prepare, True)
+                self.orders_in_preparation += 1
                 self.process(self.prepare_order(order))
             yield self.timeout(self.time_check_to_start_preparation())
 
     def prepare_order(self, order) -> ProcessGenerator:
         self.publish_event(EstablishmentPreparingOrder(
-            order_id=order.order_id,
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             time=self.now
@@ -130,17 +171,20 @@ class Establishment(MapActor):
         self.finish_order(order)
 
     def finish_order(self, order) -> None:
-        self.publish_event(EstablishmentFinishedOrder(
-            order_id=order.order_id,
+        event = EstablishmentFinishedOrder(
+            order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             time=self.now
-        ))
+        )
+        self.publish_event(event)
         order.update_status(OrderStatus.READY)
         self.orders_in_preparation -= 1
+        self.current_order_duration = 0
+        print(f"\nPedido pronto no estabelecimento {self.establishment_id}: ")
+        print(order)
         if not self.use_estimate:
-            self.environment.add_ready_order(order)
-        self.update_overload_time(0)
+            self.environment.add_ready_order(order, event)
 
     def is_empty(self) -> bool:
         return self.orders_in_preparation == 0
@@ -168,3 +212,9 @@ class Establishment(MapActor):
 
     def condition_to_accept(self, order) -> bool:
         return self.available
+    
+    def estimate_time_to_next_order_ready(self) -> SimTime:
+        if (len(self.orders_accepted) == 0):
+            return 0
+        next_order = self.orders_accepted[0]
+        return next_order.estimated_time_to_ready - next_order.time_preparation_started
