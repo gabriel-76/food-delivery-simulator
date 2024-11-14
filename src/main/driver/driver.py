@@ -137,7 +137,7 @@ class Driver(MapActor):
 
     def sequential_processor(self) -> ProcessGenerator:
         # Faz o motorista esperar o pedido estar pronto
-        if self.current_route_segment is not None and self.current_route_segment.order.status < OrderStatus.READY:
+        if self.current_route_segment is not None and self.current_route_segment.order.status < OrderStatus.READY: # TODO: Prática ruim depender da sequência
             # print(f"Driver {self.coordinate} is waiting for "
             #       f"order {self.current_route_segment.coordinate} "
             #       f"status {self.current_route_segment.order.status.name} "
@@ -365,7 +365,11 @@ class Driver(MapActor):
         return total_busy_time if total_busy_time > 0 else 0
     
     def estimate_time_to_complete_next_order(self, nextOrder: Order):
-        if nextOrder == None:   # TODO: Verificar com o Julio se devo adicionar essa verificação no método estimate_total_busy_time
+        #   Este método só é chamado pelo ambiente gymnasium no momento em que o ambiente simpy já avançou a ponto de ter um 
+        # novo pedido, portanto ele só é chamado quando tem um novo pedido para ser atribuído ao motorista
+        #   Quando todos os pedidos forem atribuídos chegará um momento em que o próximo pedido não existirá, nesse caso
+        # o método deve retornar 0
+        if nextOrder == None:
             return 0
 
         estimated_time = self.environment.map.estimated_time(self.last_future_coordinate, nextOrder.establishment.coordinate, self.movement_rate)

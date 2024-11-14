@@ -40,16 +40,39 @@ class GridMap(Map):
 
         x, y = origin
         dest_x, dest_y = destination
+        dx = abs(dest_x - x)
+        dy = abs(dest_y - y)
         rate = round(rate)
+        rate2 = round(rate / 2)
 
-        if x < dest_x:
-            x += min(rate, dest_x - x)
-        elif x > dest_x:
-            x -= min(rate, x - dest_x)
+        if (dx + dy) <= rate:
+            return dest_x, dest_y
+        else:
 
-        if y < dest_y:
-            y += min(rate, dest_y - y)
-        elif y > dest_y:
-            y -= min(rate, y - dest_y)
+            if dx < dy:
+                distance = min(dx, rate - rate2)
+
+                if x < dest_x:
+                    x += distance
+                else:
+                    x -= distance
+
+                if y < dest_y:
+                    y += rate - distance
+                else:
+                    y -= rate - distance
+            
+            else:
+                distance = min(dy, rate - rate2)
+
+                if y < dest_y:
+                    y += distance
+                else:
+                    y -= distance
+
+                if x < dest_x:
+                    x += rate - distance
+                else:
+                    x -= rate - distance
 
         return x, y

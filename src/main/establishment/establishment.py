@@ -87,12 +87,12 @@ class Establishment(MapActor):
         establishment_busy_time = self.overloaded_until - self.now
         return establishment_busy_time
 
-    def update_overload_time(self, estimated_time = None, calledInProcessAcceptedOrders = False) -> None:
+    def update_overload_time(self, estimated_time = None, afterAcceptOrder = False) -> None:
         # Se uma estimativa é passada, ela é usada para calcular o tempo de ocupação
         if estimated_time is not None:
 
             # Se esse método for chamado dentro do método process_accepted_orders
-            if calledInProcessAcceptedOrders:
+            if afterAcceptOrder:
 
                 #   Garantimos que as durações sejam atualizadas somente se o restaurante estiver vazio e com a duração 
                 # do pedido atual igual a 0, pois se a duração do pedido atual é diferente de 0, significa que esse é o 
@@ -153,9 +153,9 @@ class Establishment(MapActor):
             while len(self.orders_accepted) > 0 and self.is_within_capacity():
                 order = self.orders_accepted.pop(0)
                 self.update_overload_time(order.estimated_time_to_prepare, True)
-                self.orders_in_preparation += 1 # TODO: O Motorista sai para buscar o pedido antes de entrar em preparação porque o pedido foi aceito antes de ser preparado
+                self.orders_in_preparation += 1
                 self.process(self.prepare_order(order))
-            yield self.timeout(self.time_check_to_start_preparation()) # TODO: Mostrar isso ao Julio
+            yield self.timeout(self.time_check_to_start_preparation())
 
     def prepare_order(self, order) -> ProcessGenerator:
         self.publish_event(EstablishmentPreparingOrder(

@@ -11,7 +11,7 @@ NUM_ESTABLISHMENTS = 10
 NUM_COSTUMERS = NUM_ORDERS
 MAX_TIME_STEP = 100000
 SEED = 101010
-FUNCTION = lambda time: 3
+FUNCTION = lambda time: 2
 TIME_SHIFT = 8
 
 def main():
@@ -27,7 +27,8 @@ def main():
             max_time_step=MAX_TIME_STEP, 
             reward_objective=1,
             function=FUNCTION,
-            time_shift=TIME_SHIFT
+            time_shift=TIME_SHIFT,
+            render_mode='human'
         )
 
         # Verificar se o ambiente está implementado corretamente
