@@ -25,9 +25,10 @@ class EstablishmentOrderRate(Establishment):
         self.order_production_time_rate = order_production_time_rate
         self.operating_radius = operating_radius
 
-    def time_to_prepare_order(self, order):
-        time_to_prepare = round(random.expovariate(1 / self.order_production_time_rate))
+    def time_to_prepare_order(self):
+        # Não faz sentido o tempo de preparo ser menor que 1
+        time_to_prepare = max(1, round(random.expovariate(1 / self.order_production_time_rate)))
         return time_to_prepare
 
-    def time_estimate_to_prepare_order(self, order):
-        return self.time_to_prepare_order(order)
+    def time_estimate_to_prepare_order(self):
+        return self.time_to_prepare_order()
