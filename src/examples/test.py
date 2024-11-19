@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_checker import check_env
@@ -13,6 +14,14 @@ MAX_TIME_STEP = 100000
 SEED = 101010
 FUNCTION = lambda time: 2
 TIME_SHIFT = 8
+
+# Escolha se deseja salvar o log em um arquivo
+SAVE_LOG_TO_FILE = True 
+
+if SAVE_LOG_TO_FILE:
+    log_file = open("log.txt", "w", encoding="utf-8")
+    sys.stdout = log_file
+    sys.stderr = log_file
 
 def main():
     try:
@@ -69,3 +78,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+if SAVE_LOG_TO_FILE:
+    log_file.close()
