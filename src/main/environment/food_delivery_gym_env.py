@@ -1,28 +1,20 @@
 import numpy as np
 from gymnasium import Env
-from gymnasium.spaces import Dict, Sequence, Box, Discrete, Tuple, MultiDiscrete
+from gymnasium.spaces import Dict, Box, Discrete
 
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.generator.initial_customer_generator import InitialCustomerGenerator
 from src.main.generator.initial_driver_generator import InitialDriverGenerator
-from src.main.generator.initial_establishment_generator import InitialEstablishmentGenerator
 from src.main.generator.initial_establishment_order_rate_generator import InitialEstablishmentOrderRateGenerator
-from src.main.generator.initial_order_generator import InitialOrderGenerator
 from src.main.generator.time_shift_order_establishment_rate_generator import TimeShiftOrderEstablishmentRateGenerator
 from src.main.map.grid_map import GridMap
-from src.main.order.order_status import OrderStatus
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
 from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route import Route
 from src.main.statistic.custom_board import CustomBoard
-from src.main.statistic.delay_metric import DelayMetric
-from src.main.statistic.distance_metric import DistanceMetric
-from src.main.statistic.driver_status_metric import DriverStatusMetric
+from src.main.statistic.drivers_metrics import DriversMetrics
+from src.main.statistic.establishments_metrics import EstablishmentsMetrics
 from src.main.statistic.order_curve_metric import OrderCurveMetric
-from src.main.statistic.order_status_metric import OrderStatusMetric
-from src.main.statistic.total_metric import TotalMetric
 from src.main.view.grid_view_pygame import GridViewPygame
-
 
 class FoodDeliveryGymEnv(Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
@@ -115,17 +107,11 @@ class FoodDeliveryGymEnv(Env):
         terminated = False
         truncated = False
         core_event = None
-
-        last_time_step = self.simpy_env.now
         
         while (not terminated) and (not truncated) and (core_event is None):
             if self.simpy_env.state.orders_delivered < self.num_orders:
                 self.simpy_env.step()
                 self.render()
-                
-                if last_time_step < self.simpy_env.now:
-                    self.print_enviroment_state()
-                    last_time_step = self.simpy_env.now
 
                 # Verifica se um pedido foi entregue
                 if self.simpy_env.state.orders_delivered > self.last_num_orders_delivered:
@@ -236,26 +222,10 @@ class FoodDeliveryGymEnv(Env):
     def show_statistcs_board(self):
         custom_board = CustomBoard(metrics=[
             OrderCurveMetric(self.simpy_env),
-            TotalMetric(self.simpy_env),
-            DistanceMetric(self.simpy_env),
-            DelayMetric(self.simpy_env),
-            DriverStatusMetric(self.simpy_env),
-            OrderStatusMetric(self.simpy_env),
+            EstablishmentsMetrics(self.simpy_env),
+            DriversMetrics(self.simpy_env),
         ])
         custom_board.view()
-
-    def print_enviroment_state(self, options=None):
-        if options is None:
-            options = {
-                "customers": False,
-                "establishments": True,
-                "drivers": True,
-                "orders": False,
-                "events": False,
-                "orders_delivered": True
-            }
-        print(f'time_step = {self.simpy_env.now}')
-        self.simpy_env.print_enviroment_state(options)
 
     def close(self):
         self.simpy_env.close()

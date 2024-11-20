@@ -41,13 +41,19 @@ class Establishment(MapActor):
         self.use_estimate = use_estimate
         self.orders_in_preparation: int = 0
         
-        self.overloaded_until = 0
-        self.current_order_duration = 0
-        self.order_list_duration = 0
+        self.overloaded_until: SimTime = 0
+        self.current_order_duration: SimTime = 0
+        self.order_list_duration: SimTime = 0
 
         self.order_requests: List[Order] = []
         self.orders_accepted: List[Order] = []
         self.orders_rejected: List[Order] = []
+
+        # Variáveis para estatísticas
+        self.orders_fulfilled: Number = 0
+        self.max_orders_in_queue: Number = 0
+        self.idle_time: Number = 0
+        self.active_time: Number = 0
 
         self.process(self.process_order_requests())
         self.process(self.process_accepted_orders())
@@ -79,7 +85,11 @@ class Establishment(MapActor):
         estimated_time = self.estimate_preparation_time(order)
         self.update_overload_time(estimated_time)
         order.establishment_accepted(self.now, estimated_time, self.overloaded_until)
+
         self.orders_accepted.append(order)
+        if (len(self.orders_accepted) > self.max_orders_in_queue):
+            self.max_orders_in_queue = len(self.orders_accepted)
+
         self.environment.add_core_event(event)
 
     def get_establishment_busy_time(self) -> SimTime:
@@ -186,8 +196,10 @@ class Establishment(MapActor):
         order.time_it_was_ready = self.now + time_to_prepare
         self.orders_in_preparation -= 1
         self.current_order_duration = 0
+
         print(f"\nPedido pronto no estabelecimento {self.establishment_id}: ")
         print(order)
+        self.orders_fulfilled += 1
         if not self.use_estimate:
             self.environment.add_ready_order(order, event)
 
@@ -199,6 +211,9 @@ class Establishment(MapActor):
 
     def is_full(self) -> bool:
         return self.orders_in_preparation >= self.production_capacity
+    
+    def is_active(self) -> bool:
+        return not self.is_empty() or self.orders_in_preparation > 0
 
     def time_to_process_order_requests(self) -> SimTime:
         return random.randrange(1, 5)
@@ -226,3 +241,9 @@ class Establishment(MapActor):
             return 0
         next_order = self.orders_accepted[0]
         return next_order.estimated_time_to_ready - next_order.time_preparation_started
+    
+    def update_statistcs_variables(self):
+        if self.is_active():
+            self.active_time += 1
+        else:
+            self.idle_time += 1

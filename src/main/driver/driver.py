@@ -62,9 +62,12 @@ class Driver(MapActor):
 
         self.current_route: Optional[Route] = None
         self.current_route_segment: Optional[RouteSegment] = None
-        self.total_distance: Number = 0
         self.route_requests: List[Route] = []
         self.last_future_coordinate: Coordinate = coordinate
+
+        # Variáveis para estatísticas
+        self.orders_delivered: Number = 0
+        self.total_distance: Number = 0
 
         self.process(self.process_route_requests())
         self.process(self.move())
@@ -261,6 +264,7 @@ class Driver(MapActor):
         self.status = DriverStatus.AVAILABLE
         order.update_status(OrderStatus.DELIVERED)
         self.process(self.sequential_processor())
+        self.orders_delivered += 1
         self.environment.state.increment_orders_delivered()
         print(f"Driver {self.driver_id} entregou o pedido ao cliente no tempo {self.now}")
 

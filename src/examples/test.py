@@ -37,7 +37,7 @@ def main():
             reward_objective=1,
             function=FUNCTION,
             time_shift=TIME_SHIFT,
-            render_mode='human'
+            #render_mode='human'
         )
 
         # Verificar se o ambiente está implementado corretamente
@@ -57,18 +57,20 @@ def main():
             print("------------------> Step " + str(i) +" <------------------")
             print(f'{acao=}')
             estado, recompensa, done, truncado, info = gym_env.step(acao)
-            gym_env.print_enviroment_state()
+            gym_env.simpy_env.print_enviroment_state()
             print(f'estado_depois={estado}')
             print(f'{recompensa=}')
             soma_recompensa += recompensa
             i += 1
         
         print("--------------> Fim do ambiente <--------------")
-        gym_env.print_enviroment_state()
+        gym_env.simpy_env.print_enviroment_state()
         print(f'observação final = {gym_env.get_observation()}')
         print(f'soma das recompensas = {soma_recompensa}')
         print(f'quantidade de rotas criadas = {gym_env.simpy_env.state.get_length_orders()}')
         print(f'quantidade de rotas entregues = {gym_env.simpy_env.state.orders_delivered}')
+
+        gym_env.show_statistcs_board()
 
         # gym_env.show_statistcs_board()
 
