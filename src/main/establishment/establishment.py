@@ -169,6 +169,7 @@ class Establishment(MapActor):
                 order = self.orders_accepted.pop(0)
                 self.update_overload_time(order.estimated_time_to_prepare, True)
                 self.orders_in_preparation += 1
+                order.preparation_started(self.now)
                 self.process(self.prepare_order(order))
             yield self.timeout(self.time_check_to_start_preparation())
 
@@ -192,8 +193,7 @@ class Establishment(MapActor):
             time=self.now
         )
         self.publish_event(event)
-        order.update_status(OrderStatus.READY)
-        order.time_it_was_ready = self.now + time_to_prepare
+        order.ready(self.now)
         self.orders_in_preparation -= 1
         self.current_order_duration = 0
 
