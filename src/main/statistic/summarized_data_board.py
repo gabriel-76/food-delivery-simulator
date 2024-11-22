@@ -10,9 +10,10 @@ from src.main.statistic.metric import Metric
 
 
 class SummarizedDataBoard(Board):
-
-    def __init__(self, metrics: List[Metric], use_tkinter: bool = False):
+    def __init__(self, metrics: List[Metric], num_drivers: int, num_establishments: int, use_tkinter: bool = False):
         super().__init__(metrics)
+        self.num_drivers = num_drivers
+        self.num_establishments = num_establishments
         self.use_tkinter = use_tkinter
 
     def view(self) -> None:
@@ -20,6 +21,15 @@ class SummarizedDataBoard(Board):
             self._view_with_tkinter()
         else:
             self._view_with_matplotlib()
+
+    def _calculate_fig_height(self) -> float:
+        """
+        Calcula a altura do gráfico com base na quantidade de motoristas e restaurantes.
+        """
+        base_height = 3  # Altura base para cada linha
+        additional_height = (max(self.num_drivers, self.num_establishments)) * 0.8  # Altura adicional por item
+        num_rows = ceil((len(self.metrics) - 1) / 2) + 1  # Número de linhas baseado nas métricas
+        return num_rows * base_height + additional_height
 
     def _view_with_tkinter(self) -> None:
         # Configuração inicial do Tkinter
@@ -46,12 +56,9 @@ class SummarizedDataBoard(Board):
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Criar a figura Matplotlib
-        num_metrics = len(self.metrics)
-        num_rows = ceil((num_metrics - 1) / 2) + 1
-        fig_height = num_rows * 3 + (num_rows - 1) * 0.5
-
+        fig_height = self._calculate_fig_height()
         fig = plt.figure(figsize=(12, fig_height))
-        gs = fig.add_gridspec(num_rows, 2, hspace=0.8)
+        gs = fig.add_gridspec(ceil((len(self.metrics) - 1) / 2) + 1, 2, hspace=0.9)
 
         # Primeiro gráfico destacado
         ax1 = fig.add_subplot(gs[0, :])
@@ -74,12 +81,9 @@ class SummarizedDataBoard(Board):
 
     def _view_with_matplotlib(self) -> None:
         # Criar a figura Matplotlib
-        num_metrics = len(self.metrics)
-        num_rows = ceil((num_metrics - 1) / 2) + 1
-        fig_height = num_rows * 3 + (num_rows - 1) * 0.5
-
+        fig_height = self._calculate_fig_height()
         fig = plt.figure(figsize=(12, fig_height))
-        gs = fig.add_gridspec(num_rows, 2, hspace=0.8)
+        gs = fig.add_gridspec(ceil((len(self.metrics) - 1) / 2) + 1, 2, hspace=0.9)
 
         # Primeiro gráfico destacado
         ax1 = fig.add_subplot(gs[0, :])

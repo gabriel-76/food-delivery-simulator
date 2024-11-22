@@ -232,7 +232,11 @@ class FoodDeliveryGymEnv(Env):
             EstablishmentIdleTimeMetric(self.simpy_env),
             DriverOrdersDeliveredMetric(self.simpy_env),
             DriverTotalDistanceMetric(self.simpy_env),
-        ])
+        ],
+            num_drivers=self.num_drivers,
+            num_establishments=self.num_establishments,
+            use_tkinter=True
+        )
         custom_board.view()
 
     def close(self):
