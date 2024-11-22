@@ -10,9 +10,13 @@ from src.main.map.grid_map import GridMap
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
 from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route import Route
-from src.main.statistic.custom_board import CustomBoard
-from src.main.statistic.drivers_metrics import DriversMetrics
-from src.main.statistic.establishments_metrics import EstablishmentsMetrics
+from src.main.statistic.summarized_data_board import SummarizedDataBoard
+from src.main.statistic.driver_orders_delivered_metric import DriverOrdersDeliveredMetric
+from src.main.statistic.driver_total_distance_metric import DriverTotalDistanceMetric
+from src.main.statistic.establishment_active_time_metric import EstablishmentActiveTimeMetric
+from src.main.statistic.establishment_idle_time_metric import EstablishmentIdleTimeMetric
+from src.main.statistic.establishment_max_orders_in_queue_metric import EstablishmentMaxOrdersInQueueMetric
+from src.main.statistic.establishment_orders_fulfilled_metric import EstablishmentOrdersFulfilledMetric
 from src.main.statistic.order_curve_metric import OrderCurveMetric
 from src.main.view.grid_view_pygame import GridViewPygame
 
@@ -220,10 +224,14 @@ class FoodDeliveryGymEnv(Env):
             self.simpy_env.render()
 
     def show_statistcs_board(self):
-        custom_board = CustomBoard(metrics=[
+        custom_board = SummarizedDataBoard(metrics=[
             OrderCurveMetric(self.simpy_env),
-            EstablishmentsMetrics(self.simpy_env),
-            DriversMetrics(self.simpy_env),
+            EstablishmentOrdersFulfilledMetric(self.simpy_env),
+            EstablishmentMaxOrdersInQueueMetric(self.simpy_env),
+            EstablishmentActiveTimeMetric(self.simpy_env),
+            EstablishmentIdleTimeMetric(self.simpy_env),
+            DriverOrdersDeliveredMetric(self.simpy_env),
+            DriverTotalDistanceMetric(self.simpy_env),
         ])
         custom_board.view()
 

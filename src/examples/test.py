@@ -16,7 +16,7 @@ FUNCTION = lambda time: 2
 TIME_SHIFT = 8
 
 # Escolha se deseja salvar o log em um arquivo
-SAVE_LOG_TO_FILE = True 
+SAVE_LOG_TO_FILE = False
 
 if SAVE_LOG_TO_FILE:
     log_file = open("log.txt", "w", encoding="utf-8")

@@ -5035,111 +5035,77 @@ soma das recompensas = -195
 quantidade de rotas criadas = 10
 quantidade de rotas entregues = 10
 
-ESTATÍSTICAS DOS ESTABELECIMENTOS:
+Pedidos Atendidos por Estabelecimento:
+Estabelecimento 1: 0 pedidos atendidos
+Estabelecimento 2: 1 pedidos atendidos
+Estabelecimento 3: 1 pedidos atendidos
+Estabelecimento 4: 1 pedidos atendidos
+Estabelecimento 5: 0 pedidos atendidos
+Estabelecimento 6: 1 pedidos atendidos
+Estabelecimento 7: 3 pedidos atendidos
+Estabelecimento 8: 0 pedidos atendidos
+Estabelecimento 9: 3 pedidos atendidos
+Estabelecimento 10: 0 pedidos atendidos
 
----------> Estabelecimento 1 <---------
-Pedidos atendidos: 0
-Máximo de pedidos em fila: 0
-Tempo ocioso: 133
-Tempo ativo: 0
+Máximo de Pedidos na Fila por Estabelecimento:
+Estabelecimento 1: 0 pedidos na fila
+Estabelecimento 2: 1 pedidos na fila
+Estabelecimento 3: 1 pedidos na fila
+Estabelecimento 4: 1 pedidos na fila
+Estabelecimento 5: 0 pedidos na fila
+Estabelecimento 6: 1 pedidos na fila
+Estabelecimento 7: 2 pedidos na fila
+Estabelecimento 8: 0 pedidos na fila
+Estabelecimento 9: 1 pedidos na fila
+Estabelecimento 10: 0 pedidos na fila
 
----------> Estabelecimento 2 <---------
-Pedidos atendidos: 1
-Máximo de pedidos em fila: 1
-Tempo ocioso: 126
-Tempo ativo: 7
+Tempo Ativo por Estabelecimento:
+Estabelecimento 1: 0.00 minutos ativo
+Estabelecimento 2: 7.00 minutos ativo
+Estabelecimento 3: 4.00 minutos ativo
+Estabelecimento 4: 3.00 minutos ativo
+Estabelecimento 5: 0.00 minutos ativo
+Estabelecimento 6: 15.00 minutos ativo
+Estabelecimento 7: 21.00 minutos ativo
+Estabelecimento 8: 0.00 minutos ativo
+Estabelecimento 9: 4.00 minutos ativo
+Estabelecimento 10: 0.00 minutos ativo
 
----------> Estabelecimento 3 <---------
-Pedidos atendidos: 1
-Máximo de pedidos em fila: 1
-Tempo ocioso: 129
-Tempo ativo: 4
+Tempo Ocioso por Estabelecimento:
+Estabelecimento 1: 133.00 minutos ocioso
+Estabelecimento 2: 126.00 minutos ocioso
+Estabelecimento 3: 129.00 minutos ocioso
+Estabelecimento 4: 130.00 minutos ocioso
+Estabelecimento 5: 133.00 minutos ocioso
+Estabelecimento 6: 118.00 minutos ocioso
+Estabelecimento 7: 112.00 minutos ocioso
+Estabelecimento 8: 133.00 minutos ocioso
+Estabelecimento 9: 129.00 minutos ocioso
+Estabelecimento 10: 133.00 minutos ocioso
 
----------> Estabelecimento 4 <---------
-Pedidos atendidos: 1
-Máximo de pedidos em fila: 1
-Tempo ocioso: 130
-Tempo ativo: 3
+Pedidos Entregues por Motorista:
+Motorista 1: 2 pedidos entregues
+Motorista 2: 1 pedidos entregues
+Motorista 3: 0 pedidos entregues
+Motorista 4: 2 pedidos entregues
+Motorista 5: 0 pedidos entregues
+Motorista 6: 0 pedidos entregues
+Motorista 7: 1 pedidos entregues
+Motorista 8: 2 pedidos entregues
+Motorista 9: 1 pedidos entregues
+Motorista 10: 1 pedidos entregues
 
----------> Estabelecimento 5 <---------
-Pedidos atendidos: 0
-Máximo de pedidos em fila: 0
-Tempo ocioso: 133
-Tempo ativo: 0
-
----------> Estabelecimento 6 <---------
-Pedidos atendidos: 1
-Máximo de pedidos em fila: 1
-Tempo ocioso: 118
-Tempo ativo: 15
-
----------> Estabelecimento 7 <---------
-Pedidos atendidos: 3
-Máximo de pedidos em fila: 2
-Tempo ocioso: 112
-Tempo ativo: 21
-
----------> Estabelecimento 8 <---------
-Pedidos atendidos: 0
-Máximo de pedidos em fila: 0
-Tempo ocioso: 133
-Tempo ativo: 0
-
----------> Estabelecimento 9 <---------
-Pedidos atendidos: 3
-Máximo de pedidos em fila: 1
-Tempo ocioso: 129
-Tempo ativo: 4
-
----------> Estabelecimento 10 <---------
-Pedidos atendidos: 0
-Máximo de pedidos em fila: 0
-Tempo ocioso: 133
-Tempo ativo: 0
-
-
-ESTATÍSTICAS DOS MOTORISTAS:
-
----------> Motorista 1 <---------
-Pedidos entregues: 2
-Distância total percorrida: 164
-
----------> Motorista 2 <---------
-Pedidos entregues: 1
-Distância total percorrida: 134
-
----------> Motorista 3 <---------
-Pedidos entregues: 0
-Distância total percorrida: 0
-
----------> Motorista 4 <---------
-Pedidos entregues: 2
-Distância total percorrida: 210
-
----------> Motorista 5 <---------
-Pedidos entregues: 0
-Distância total percorrida: 0
-
----------> Motorista 6 <---------
-Pedidos entregues: 0
-Distância total percorrida: 0
-
----------> Motorista 7 <---------
-Pedidos entregues: 1
-Distância total percorrida: 102
-
----------> Motorista 8 <---------
-Pedidos entregues: 2
-Distância total percorrida: 130
-
----------> Motorista 9 <---------
-Pedidos entregues: 1
-Distância total percorrida: 111
-
----------> Motorista 10 <---------
-Pedidos entregues: 1
-Distância total percorrida: 72
-
+Distância Total Percorrida por Motorista:
+Motorista 1: 164.00 km percorridos
+Motorista 2: 134.00 km percorridos
+Motorista 3: 0.00 km percorridos
+Motorista 4: 210.00 km percorridos
+Motorista 5: 0.00 km percorridos
+Motorista 6: 0.00 km percorridos
+Motorista 7: 102.00 km percorridos
+Motorista 8: 130.00 km percorridos
+Motorista 9: 111.00 km percorridos
+Motorista 10: 72.00 km percorridos
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
@@ -5147,9 +5113,9 @@ Traceback (most recent call last):
     main()
   File "C:\food-delivery-simulator\src\examples\test.py", line 73, in main
     gym_env.show_statistcs_board()
-  File "C:\food-delivery-simulator\src\main\environment\food_delivery_gym_env.py", line 228, in show_statistcs_board
+  File "C:\food-delivery-simulator\src\main\environment\food_delivery_gym_env.py", line 236, in show_statistcs_board
     custom_board.view()
-  File "C:\food-delivery-simulator\src\main\statistic\custom_board.py", line 31, in view
-    self.metrics[3].view(ax4)
-    ~~~~~~~~~~~~^^^
-IndexError: list index out of range
+  File "C:\food-delivery-simulator\src\main\statistic\summarized_data_board.py", line 46, in view
+    fig.canvas.window().canvas.mpl_connect(
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'FigureCanvasTkAgg' object has no attribute 'window'
