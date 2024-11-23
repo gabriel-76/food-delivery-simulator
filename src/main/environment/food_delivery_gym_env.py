@@ -29,19 +29,20 @@ class FoodDeliveryGymEnv(Env):
         self.num_orders = num_orders
         self.num_costumers = num_costumers
         self.max_time_step = max_time_step
+        self.grid_map_size = grid_map_size
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
         self.simpy_env = FoodDeliverySimpyEnv(
-            map=GridMap(grid_map_size),
+            map=GridMap(self.grid_map_size),
             generators=[
                 InitialEstablishmentOrderRateGenerator(self.num_establishments, use_estimate=use_estimate),
                 InitialDriverGenerator(self.num_drivers, desconsider_capacity=desconsider_capacity),
                 TimeShiftOrderEstablishmentRateGenerator(function, time_shift=time_shift, max_orders=self.num_orders),
             ],
             optimizer=None,
-            view=GridViewPygame() if self.render_mode == "human" else None
+            view=GridViewPygame(grid_size=self.grid_map_size) if self.render_mode == "human" else None
         )
 
         self.simpy_env.seed(seed)
@@ -151,7 +152,7 @@ class FoodDeliveryGymEnv(Env):
             map=self.simpy_env.map,
             generators=self.simpy_env.generators,
             optimizer=self.simpy_env.optimizer,
-            view=GridViewPygame() if self.render_mode == "human" else None
+            view=GridViewPygame(self.grid_map_size) if self.render_mode == "human" else None
         )
 
         core_event, _, _ = self.advance_simulation_until_event()

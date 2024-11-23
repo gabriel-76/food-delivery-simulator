@@ -10,6 +10,7 @@ NUM_DRIVERS = 10
 NUM_ORDERS = 10
 NUM_ESTABLISHMENTS = 10
 NUM_COSTUMERS = NUM_ORDERS
+GRID_MAP_SIZE = 50
 MAX_TIME_STEP = 100000
 SEED = 101010
 FUNCTION = lambda time: 2
@@ -29,7 +30,8 @@ def main():
             num_drivers=NUM_DRIVERS, 
             num_establishments=NUM_ESTABLISHMENTS, 
             num_orders=NUM_ORDERS, 
-            num_costumers=NUM_COSTUMERS, 
+            num_costumers=NUM_COSTUMERS,
+            grid_map_size=GRID_MAP_SIZE, 
             seed=SEED,
             use_estimate=True, 
             desconsider_capacity=True, 
@@ -37,7 +39,7 @@ def main():
             reward_objective=1,
             function=FUNCTION,
             time_shift=TIME_SHIFT,
-            #render_mode='human'
+            render_mode='human'
         )
 
         # Verificar se o ambiente está implementado corretamente

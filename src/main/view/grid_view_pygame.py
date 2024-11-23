@@ -18,8 +18,8 @@ def map_coordinate(value, min_val, max_val, min_screen, max_screen):
 
 class GridViewPygame(FoodDeliveryView):
 
-    def __init__(self, window_size=(900, 700), fps=30):
-        super().__init__(window_size, fps)
+    def __init__(self, grid_size=100, window_size=(900, 700), fps=30):
+        super().__init__(grid_size, window_size, fps)
         pygame.init()
         pygame.display.init()
         self.screen = pygame.display.set_mode(window_size)
@@ -32,8 +32,8 @@ class GridViewPygame(FoodDeliveryView):
     
     def draw_grid(self, canvas, color=GRAY):
         # Desenha a grade
-        grid_size_x = self.window_size[0] // 100
-        grid_size_y = self.window_size[1] // 100
+        grid_size_x = self.window_size[0] // self.grid_size
+        grid_size_y = self.window_size[1] // self.grid_size
 
         for x in range(0, self.window_size[0], grid_size_x):
             pygame.draw.line(canvas, color, (x, 0), (x, self.window_size[1]), 1)
@@ -68,10 +68,25 @@ class GridViewPygame(FoodDeliveryView):
                                             (mapped_x + house_size // 2, mapped_y - house_size // 2)])
 
     def draw_customer(self, canvas, mapped_x, mapped_y):
-        # Corpo (círculo) do cliente
-        pygame.draw.circle(canvas, BLUE, (int(mapped_x), int(mapped_y)), 5)
-        # Pequeno "pino" embaixo do cliente
-        pygame.draw.line(canvas, BLUE, (mapped_x, mapped_y + 5), (mapped_x, mapped_y + 10), 2)
+        # Altura total do cliente (pino + bolinha)
+        pin_length = 7
+        circle_radius = 5
+
+        # A extremidade inferior do pino estará exatamente na coordenada do cliente
+        pin_start_x = mapped_x
+        pin_start_y = mapped_y
+        pin_end_x = mapped_x
+        pin_end_y = mapped_y - pin_length
+
+        # A bolinha estará na extremidade superior do pino
+        circle_center_x = pin_end_x
+        circle_center_y = pin_end_y - circle_radius
+
+        # Desenhar o pino
+        pygame.draw.line(canvas, BLUE, (pin_start_x, pin_start_y), (pin_end_x, pin_end_y), 2)
+
+        # Desenhar a bolinha
+        pygame.draw.circle(canvas, BLUE, (int(circle_center_x), int(circle_center_y)), circle_radius)
 
 
     def render(self, environment):
