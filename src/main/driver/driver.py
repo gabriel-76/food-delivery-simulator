@@ -33,6 +33,7 @@ class Driver(MapActor):
             environment: FoodDeliverySimpyEnv,
             coordinate: Coordinate,
             available: bool,
+            color: Optional[tuple[int, int, int]] = (255, 0, 0), # Cor vermelha
             desconsider_capacity: bool = False,
             id: Number = None,
             capacity: Optional[Capacity] = Capacity(Dimensions(100, 100, 100, 100)),
@@ -46,6 +47,8 @@ class Driver(MapActor):
             self.driver_id = uuid.uuid4()
 
         super().__init__(environment, coordinate, available)
+
+        self.color = color
 
         self.desconsider_capacity = desconsider_capacity
 

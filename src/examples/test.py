@@ -7,14 +7,23 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
 
 NUM_DRIVERS = 10
-NUM_ORDERS = 10
+NUM_ORDERS = 12*24 # 12 pedidos por hora durante 24 horas
 NUM_ESTABLISHMENTS = 10
 NUM_COSTUMERS = NUM_ORDERS
-GRID_MAP_SIZE = 50
-MAX_TIME_STEP = 100000
-SEED = 101010
+GRID_MAP_SIZE = 50 # Tamanho do grid 50x50
+MAX_TIME_STEP = 60*60*24*2 # 2 dias
+# 2 pedidos de 10 em 10 minutos
 FUNCTION = lambda time: 2
-TIME_SHIFT = 8
+TIME_SHIFT = 10
+
+# Variáveis para criação dos Motoristas
+VEL_DRIVERS = [3, 5]
+
+# Variáveis para criação dos Estabelecimentos
+PREPARE_TIME = [20, 60]
+OPERATING_RADIUS = [5, 30]
+
+SEED = 101010
 
 # Escolha se deseja salvar o log em um arquivo
 SAVE_LOG_TO_FILE = False
@@ -32,6 +41,9 @@ def main():
             num_orders=NUM_ORDERS, 
             num_costumers=NUM_COSTUMERS,
             grid_map_size=GRID_MAP_SIZE, 
+            vel_drivers=VEL_DRIVERS,
+            prepare_time=PREPARE_TIME,
+            operating_radius=OPERATING_RADIUS,
             seed=SEED,
             use_estimate=True, 
             desconsider_capacity=True, 
@@ -73,8 +85,6 @@ def main():
         print(f'quantidade de rotas entregues = {gym_env.simpy_env.state.orders_delivered}')
 
         gym_env.show_statistcs_board()
-
-        # gym_env.show_statistcs_board()
 
     except ValueError as e:
         print(e)

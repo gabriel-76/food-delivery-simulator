@@ -15,14 +15,12 @@ class EstablishmentOrderRate(Establishment):
             available: bool,
             catalog: Catalog,
             production_capacity,
-            order_request_time_rate,
             order_production_time_rate,
             operating_radius,
             id: Number = None,
             use_estimate: bool = False,
     ):
         super().__init__(environment, coordinate, available, catalog, id, production_capacity, use_estimate)
-        self.order_request_time_rate = order_request_time_rate
         self.order_production_time_rate = order_production_time_rate
         self.operating_radius = operating_radius
 

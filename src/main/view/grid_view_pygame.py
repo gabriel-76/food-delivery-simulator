@@ -40,11 +40,11 @@ class GridViewPygame(FoodDeliveryView):
         for y in range(0, self.window_size[1], grid_size_y):
             pygame.draw.line(canvas, color, (0, y), (self.window_size[0], y), 1)
     
-    def draw_driver(self, canvas, mapped_x, mapped_y):
+    def draw_driver(self, canvas, driver_color, mapped_x, mapped_y):
         # Corpo do carro
         car_length = 18
         car_height = 6
-        pygame.draw.rect(canvas, RED, (mapped_x - car_length // 2, mapped_y - car_height // 2, car_length, car_height), border_radius=3)
+        pygame.draw.rect(canvas, driver_color, (mapped_x - car_length // 2, mapped_y - car_height // 2, car_length, car_height), border_radius=3)
 
         # Rodas do carro
         wheel_radius = 2
@@ -123,7 +123,7 @@ class GridViewPygame(FoodDeliveryView):
         # Desenhar os motoristas
         for driver in environment.state.drivers:
             mapped_x, mapped_y = self.coordinate(driver.coordinate)
-            self.draw_driver(canvas, mapped_x, mapped_y)
+            self.draw_driver(canvas, driver.color, mapped_x, mapped_y)
 
             if driver.status in [DriverStatus.PICKING_UP, DriverStatus.DELIVERING]:
                 target_mapped_x, target_mapped_y = self.coordinate(driver.current_route_segment.coordinate)
