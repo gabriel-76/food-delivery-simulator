@@ -235,7 +235,7 @@ class FoodDeliveryGymEnv(Env):
         ],
             num_drivers=self.num_drivers,
             num_establishments=self.num_establishments,
-            use_tkinter=True
+            use_tkinter=False
         )
         custom_board.view()
 
