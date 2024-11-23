@@ -11,8 +11,10 @@ from src.main.establishment.establishment_order_rate import EstablishmentOrderRa
 
 
 class InitialEstablishmentOrderRateGenerator(InitialGenerator):
-    def __init__(self, num_establishments, use_estimate: bool = False):
+    def __init__(self, num_establishments, prepare_time, operating_radius, use_estimate: bool = False):
         self.num_establishments = num_establishments
+        self.prepare_time = prepare_time
+        self.operating_radius = operating_radius
         self.use_estimate = use_estimate
 
     def run(self, env: FoodDeliverySimpyEnv):
@@ -27,9 +29,8 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
                 catalog=catalog,
                 production_capacity=1,
                 use_estimate=self.use_estimate,
-                order_request_time_rate=random.uniform(5.0, 10.0),
-                order_production_time_rate=random.uniform(5.0, 10.0),
-                operating_radius=random.randint(5, 30),
+                order_production_time_rate=random.uniform(self.prepare_time[0], self.prepare_time[1]),
+                operating_radius=random.randint(self.operating_radius[0], self.operating_radius[1]),
             )
             for i in range(self.num_establishments)
         ]

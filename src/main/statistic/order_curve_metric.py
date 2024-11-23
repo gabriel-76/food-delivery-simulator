@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+from matplotlib.ticker import MultipleLocator
+
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.events.event_type import EventType
 from src.main.statistic.metric import Metric
@@ -31,10 +33,21 @@ class OrderCurveMetric(Metric):
             times, counts = zip(*sorted_times)
             status_series[status] = (times, counts)
 
-        # Plotar os dados
-        # plt.figure()
+        # Plotar os dados com bullet points
         for status, (times, counts) in status_series.items():
-            ax.plot(times, counts, label=status.name.lower())
+            ax.plot(
+                times,
+                counts,
+                label=status.name.lower(),
+                marker='o',  # Define marcadores como círculos
+                linestyle='-',  # Conecta os pontos com uma linha
+            )
+
+        # Configurações dos eixos para números inteiros
+        ax.yaxis.set_major_locator(MultipleLocator(1))  # Ticks no eixo Y a cada 1 unidade
+
+        # Garantir que o eixo Y sempre comece em 0
+        ax.set_ylim(bottom=0)
 
         # Configurações do gráfico
         ax.set_xlabel('Time')
@@ -42,6 +55,5 @@ class OrderCurveMetric(Metric):
         ax.set_title('Number of orders by state over time')
         ax.legend(title='Status')
         ax.grid(False)
-        # plt.show()
 
 

@@ -18,6 +18,7 @@ class FoodDeliverySimpyEnv(Environment):
         self.generators = generators
         self.optimizer = optimizer
         self.view = view
+        self.last_time_step = 0
         self._state = DeliveryEnvState()
         self.init()
 
@@ -113,6 +114,11 @@ class FoodDeliverySimpyEnv(Environment):
             self.view.render(self)
             if self.view.quited:
                 self.view.quit()
+        
+        if self.last_time_step < self.now:
+            self.update_statistcs_variables()
+            self.print_enviroment_state()
+            self.last_time_step = self.now
 
     def render(self):
         if self.view is not None and not self.view.quited:
@@ -127,5 +133,19 @@ class FoodDeliverySimpyEnv(Environment):
             np.random.seed(seed)
             random.seed(seed)
 
-    def print_enviroment_state(self, options):
+    def print_enviroment_state(self, options = None):
+        if options is None:
+            options = {
+                "customers": False,
+                "establishments": True,
+                "drivers": True,
+                "orders": False,
+                "events": False,
+                "orders_delivered": True
+            }
+        print(f'time_step = {self.now}')
         self._state.print_state(options)
+
+    def update_statistcs_variables(self):
+        for establishment in self._state.establishments:
+            establishment.update_statistcs_variables()

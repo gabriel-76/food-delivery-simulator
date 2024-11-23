@@ -33,6 +33,7 @@ class Driver(MapActor):
             environment: FoodDeliverySimpyEnv,
             coordinate: Coordinate,
             available: bool,
+            color: Optional[tuple[int, int, int]] = (255, 0, 0), # Cor vermelha
             desconsider_capacity: bool = False,
             id: Number = None,
             capacity: Optional[Capacity] = Capacity(Dimensions(100, 100, 100, 100)),
@@ -46,6 +47,8 @@ class Driver(MapActor):
             self.driver_id = uuid.uuid4()
 
         super().__init__(environment, coordinate, available)
+
+        self.color = color
 
         self.desconsider_capacity = desconsider_capacity
 
@@ -62,9 +65,12 @@ class Driver(MapActor):
 
         self.current_route: Optional[Route] = None
         self.current_route_segment: Optional[RouteSegment] = None
-        self.total_distance: Number = 0
         self.route_requests: List[Route] = []
         self.last_future_coordinate: Coordinate = coordinate
+
+        # Variáveis para estatísticas
+        self.orders_delivered: Number = 0
+        self.total_distance: Number = 0
 
         self.process(self.process_route_requests())
         self.process(self.move())
@@ -153,11 +159,13 @@ class Driver(MapActor):
             self.current_route_segment = route_segment
             if route_segment.is_pickup():
                 timeout = self.time_between_accept_and_start_picking_up()
+                timeout = 0
                 yield self.timeout(timeout)
                 self.process(self.picking_up(route_segment.order))
             if route_segment.is_delivery():
                 print(f"Driver {self.driver_id} retirou o pedido no estabelecimento {self.current_route.order.establishment.establishment_id} no tempo {self.now}")
                 timeout = self.time_between_picked_up_and_start_delivery()
+                timeout = 0
                 yield self.timeout(timeout)
                 self.process(self.delivering(route_segment.order))
         else:
@@ -259,6 +267,7 @@ class Driver(MapActor):
         self.status = DriverStatus.AVAILABLE
         order.update_status(OrderStatus.DELIVERED)
         self.process(self.sequential_processor())
+        self.orders_delivered += 1
         self.environment.state.increment_orders_delivered()
         print(f"Driver {self.driver_id} entregou o pedido ao cliente no tempo {self.now}")
 
@@ -285,6 +294,7 @@ class Driver(MapActor):
 
     def time_to_accept_or_reject_route(self) -> int:
         return random.randrange(3, 10)
+        #return 1
 
     def time_between_accept_and_start_picking_up(self) -> int:
         return random.randrange(0, 3)
@@ -321,7 +331,6 @@ class Driver(MapActor):
                             self.coordinate, current_order.establishment.coordinate, self.movement_rate
                         )
                     total_busy_time += self.time_between_picked_up_and_start_delivery()
-                    total_busy_time += self.time_to_deliver_order(self.current_route_segment.order)
 
                 # Se o segmento atual é de entrega, considera o tempo de entrega
                 if self.current_route_segment.is_delivery():
@@ -347,6 +356,7 @@ class Driver(MapActor):
 
                 # Se o segmento é de coleta, calcula o tempo para pegar o pedido
                 if route_segment.is_pickup():
+                    total_busy_time += self.time_between_accept_and_start_picking_up()
                     total_busy_time += self.environment.map.estimated_time(
                         valid_coordinate, order.establishment.coordinate, self.movement_rate
                     )
@@ -372,8 +382,10 @@ class Driver(MapActor):
         if nextOrder == None:
             return 0
 
+        estimated_time = self.time_between_accept_and_start_picking_up()
         estimated_time = self.environment.map.estimated_time(self.last_future_coordinate, nextOrder.establishment.coordinate, self.movement_rate)
         estimated_time += self.time_between_picked_up_and_start_delivery()
         estimated_time += self.environment.map.estimated_time(nextOrder.establishment.coordinate, nextOrder.customer.coordinate, self.movement_rate)
         estimated_time += self.estimate_time_to_costumer_receive_order(nextOrder)
+        
         return estimated_time

@@ -1,51 +1,50 @@
 import numpy as np
 from gymnasium import Env
-from gymnasium.spaces import Dict, Sequence, Box, Discrete, Tuple, MultiDiscrete
+from gymnasium.spaces import Dict, Box, Discrete
 
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.generator.initial_customer_generator import InitialCustomerGenerator
 from src.main.generator.initial_driver_generator import InitialDriverGenerator
-from src.main.generator.initial_establishment_generator import InitialEstablishmentGenerator
 from src.main.generator.initial_establishment_order_rate_generator import InitialEstablishmentOrderRateGenerator
-from src.main.generator.initial_order_generator import InitialOrderGenerator
 from src.main.generator.time_shift_order_establishment_rate_generator import TimeShiftOrderEstablishmentRateGenerator
 from src.main.map.grid_map import GridMap
-from src.main.order.order_status import OrderStatus
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
 from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route import Route
-from src.main.statistic.custom_board import CustomBoard
-from src.main.statistic.delay_metric import DelayMetric
-from src.main.statistic.distance_metric import DistanceMetric
-from src.main.statistic.driver_status_metric import DriverStatusMetric
+from src.main.statistic.summarized_data_board import SummarizedDataBoard
+from src.main.statistic.driver_orders_delivered_metric import DriverOrdersDeliveredMetric
+from src.main.statistic.driver_total_distance_metric import DriverTotalDistanceMetric
+from src.main.statistic.establishment_active_time_metric import EstablishmentActiveTimeMetric
+from src.main.statistic.establishment_idle_time_metric import EstablishmentIdleTimeMetric
+from src.main.statistic.establishment_max_orders_in_queue_metric import EstablishmentMaxOrdersInQueueMetric
+from src.main.statistic.establishment_orders_fulfilled_metric import EstablishmentOrdersFulfilledMetric
 from src.main.statistic.order_curve_metric import OrderCurveMetric
-from src.main.statistic.order_status_metric import OrderStatusMetric
-from src.main.statistic.total_metric import TotalMetric
 from src.main.view.grid_view_pygame import GridViewPygame
-
 
 class FoodDeliveryGymEnv(Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, function, time_shift, grid_map_size=100, use_estimate=True, desconsider_capacity=True, max_time_step=10000, reward_objective=1, seed=None, render_mode=None):
+    def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, function, time_shift, vel_drivers, 
+                prepare_time, operating_radius, grid_map_size=100, use_estimate=True, desconsider_capacity=True, 
+                max_time_step=10000, reward_objective=1, seed=None, render_mode=None):
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
         self.num_orders = num_orders
         self.num_costumers = num_costumers
         self.max_time_step = max_time_step
+        self.grid_map_size = grid_map_size
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
         self.simpy_env = FoodDeliverySimpyEnv(
-            map=GridMap(grid_map_size),
+            map=GridMap(self.grid_map_size),
             generators=[
-                InitialEstablishmentOrderRateGenerator(self.num_establishments, use_estimate=use_estimate),
-                InitialDriverGenerator(self.num_drivers, desconsider_capacity=desconsider_capacity),
+                InitialEstablishmentOrderRateGenerator(self.num_establishments, prepare_time, operating_radius, use_estimate=use_estimate),
+                InitialDriverGenerator(self.num_drivers, vel_drivers, desconsider_capacity=desconsider_capacity),
                 TimeShiftOrderEstablishmentRateGenerator(function, time_shift=time_shift, max_orders=self.num_orders),
             ],
             optimizer=None,
-            view=GridViewPygame() if self.render_mode == "human" else None
+            view=GridViewPygame(grid_size=self.grid_map_size) if self.render_mode == "human" else None
         )
 
         self.simpy_env.seed(seed)
@@ -115,17 +114,11 @@ class FoodDeliveryGymEnv(Env):
         terminated = False
         truncated = False
         core_event = None
-
-        last_time_step = self.simpy_env.now
         
         while (not terminated) and (not truncated) and (core_event is None):
             if self.simpy_env.state.orders_delivered < self.num_orders:
                 self.simpy_env.step()
                 self.render()
-                
-                if last_time_step < self.simpy_env.now:
-                    self.print_enviroment_state()
-                    last_time_step = self.simpy_env.now
 
                 # Verifica se um pedido foi entregue
                 if self.simpy_env.state.orders_delivered > self.last_num_orders_delivered:
@@ -161,7 +154,7 @@ class FoodDeliveryGymEnv(Env):
             map=self.simpy_env.map,
             generators=self.simpy_env.generators,
             optimizer=self.simpy_env.optimizer,
-            view=GridViewPygame() if self.render_mode == "human" else None
+            view=GridViewPygame(self.grid_map_size) if self.render_mode == "human" else None
         )
 
         core_event, _, _ = self.advance_simulation_until_event()
@@ -234,28 +227,20 @@ class FoodDeliveryGymEnv(Env):
             self.simpy_env.render()
 
     def show_statistcs_board(self):
-        custom_board = CustomBoard(metrics=[
+        custom_board = SummarizedDataBoard(metrics=[
             OrderCurveMetric(self.simpy_env),
-            TotalMetric(self.simpy_env),
-            DistanceMetric(self.simpy_env),
-            DelayMetric(self.simpy_env),
-            DriverStatusMetric(self.simpy_env),
-            OrderStatusMetric(self.simpy_env),
-        ])
+            EstablishmentOrdersFulfilledMetric(self.simpy_env),
+            EstablishmentMaxOrdersInQueueMetric(self.simpy_env),
+            EstablishmentActiveTimeMetric(self.simpy_env),
+            EstablishmentIdleTimeMetric(self.simpy_env),
+            DriverOrdersDeliveredMetric(self.simpy_env),
+            DriverTotalDistanceMetric(self.simpy_env),
+        ],
+            num_drivers=self.num_drivers,
+            num_establishments=self.num_establishments,
+            use_tkinter=False
+        )
         custom_board.view()
-
-    def print_enviroment_state(self, options=None):
-        if options is None:
-            options = {
-                "customers": False,
-                "establishments": True,
-                "drivers": True,
-                "orders": False,
-                "events": False,
-                "orders_delivered": True
-            }
-        print(f'time_step = {self.simpy_env.now}')
-        self.simpy_env.print_enviroment_state(options)
 
     def close(self):
         self.simpy_env.close()

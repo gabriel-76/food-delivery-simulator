@@ -24,7 +24,6 @@ class TimeShiftEstablishmentOrderRateGenerator(TimeShiftGenerator):
                 catalog=catalog,
                 production_capacity=1,
                 use_estimate=self.use_estimate,
-                order_request_time_rate=random.randint(1, 10),
                 order_production_time_rate=random.randint(1, 10),
                 operating_radius=random.randint(10, 30)
             )
