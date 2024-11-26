@@ -22,8 +22,9 @@ class Order:
         self.items = items
         self.status: OrderStatus = OrderStatus.CREATED
         self.time_it_was_accepted = 0
-        self.time_preparation_started = None
         self.estimated_time_to_prepare = 0
+        self.real_time_to_prepare = None
+        self.time_preparation_started = None
         self.estimated_time_to_ready = 0
         self.time_it_was_ready = None
         self.required_capacity = self.calculate_required_capacity()
@@ -44,8 +45,12 @@ class Order:
         self.estimated_time_to_prepare = estimated_time_to_prepare
         self.estimated_time_to_ready = estimated_time_to_ready
 
-    def preparation_started(self, now):
+    def preparation_started(self, now, updated_estimate_time_to_ready: int):
         self.time_preparation_started = now
+        self.estimated_time_to_ready = updated_estimate_time_to_ready
+
+    def set_real_time_to_prepare(self, real_time_to_prepare: int):
+        self.real_time_to_prepare = real_time_to_prepare
     
     def ready(self, now):
         self.status = OrderStatus.READY
@@ -59,9 +64,10 @@ class Order:
             f"Coordenadas do Customer : {self.customer.coordinate}\n"
             f"Restaurante: {self.establishment.establishment_id}\n"
             f"Status: {self.status.name}\n"
-            f"Tempo em que o pedido foi feito: {self.time_it_was_accepted}\n"
-            f"Tempo em que a preparação começou: {self.time_preparation_started}\n"
+            f"Tempo em que o pedido foi aceito: {self.time_it_was_accepted}\n"
             f"Tempo estimado de preparação: {self.estimated_time_to_prepare}\n"
+            f"Tempo em que a preparação começou: {self.time_preparation_started}\n"
+            f"Tempo real de preparação: {self.real_time_to_prepare}\n"
             f"Tempo estimado para ficar pronto: {self.estimated_time_to_ready}\n"
             f"Tempo em que ficou pronto: {self.time_it_was_ready}\n"
         )

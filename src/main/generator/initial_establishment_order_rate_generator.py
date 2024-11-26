@@ -30,6 +30,8 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
                 production_capacity=1,
                 use_estimate=self.use_estimate,
                 order_production_time_rate=random.uniform(self.prepare_time[0], self.prepare_time[1]),
+                max_prepare_time=self.prepare_time[1],
+                min_prepare_time=self.prepare_time[0],
                 operating_radius=random.randint(self.operating_radius[0], self.operating_radius[1]),
             )
             for i in range(self.num_establishments)
