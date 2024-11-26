@@ -158,15 +158,11 @@ class Driver(MapActor):
             route_segment = self.current_route.next()
             self.current_route_segment = route_segment
             if route_segment.is_pickup():
-                timeout = self.time_between_accept_and_start_picking_up()
-                timeout = 0
-                yield self.timeout(timeout)
+                yield self.timeout(self.time_between_accept_and_start_picking_up())
                 self.process(self.picking_up(route_segment.order))
             if route_segment.is_delivery():
                 print(f"Driver {self.driver_id} retirou o pedido no estabelecimento {self.current_route.order.establishment.establishment_id} no tempo {self.now}")
-                timeout = self.time_between_picked_up_and_start_delivery()
-                timeout = 0
-                yield self.timeout(timeout)
+                yield self.timeout(self.time_between_picked_up_and_start_delivery())
                 self.process(self.delivering(route_segment.order))
         else:
             self.current_route = None
@@ -294,7 +290,6 @@ class Driver(MapActor):
 
     def time_to_accept_or_reject_route(self) -> int:
         return random.randrange(3, 10)
-        #return 1
 
     def time_between_accept_and_start_picking_up(self) -> int:
         return random.randrange(0, 3)

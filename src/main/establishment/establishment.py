@@ -71,7 +71,6 @@ class Establishment(MapActor):
 
     def process_order_request(self, order) -> ProcessGenerator:
         yield self.timeout(self.time_to_accept_or_reject_order(order))
-        # yield self.timeout(0)
         accept = self.condition_to_accept(order)
         self.accept_order(order) if accept else self.reject_order(order)
 
@@ -229,14 +228,12 @@ class Establishment(MapActor):
 
     def time_to_process_order_requests(self) -> SimTime:
         return random.randrange(1, 5)
-        #return 1
 
     def time_to_accept_or_reject_order(self, order: Order) -> SimTime:
         return random.randrange(1, 5)
 
     def time_check_to_start_preparation(self) -> SimTime:
         return random.randrange(1, 5)
-        #return 1
 
     def time_estimate_to_prepare_order(self) -> SimTime:
         return random.randrange(8, 20)
