@@ -26,7 +26,7 @@ OPERATING_RADIUS = [5, 30]
 SEED = 101010
 
 # Escolha se deseja salvar o log em um arquivo
-SAVE_LOG_TO_FILE = False
+SAVE_LOG_TO_FILE = True
 
 if SAVE_LOG_TO_FILE:
     log_file = open("log.txt", "w", encoding="utf-8")
@@ -51,7 +51,7 @@ def main():
             reward_objective=1,
             function=FUNCTION,
             time_shift=TIME_SHIFT,
-            render_mode='human'
+            #render_mode='human'
         )
 
         # Verificar se o ambiente está implementado corretamente

@@ -44,6 +44,7 @@ class Establishment(MapActor):
         self.overloaded_until: SimTime = 0
         self.current_order_duration: SimTime = 0
         self.order_list_duration: SimTime = 0
+        self.time_that_last_order_was_finished = 0
 
         self.order_requests: List[Order] = []
         self.orders_accepted: List[Order] = []
@@ -83,6 +84,10 @@ class Establishment(MapActor):
         )
         self.publish_event(event)
         estimated_time = self.estimate_preparation_time(order)
+
+        if self.establishment_id == 7:
+            print(f"Estabelecimento {self.establishment_id}")
+
         self.update_overload_time(estimated_time)
         order.establishment_accepted(self.now, estimated_time, self.overloaded_until)
 
@@ -115,10 +120,7 @@ class Establishment(MapActor):
 
                     self.current_order_duration = estimated_time
 
-                    #   A função de atualização não é chamada logo após o pedido ficar pronto, então é necessário descontar o
-                    # "tempo perdido" do pedido atual
-                    overload = self.now + self.current_order_duration + self.order_list_duration
-                    self.overloaded_until = overload - abs(overload - self.overloaded_until)
+                    self.overloaded_until = self.now + self.current_order_duration + self.order_list_duration
                     
                 else:
                     self.overloaded_until = max(self.overloaded_until, self.now)
@@ -130,10 +132,10 @@ class Establishment(MapActor):
             else:
                 if self.is_empty() and self.order_list_duration == 0 and self.current_order_duration == 0:
                     self.current_order_duration = estimated_time
+                    self.overloaded_until = self.now + self.current_order_duration
                 else:
                     self.order_list_duration += estimated_time
-
-                self.overloaded_until = self.now + self.current_order_duration + self.order_list_duration
+                    self.overloaded_until += self.order_list_duration
         
         # Se nenhuma estimativa é passada, o tempo de sobrecarga é atualizado com o tempo atual
         else:
@@ -168,8 +170,15 @@ class Establishment(MapActor):
             while len(self.orders_accepted) > 0 and self.is_within_capacity():
                 order = self.orders_accepted.pop(0)
                 self.update_overload_time(order.estimated_time_to_prepare, True)
+
+                updated_estimated_time = None
+                if self.is_empty() and len(self.orders_accepted) == 0:
+                    updated_estimated_time = self.overloaded_until
+                else:
+                    updated_estimated_time = self.now + order.estimated_time_to_prepare
+
                 self.orders_in_preparation += 1
-                order.preparation_started(self.now)
+                order.preparation_started(self.now, updated_estimated_time)
                 self.process(self.prepare_order(order))
             yield self.timeout(self.time_check_to_start_preparation())
 
@@ -182,10 +191,11 @@ class Establishment(MapActor):
         ))
         order.update_status(OrderStatus.PREPARING)
         time_to_prepare = self.time_to_prepare_order(order.estimated_time_to_prepare)
+        order.set_real_time_to_prepare(time_to_prepare)
         yield self.timeout(time_to_prepare)
-        self.finish_order(order, time_to_prepare)
+        self.finish_order(order)
 
-    def finish_order(self, order: Order, time_to_prepare: SimTime) -> None:
+    def finish_order(self, order: Order) -> None:
         event = EstablishmentFinishedOrder(
             order=order,
             customer_id=order.customer.customer_id,
@@ -196,6 +206,8 @@ class Establishment(MapActor):
         order.ready(self.now)
         self.orders_in_preparation -= 1
         self.current_order_duration = 0
+
+        self.time_that_last_order_was_finished = self.now
 
         print(f"\nPedido pronto no estabelecimento {self.establishment_id}: ")
         print(order)
