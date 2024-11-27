@@ -11,7 +11,7 @@ NUM_ORDERS = 12*24 # 12 pedidos por hora durante 24 horas
 NUM_ESTABLISHMENTS = 10
 NUM_COSTUMERS = NUM_ORDERS
 GRID_MAP_SIZE = 50 # Tamanho do grid 50x50
-MAX_TIME_STEP = 60*60*24*2 # 2 dias
+MAX_TIME_STEP = 60*24*2 # 2 dias
 # 2 pedidos de 10 em 10 minutos
 FUNCTION = lambda time: 2
 TIME_SHIFT = 10
