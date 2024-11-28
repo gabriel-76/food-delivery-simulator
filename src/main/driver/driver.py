@@ -71,6 +71,8 @@ class Driver(MapActor):
         # Variáveis para estatísticas
         self.orders_delivered: Number = 0
         self.total_distance: Number = 0
+        self.idle_time: Number = 0
+        self.time_waiting_for_order: Number = 0
 
         self.process(self.process_route_requests())
         self.process(self.move())
@@ -150,7 +152,7 @@ class Driver(MapActor):
             #       f"estimated time {self.current_route_segment.order.estimated_time_to_ready} "
             #       f"ready time {self.current_route_segment.order.time_it_was_ready} "
             #       f"current time {self.now}")
-            self.status = DriverStatus.PICKING_UP_WAINTING
+            self.status = DriverStatus.PICKING_UP_WAITING
             yield self.timeout(1)
             self.process(self.sequential_processor())
         # Processa a rota
@@ -279,6 +281,9 @@ class Driver(MapActor):
                 self.total_distance += self.environment.map.distance(old_coordinate, self.coordinate)
             yield self.timeout(1)
 
+    def is_active(self) -> bool:
+        return self.current_route is not None or self.current_route_segment is not None or len(self.route_requests) > 0
+
     def accept_route_condition(self, route: Route) -> bool:
         return self.fits(route) and self.available
 
@@ -319,7 +324,7 @@ class Driver(MapActor):
                 if self.current_route_segment.is_pickup():
                     current_order = self.current_route_segment.order
 
-                    if self.status == DriverStatus.PICKING_UP_WAINTING:
+                    if self.status == DriverStatus.PICKING_UP_WAITING:
                         total_busy_time += current_order.estimated_time_to_ready - self.now
                     else:
                         total_busy_time += self.environment.map.estimated_time(
@@ -384,3 +389,10 @@ class Driver(MapActor):
         estimated_time += self.estimate_time_to_costumer_receive_order(nextOrder)
         
         return estimated_time
+    
+    def update_statistcs_variables(self):
+        if not self.is_active():
+            self.idle_time += 1
+        
+        if self.status == DriverStatus.PICKING_UP_WAITING:
+            self.time_waiting_for_order += 1

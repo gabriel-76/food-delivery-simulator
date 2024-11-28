@@ -10,6 +10,8 @@ from src.main.map.grid_map import GridMap
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
 from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route import Route
+from src.main.statistic.driver_idle_time_metric import DriverIdleTimeMetric
+from src.main.statistic.driver_time_waiting_for_order_metric import DriverTimeWaitingForOrderMetric
 from src.main.statistic.summarized_data_board import SummarizedDataBoard
 from src.main.statistic.driver_orders_delivered_metric import DriverOrdersDeliveredMetric
 from src.main.statistic.driver_total_distance_metric import DriverTotalDistanceMetric
@@ -235,6 +237,8 @@ class FoodDeliveryGymEnv(Env):
             EstablishmentIdleTimeMetric(self.simpy_env),
             DriverOrdersDeliveredMetric(self.simpy_env),
             DriverTotalDistanceMetric(self.simpy_env),
+            DriverIdleTimeMetric(self.simpy_env),
+            DriverTimeWaitingForOrderMetric(self.simpy_env)
         ],
             num_drivers=self.num_drivers,
             num_establishments=self.num_establishments,

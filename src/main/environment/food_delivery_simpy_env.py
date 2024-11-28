@@ -149,3 +149,6 @@ class FoodDeliverySimpyEnv(Environment):
     def update_statistcs_variables(self):
         for establishment in self._state.establishments:
             establishment.update_statistcs_variables()
+        
+        for driver in self._state.drivers:
+            driver.update_statistcs_variables()
