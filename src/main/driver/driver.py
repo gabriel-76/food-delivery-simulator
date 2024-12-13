@@ -320,10 +320,10 @@ class Driver(MapActor):
         # Se o motorista já está em uma rota, inclui o tempo restante dessa rota
         if self.current_route is not None:
             if self.current_route_segment is not None:
+                current_order = self.current_route_segment.order
+
                 # Se o segmento atual é de coleta, considera o tempo para pegar o pedido
                 if self.current_route_segment.is_pickup():
-                    current_order = self.current_route_segment.order
-
                     if self.status == DriverStatus.PICKING_UP_WAITING:
                         total_busy_time += current_order.estimated_time_to_ready - self.now
                     else:
@@ -331,16 +331,19 @@ class Driver(MapActor):
                             self.coordinate, current_order.establishment.coordinate, self.movement_rate
                         )
                     total_busy_time += self.time_between_picked_up_and_start_delivery()
+                    total_busy_time += self.environment.map.estimated_time(
+                        current_order.establishment.coordinate, current_order.customer.coordinate, self.movement_rate
+                    )
 
                 # Se o segmento atual é de entrega, considera o tempo de entrega
                 if self.current_route_segment.is_delivery():
                     if self.status == DriverStatus.DELIVERING:
                         total_busy_time += self.environment.map.estimated_time(
-                            self.coordinate, self.current_route_segment.order.customer.coordinate, self.movement_rate
+                            self.coordinate, current_order.customer.coordinate, self.movement_rate
                         )
 
                 if self.status != DriverStatus.AVAILABLE:
-                    total_busy_time += self.estimate_time_to_costumer_receive_order(self.current_route_segment.order)
+                    total_busy_time += self.estimate_time_to_costumer_receive_order(current_order)
 
             # Atualiza a posição do motorista para o local da entrega
             valid_coordinate = self.current_route_segment.order.customer.coordinate
