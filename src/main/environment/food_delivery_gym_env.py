@@ -173,25 +173,20 @@ class FoodDeliveryGymEnv(Env):
         route = Route(self.simpy_env, [segment_pickup, segment_delivery])
         selected_driver.receive_route_requests(route)
 
-    def calculate_reward(self, last_driver_selected):
-        # Tempo total gasto para o driver entregar o último pedido
-        # Se o driver for nulo ou pedido não foi entregue, o tempo é 0
-        time_to_complete_order = 0
-        if last_driver_selected is not None:
-            time_to_complete_order = last_driver_selected.estimate_total_busy_time()
-        
-        # Distância total percorrida pelos drivers
-        sum_distance_drivers = 0
-        for driver in self.simpy_env.state.drivers:
-            sum_distance_drivers += driver.total_distance
-
+    def calculate_reward(self, selected_driver, old_total_distance):
         # Objetivo 1: Minimizar o tempo de entrega -> Recompensa negativa
         if self.reward_objective == 1:
-            reward_time = -time_to_complete_order
+            # Soma das estimativas do tempo de ocupação de cada motoristas
+            sum_busy_time_drivers = 0
+            for driver in self.simpy_env.state.drivers:
+                sum_busy_time_drivers += driver.estimate_total_busy_time()
+
+            reward_time = -sum_busy_time_drivers
             return reward_time
         # Objetivo 2: Minimizar o custo de operação (distância) -> Recompensa negativa
         elif self.reward_objective == 2:
-            reward_distance = -sum_distance_drivers
+            # Distância percorrida desde a última recompensa para o motorista selecionado
+            reward_distance = -(selected_driver.total_distance - old_total_distance)
             return reward_distance
         
     def step(self, action):
@@ -202,6 +197,7 @@ class FoodDeliveryGymEnv(Env):
         # print("action: {}".format(action))
         # print("last_order: {}".format(vars(self.last_order)))
         selected_driver = self.simpy_env.state.drivers[action]
+        old_total_distance = selected_driver.total_distance
         self.select_driver_to_order(selected_driver, self.last_order)
 
         core_event, terminated, truncated = self.advance_simulation_until_event()
@@ -219,7 +215,7 @@ class FoodDeliveryGymEnv(Env):
             # print(f"reward: {reward}")
             return observation, reward, terminated, truncated, info
 
-        reward = self.calculate_reward(selected_driver)
+        reward = self.calculate_reward(selected_driver, old_total_distance)
         # print(f"reward: {reward}")
 
         return observation, reward, terminated, truncated, info
