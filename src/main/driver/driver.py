@@ -68,9 +68,11 @@ class Driver(MapActor):
         self.route_requests: List[Route] = []
         self.last_future_coordinate: Coordinate = coordinate
 
+        self.total_distance: Number = 0
+        self.last_total_distance: Number = 0
+
         # Variáveis para estatísticas
         self.orders_delivered: Number = 0
-        self.total_distance: Number = 0
         self.idle_time: Number = 0
         self.time_waiting_for_order: Number = 0
 
@@ -399,3 +401,6 @@ class Driver(MapActor):
         
         if self.status == DriverStatus.PICKING_UP_WAITING:
             self.time_waiting_for_order += 1
+
+    def updateLastTotalDistance(self):
+        self.last_total_distance = self.total_distance

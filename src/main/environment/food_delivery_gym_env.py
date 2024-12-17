@@ -173,7 +173,7 @@ class FoodDeliveryGymEnv(Env):
         route = Route(self.simpy_env, [segment_pickup, segment_delivery])
         selected_driver.receive_route_requests(route)
 
-    def calculate_reward(self, selected_driver, old_total_distance):
+    def calculate_reward(self):
         # Objetivo 1: Minimizar o tempo de entrega -> Recompensa negativa
         if self.reward_objective == 1:
             # Soma das estimativas do tempo de ocupação de cada motoristas
@@ -181,13 +181,16 @@ class FoodDeliveryGymEnv(Env):
             for driver in self.simpy_env.state.drivers:
                 sum_busy_time_drivers += driver.estimate_total_busy_time()
 
-            reward_time = -sum_busy_time_drivers
-            return reward_time
+            return -sum_busy_time_drivers
         # Objetivo 2: Minimizar o custo de operação (distância) -> Recompensa negativa
         elif self.reward_objective == 2:
             # Distância percorrida desde a última recompensa para o motorista selecionado
-            reward_distance = -(selected_driver.total_distance - old_total_distance)
-            return reward_distance
+            sum_distance_traveled = 0
+            for driver in self.simpy_env.state.drivers:
+                sum_distance_traveled += driver.total_distance - driver.last_total_distance
+                driver.update_last_total_distance()
+            
+            return -sum_distance_traveled
         
     def step(self, action):
         if self.render_mode == "human":
@@ -197,7 +200,6 @@ class FoodDeliveryGymEnv(Env):
         # print("action: {}".format(action))
         # print("last_order: {}".format(vars(self.last_order)))
         selected_driver = self.simpy_env.state.drivers[action]
-        old_total_distance = selected_driver.total_distance
         self.select_driver_to_order(selected_driver, self.last_order)
 
         core_event, terminated, truncated = self.advance_simulation_until_event()
@@ -215,7 +217,7 @@ class FoodDeliveryGymEnv(Env):
             # print(f"reward: {reward}")
             return observation, reward, terminated, truncated, info
 
-        reward = self.calculate_reward(selected_driver, old_total_distance)
+        reward = self.calculate_reward()
         # print(f"reward: {reward}")
 
         return observation, reward, terminated, truncated, info

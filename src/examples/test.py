@@ -26,7 +26,7 @@ OPERATING_RADIUS = [5, 30]
 SEED = 101010
 
 # Escolha se deseja salvar o log em um arquivo
-SAVE_LOG_TO_FILE = True
+SAVE_LOG_TO_FILE = False
 
 if SAVE_LOG_TO_FILE:
     log_file = open("log.txt", "w", encoding="utf-8")
