@@ -26,6 +26,7 @@ class Order:
         self.real_time_to_prepare = None
         self.time_preparation_started = None
         self.estimated_time_to_ready = 0
+        self.time_that_driver_was_allocated = None
         self.time_it_was_ready = None
         self.required_capacity = self.calculate_required_capacity()
         self.delivery_rejections: List[DeliveryRejection] = []
@@ -51,6 +52,9 @@ class Order:
 
     def set_real_time_to_prepare(self, real_time_to_prepare: int):
         self.real_time_to_prepare = real_time_to_prepare
+
+    def driver_allocated(self, now):
+        self.time_that_driver_was_allocated = now
     
     def ready(self, now):
         self.status = OrderStatus.READY
@@ -69,5 +73,6 @@ class Order:
             f"Tempo em que a preparação começou: {self.time_preparation_started}\n"
             f"Tempo real de preparação: {self.real_time_to_prepare}\n"
             f"Tempo estimado para ficar pronto: {self.estimated_time_to_ready}\n"
+            f"Tempo em que o motorista foi alocado: {self.time_that_driver_was_allocated}\n"
             f"Tempo em que ficou pronto: {self.time_it_was_ready}\n"
         )

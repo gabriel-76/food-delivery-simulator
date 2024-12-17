@@ -26,8 +26,8 @@ class FoodDeliveryGymEnv(Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, function, time_shift, vel_drivers, 
-                prepare_time, operating_radius, grid_map_size=100, use_estimate=True, desconsider_capacity=True, 
-                max_time_step=10000, reward_objective=1, seed=None, render_mode=None):
+                prepare_time, operating_radius, percentage_allocation_driver, grid_map_size=100, use_estimate=True, 
+                desconsider_capacity=True, max_time_step=10000, reward_objective=1, seed=None, render_mode=None):
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
         self.num_orders = num_orders
@@ -41,9 +41,23 @@ class FoodDeliveryGymEnv(Env):
         self.simpy_env = FoodDeliverySimpyEnv(
             map=GridMap(self.grid_map_size),
             generators=[
-                InitialEstablishmentOrderRateGenerator(self.num_establishments, prepare_time, operating_radius, use_estimate=use_estimate),
-                InitialDriverGenerator(self.num_drivers, vel_drivers, desconsider_capacity=desconsider_capacity),
-                TimeShiftOrderEstablishmentRateGenerator(function, time_shift=time_shift, max_orders=self.num_orders),
+                InitialEstablishmentOrderRateGenerator(
+                    self.num_establishments, 
+                    prepare_time, 
+                    operating_radius, 
+                    percentage_allocation_driver, 
+                    use_estimate=use_estimate
+                ),
+                InitialDriverGenerator(
+                    self.num_drivers, 
+                    vel_drivers, 
+                    desconsider_capacity=desconsider_capacity
+                ),
+                TimeShiftOrderEstablishmentRateGenerator(
+                    function, 
+                    time_shift=time_shift, 
+                    max_orders=self.num_orders
+                ),
             ],
             optimizer=None,
             view=GridViewPygame(grid_size=self.grid_map_size) if self.render_mode == "human" else None
@@ -132,7 +146,7 @@ class FoodDeliveryGymEnv(Env):
                 core_event = self.simpy_env.dequeue_core_event()
 
                 if core_event is not None:
-                    print('\n----> Novo pedido <----')
+                    print('\n----> Pedido atual para alocação do motorista <----')
                     print(core_event.order)
                 
                 # Verifica se atingiu o limite de tempo

@@ -23,6 +23,11 @@ VEL_DRIVERS = [3, 5]
 PREPARE_TIME = [20, 60]
 OPERATING_RADIUS = [5, 30]
 
+# Variável que controla quando o motorista deve ser alocado
+# A porcentagem se refere ao progresso de preparação do pedido
+# Exemplo: 0.7 indica que o motorista deve será alocado quando o pedido estiver 70% pronto
+PERCENTAGE_ALLOCATION_DRIVER = 0.7
+
 SEED = 101010
 
 # Escolha se deseja salvar o log em um arquivo
@@ -44,6 +49,7 @@ def main():
             vel_drivers=VEL_DRIVERS,
             prepare_time=PREPARE_TIME,
             operating_radius=OPERATING_RADIUS,
+            percentage_allocation_driver=PERCENTAGE_ALLOCATION_DRIVER,
             seed=SEED,
             use_estimate=True, 
             desconsider_capacity=True, 

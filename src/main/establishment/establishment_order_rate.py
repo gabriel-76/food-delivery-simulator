@@ -17,12 +17,22 @@ class EstablishmentOrderRate(Establishment):
             production_capacity,
             order_production_time_rate,
             operating_radius,
+            percentage_allocation_driver: Number = 0.7,
             max_prepare_time: Number = 60,
             min_prepare_time: Number = 20,
             id: Number = None,
             use_estimate: bool = False,
     ):
-        super().__init__(environment, coordinate, available, catalog, id, production_capacity, use_estimate)
+        super().__init__(
+            environment, 
+            coordinate, 
+            available, 
+            catalog, 
+            percentage_allocation_driver, 
+            id, 
+            production_capacity, 
+            use_estimate
+        )
         self.order_production_time_rate = order_production_time_rate
         self.operating_radius = operating_radius
         self.max_prepare_time = max_prepare_time

@@ -13,6 +13,7 @@ from src.main.events.establishment_accepted_order import EstablishmentAcceptedOr
 from src.main.events.establishment_finished_order import EstablishmentFinishedOrder
 from src.main.events.establishment_preparing_order import EstablishmentPreparingOrder
 from src.main.events.establishment_rejected_order import EstablishmentRejectedOrder
+from src.main.events.time_for_agent_allocate_driver import TimeForAgentAllocateDriver
 from src.main.order.order import Order
 from src.main.order.order_status import OrderStatus
 from src.main.establishment.catalog import Catalog
@@ -25,6 +26,7 @@ class Establishment(MapActor):
             coordinate: Coordinate,
             available: bool,
             catalog: Catalog,
+            percentage_allocation_driver: Number = 0.7,
             id: Number = None,
             production_capacity: Number = float('inf'),
             use_estimate: bool = False
@@ -38,6 +40,7 @@ class Establishment(MapActor):
         super().__init__(environment, coordinate, available)
         self.catalog = catalog
         self.production_capacity = production_capacity
+        self.percentage_allocation_driver = percentage_allocation_driver
         self.use_estimate = use_estimate
         self.orders_in_preparation: int = 0
         
@@ -90,7 +93,8 @@ class Establishment(MapActor):
         if (len(self.orders_accepted) > self.max_orders_in_queue):
             self.max_orders_in_queue = len(self.orders_accepted)
 
-        self.environment.add_core_event(event)
+        print('\n----> Novo pedido <----')
+        print(order)
 
     def get_establishment_busy_time(self) -> SimTime:
         # É necessário verificar se tempo de ocupação é pelo menos o momento atual para evitar valores negativos
@@ -184,10 +188,28 @@ class Establishment(MapActor):
             establishment_id=self.establishment_id,
             time=self.now
         ))
+
         order.update_status(OrderStatus.PREPARING)
         time_to_prepare = self.time_to_prepare_order(order.estimated_time_to_prepare)
         order.set_real_time_to_prepare(time_to_prepare)
-        yield self.timeout(time_to_prepare)
+
+        time_to_alocate_driver = round(time_to_prepare * self.percentage_allocation_driver)
+        remaining_time_to_prepare = time_to_prepare - time_to_alocate_driver
+
+        yield self.timeout(time_to_alocate_driver)
+
+        alocation_event = TimeForAgentAllocateDriver(
+            order=order,
+            customer_id=order.customer.customer_id,
+            establishment_id=self.establishment_id,
+            time=self.now
+        )
+        self.publish_event(alocation_event)
+        self.environment.add_core_event(alocation_event)
+        order.set_real_time_to_prepare(self.now)
+
+        yield self.timeout(remaining_time_to_prepare)
+
         self.finish_order(order)
 
     def finish_order(self, order: Order) -> None:
