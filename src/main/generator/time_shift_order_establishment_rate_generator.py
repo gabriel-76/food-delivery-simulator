@@ -8,6 +8,9 @@ from src.main.order.order import Order
 
 
 class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
+    # Variável estática para o ID incremental dos pedidos
+    current_order_id = 1
+
     def __init__(self, function, time_shift=1, max_orders=None):
         super().__init__(function, time_shift)
         self.hash_timeout = {}
@@ -30,7 +33,15 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
 
             items = random.sample(establishment.catalog.items, 2)
 
-            order = Order(customer, establishment, env.now, items)
+            order = Order(
+                customer, 
+                establishment, 
+                env.now, 
+                items, 
+                id=TimeShiftOrderEstablishmentRateGenerator.current_order_id
+            )
+
+            TimeShiftOrderEstablishmentRateGenerator.current_order_id += 1
 
             env.state.add_customers([customer])
             env.state.add_orders([order])

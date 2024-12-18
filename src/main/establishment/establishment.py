@@ -193,24 +193,33 @@ class Establishment(MapActor):
         time_to_prepare = self.time_to_prepare_order(order.estimated_time_to_prepare)
         order.set_real_time_to_prepare(time_to_prepare)
 
-        time_to_alocate_driver = round(time_to_prepare * self.percentage_allocation_driver)
-        remaining_time_to_prepare = time_to_prepare - time_to_alocate_driver
+        time_to_allocate_driver = round(order.estimated_time_to_prepare * self.percentage_allocation_driver)
 
-        yield self.timeout(time_to_alocate_driver)
+        # Define o tempo restante para preparar o pedido após alocar o motorista
+        if time_to_allocate_driver <= time_to_prepare:
+            remaining_time_to_prepare = time_to_prepare - time_to_allocate_driver
+            yield from self._handle_driver_allocation(order, time_to_allocate_driver)
+            yield self.timeout(remaining_time_to_prepare)
+        # Trata para o caso em que o tempo de alocação do motorista (baseado na estimativa) é maior que o tempo efetivo de preparação
+        else:
+            yield self.timeout(time_to_prepare)
+            excess_allocation_time = time_to_allocate_driver - time_to_prepare
+            yield from self._handle_driver_allocation(order, excess_allocation_time)
 
-        alocation_event = TimeForAgentAllocateDriver(
+        self.finish_order(order)
+
+    def _handle_driver_allocation(self, order, allocation_time):
+        # Gerencia a alocação do motorista.
+        yield self.timeout(allocation_time)
+        allocation_event = TimeForAgentAllocateDriver(
             order=order,
             customer_id=order.customer.customer_id,
             establishment_id=self.establishment_id,
             time=self.now
         )
-        self.publish_event(alocation_event)
-        self.environment.add_core_event(alocation_event)
-        order.set_real_time_to_prepare(self.now)
-
-        yield self.timeout(remaining_time_to_prepare)
-
-        self.finish_order(order)
+        self.publish_event(allocation_event)
+        self.environment.add_core_event(allocation_event)
+        order.driver_allocated(self.now)
 
     def finish_order(self, order: Order) -> None:
         event = EstablishmentFinishedOrder(

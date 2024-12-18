@@ -13,9 +13,14 @@ class Order:
             customer,
             establishment,
             request_date: int,
-            items: List[Item]
+            items: List[Item],
+            id: int = None
     ):
-        self.order_id = uuid.uuid4()
+        if id is not None:
+            self.order_id = id
+        else:
+            self.order_id = uuid.uuid4()
+            
         self.customer = customer
         self.establishment = establishment
         self.request_date = request_date
@@ -28,6 +33,7 @@ class Order:
         self.estimated_time_to_ready = 0
         self.time_that_driver_was_allocated = None
         self.time_it_was_ready = None
+        self.isReady = False
         self.required_capacity = self.calculate_required_capacity()
         self.delivery_rejections: List[DeliveryRejection] = []
 
@@ -58,6 +64,7 @@ class Order:
     
     def ready(self, now):
         self.status = OrderStatus.READY
+        self.isReady = True
         self.time_it_was_ready = now
 
     def add_delivery_rejection(self, delivery_rejection: DeliveryRejection):
@@ -65,6 +72,7 @@ class Order:
 
     def __str__(self):
         return (
+            f"ID do Pedido: {self.order_id}\n"
             f"Coordenadas do Customer : {self.customer.coordinate}\n"
             f"Restaurante: {self.establishment.establishment_id}\n"
             f"Status: {self.status.name}\n"

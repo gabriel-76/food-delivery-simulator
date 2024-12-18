@@ -130,7 +130,8 @@ class Driver(MapActor):
             distance=self.current_route.distance,
             time=self.now
         ))
-        route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
+        if (route_segment.order.status != OrderStatus.READY):
+            route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
 
     def accepted_route_extension(self, route: Route) -> None:
         old_distance = self.current_route.distance
@@ -147,7 +148,7 @@ class Driver(MapActor):
 
     def sequential_processor(self) -> ProcessGenerator:
         # Faz o motorista esperar o pedido estar pronto
-        if self.current_route_segment is not None and self.current_route_segment.order.status < OrderStatus.READY: # TODO: Prática ruim depender da sequência
+        if self.current_route_segment is not None and not self.current_route_segment.order.isReady:
             # print(f"Driver {self.coordinate} is waiting for "
             #       f"order {self.current_route_segment.coordinate} "
             #       f"status {self.current_route_segment.order.status.name} "
@@ -194,17 +195,22 @@ class Driver(MapActor):
             time=self.now
         )
         self.publish_event(event)
-        route_segment.order.update_status(OrderStatus.DRIVER_REJECTED)
+        if (route_segment.order.status != OrderStatus.READY):
+            route_segment.order.update_status(OrderStatus.DRIVER_REJECTED)
         rejection = DriverDeliveryRejection(self, self.now)
         self.environment.add_rejected_delivery(route_segment.order, rejection, event)
 
     def picking_up(self, order: Order) -> ProcessGenerator:
         self.start_time_to_last_order = self.now
         self.status = DriverStatus.PICKING_UP
+
         if order.status == OrderStatus.PREPARING:
             order.update_status(OrderStatus.PREPARING_AND_PICKING_UP)
         elif order.status != OrderStatus.READY:
             order.update_status(OrderStatus.PICKING_UP)
+            if (order.order_id == "97" and self.now > 531):
+                print("DEU GAIO!!")
+
         self.publish_event(DriverPickingUpOrder(
             order=order,
             customer_id=order.customer.customer_id,
