@@ -130,7 +130,11 @@ class Driver(MapActor):
             distance=self.current_route.distance,
             time=self.now
         ))
-        if (route_segment.order.status != OrderStatus.READY):
+        if (route_segment.order.status == OrderStatus.PREPARING):
+            route_segment.order.update_status(OrderStatus.PREPARING_AND_DRIVER_ACCEPTED)
+        elif (route_segment.order.status == OrderStatus.READY):
+            route_segment.order.update_status(OrderStatus.READY_AND_DRIVER_ACCEPTED)
+        else:
             route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
 
     def accepted_route_extension(self, route: Route) -> None:
@@ -195,8 +199,14 @@ class Driver(MapActor):
             time=self.now
         )
         self.publish_event(event)
-        if (route_segment.order.status != OrderStatus.READY):
+
+        if (route_segment.order.status == OrderStatus.PREPARING):
+            route_segment.order.update_status(OrderStatus.PREPARING_AND_DRIVER_REJECTED)
+        elif (route_segment.order.status == OrderStatus.READY):
+            route_segment.order.update_status(OrderStatus.READY_AND_DRIVER_REJECTED)
+        else:
             route_segment.order.update_status(OrderStatus.DRIVER_REJECTED)
+            
         rejection = DriverDeliveryRejection(self, self.now)
         self.environment.add_rejected_delivery(route_segment.order, rejection, event)
 
@@ -206,10 +216,10 @@ class Driver(MapActor):
 
         if order.status == OrderStatus.PREPARING:
             order.update_status(OrderStatus.PREPARING_AND_PICKING_UP)
-        elif order.status != OrderStatus.READY:
+        elif order.status == OrderStatus.READY:
+            order.update_status(OrderStatus.READY_AND_PICKING_UP)
+        else:
             order.update_status(OrderStatus.PICKING_UP)
-            if (order.order_id == "97" and self.now > 531):
-                print("DEU GAIO!!")
 
         self.publish_event(DriverPickingUpOrder(
             order=order,
