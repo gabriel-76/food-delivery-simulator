@@ -11,10 +11,11 @@ from src.main.establishment.establishment_order_rate import EstablishmentOrderRa
 
 
 class InitialEstablishmentOrderRateGenerator(InitialGenerator):
-    def __init__(self, num_establishments, prepare_time, operating_radius, percentage_allocation_driver, use_estimate: bool = False):
+    def __init__(self, num_establishments, prepare_time, operating_radius, production_capacity, percentage_allocation_driver, use_estimate: bool = False):
         self.num_establishments = num_establishments
         self.prepare_time = prepare_time
         self.operating_radius = operating_radius
+        self.production_capacity = production_capacity
         self.percentage_allocation_driver = percentage_allocation_driver
         self.use_estimate = use_estimate
 
@@ -28,7 +29,7 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
                 coordinate=env.map.random_point(),
                 available=True,
                 catalog=catalog,
-                production_capacity=4,
+                production_capacity=random.randint(self.production_capacity[0], self.production_capacity[1]),
                 use_estimate=self.use_estimate,
                 order_production_time_rate=random.uniform(self.prepare_time[0], self.prepare_time[1]),
                 percentage_allocation_driver=self.percentage_allocation_driver,

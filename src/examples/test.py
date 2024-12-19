@@ -22,6 +22,7 @@ VEL_DRIVERS = [3, 5]
 # Variáveis para criação dos Estabelecimentos
 PREPARE_TIME = [20, 60]
 OPERATING_RADIUS = [5, 30]
+PRODUCTION_CAPACITY = [1, 4]
 
 # Variável que controla quando o motorista deve ser alocado
 # A porcentagem se refere ao progresso de preparação do pedido
@@ -49,6 +50,7 @@ def main():
             vel_drivers=VEL_DRIVERS,
             prepare_time=PREPARE_TIME,
             operating_radius=OPERATING_RADIUS,
+            production_capacity=PRODUCTION_CAPACITY,
             percentage_allocation_driver=PERCENTAGE_ALLOCATION_DRIVER,
             seed=SEED,
             use_estimate=True, 

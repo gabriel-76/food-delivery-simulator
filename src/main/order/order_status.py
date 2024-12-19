@@ -13,7 +13,7 @@ class OrderStatus(Enum):
     PREPARING_AND_PICKING_UP = auto()
     READY = auto()
 
-    # TODO: REpensar como estbelecer esses status de forma coerente
+    # TODO: Repensar como estbelecer esses status de forma coerente
     READY_AND_DRIVER_ACCEPTED = auto()
     READY_AND_DRIVER_REJECTED = auto()
     READY_AND_PICKING_UP = auto()

@@ -42,7 +42,7 @@ class Establishment(MapActor):
         self.production_capacity = production_capacity
         self.percentage_allocation_driver = percentage_allocation_driver
         self.use_estimate = use_estimate
-        self.orders_in_preparation: int = 0 # TODO: Lembrar de atualizar essa variável - FEITO
+        self.orders_in_preparation: int = 0
 
         self.order_requests: List[Order] = []
         self.orders_rejected: List[Order] = []
@@ -88,14 +88,13 @@ class Establishment(MapActor):
         self.publish_event(event)
         estimated_time = self.estimate_preparation_time(order)
 
-        available_cook_index = self.get_available_cook() # TODO: Pegar o cozinheiro disponível - FEITO
+        available_cook_index = self.get_available_cook()
 
         self.update_overload_time(available_cook_index, estimated_time)
         order.establishment_accepted(self.now, estimated_time, self.overloaded_until_cooks[available_cook_index])
 
-        self.orders_accepted_cooks[available_cook_index].append(order) # TODO: Atualizar a lista aqui - FEITO
+        self.orders_accepted_cooks[available_cook_index].append(order)
 
-        # TODO: Atualizar para a lista aqui - FEITO
         if (len(self.orders_accepted_cooks[available_cook_index]) > self.max_orders_in_queue):
             self.max_orders_in_queue = len(self.orders_accepted_cooks[available_cook_index])
 
@@ -105,17 +104,14 @@ class Establishment(MapActor):
     def get_establishment_busy_time(self) -> SimTime:
         # É necessário verificar se tempo de ocupação é pelo menos o momento atual para evitar valores negativos
         self.update_overload_time_cooks()
-        
-        # TODO: Considerar a soma de todos os tempos de ocupação dos cozinheiros - FEITO
+
         establishment_busy_time = 0
         for i in range(0, self.num_cooks):
             establishment_busy_time += self.overloaded_until_cooks[i] - self.now
 
         return establishment_busy_time
 
-    # TODO: Este método deverá receber o parâmetro com o índice do cozinheiro a ter seu 'overload_time' atualizado - FEITO
     def update_overload_time(self, cook_index, estimated_time = None, afterAcceptOrder = False) -> None:
-        # TODO: Ajustar as variáveis 'self.current_order_duration' e 'self.order_list_duration' para serem listas - FEITO
 
         # Se uma estimativa é passada, ela é usada para calcular o tempo de ocupação
         if estimated_time is not None:
@@ -126,7 +122,7 @@ class Establishment(MapActor):
                 #   Garantimos que as durações sejam atualizadas somente se o restaurante estiver vazio e com a duração 
                 # do pedido atual igual a 0, pois se a duração do pedido atual é diferente de 0, significa que esse é o 
                 # primeiro pedido ou o primeiro pedido depois certo tempo vazio
-                if self.current_order_duration_cooks[cook_index] == 0: # TODO: Verificar se posso tirar 'self.is_empty()' sem problemas - FEITO
+                if self.current_order_duration_cooks[cook_index] == 0:
 
                     if self.order_list_duration_cooks[cook_index] != 0:
                         self.order_list_duration_cooks[cook_index] -= estimated_time
@@ -143,7 +139,7 @@ class Establishment(MapActor):
             #   Além disso a estimativa só será adicionada na duração da lista de pedidos aceitos se for chamado fora do método
             # process_accepted_orders
             else:
-                if self.order_list_duration_cooks[cook_index] == 0 and self.current_order_duration_cooks[cook_index] == 0: # TODO: Verificar se posso tirar 'self.is_empty()' sem problemas - FEITO
+                if self.order_list_duration_cooks[cook_index] == 0 and self.current_order_duration_cooks[cook_index] == 0:
                     self.current_order_duration_cooks[cook_index] = estimated_time
                     self.overloaded_until_cooks[cook_index] = self.now + self.current_order_duration_cooks[cook_index]
                 else:
@@ -180,11 +176,7 @@ class Establishment(MapActor):
 
     def process_accepted_orders(self) -> ProcessGenerator:
         while True:
-            # TODO: Criar um for para percorrer todos os índices de cozinheiros - FEITO
             for cook_index in range(0, self.num_cooks):
-
-                # TODO: Verificar se existe pedidos aceitos para o cozinheiro atual - FEITO
-                # TODO: O Cozinheiro só pode preparar um 1 pedido por vez -> Esse 'self.is_within_capacity()' não faz sentido mais - FEITO
                 if len(self.orders_accepted_cooks[cook_index]) > 0 and not self.cooks_are_cooking[cook_index]:
                     order = self.orders_accepted_cooks[cook_index].pop(0)
                     self.update_overload_time(cook_index, order.estimated_time_to_prepare, True)
@@ -199,6 +191,7 @@ class Establishment(MapActor):
                     self.orders_in_preparation += 1
                     order.preparation_started(self.now, updated_estimated_time)
                     self.process(self.prepare_order(cook_index, order))
+
                 yield self.timeout(self.time_check_to_start_preparation())
 
     def prepare_order(self, cook_index, order) -> ProcessGenerator:
@@ -253,7 +246,7 @@ class Establishment(MapActor):
 
         self.cooks_are_cooking[cook_index] = False
         self.orders_in_preparation -= 1
-        self.current_order_duration_cooks[cook_index] = 0 # TODO: Resetar a duração do pedido atual para o cozinheiro certo - FEITO
+        self.current_order_duration_cooks[cook_index] = 0
         self.orders_fulfilled += 1
 
         print(f"\nPedido pronto no estabelecimento {self.establishment_id}: ")
@@ -276,13 +269,13 @@ class Establishment(MapActor):
 
 
     def is_empty(self) -> bool:
-        return self.orders_in_preparation == 0
+        return sum(len(sublist) for sublist in self.orders_accepted_cooks) == 0
 
-    # def is_within_capacity(self) -> bool:
-    #     return self.orders_in_preparation < self.production_capacity
+    def is_within_capacity(self) -> bool:
+        return sum(len(sublist) for sublist in self.orders_accepted_cooks) < self.production_capacity
 
-    # def is_full(self) -> bool:
-    #     return self.orders_in_preparation >= self.production_capacity
+    def is_full(self) -> bool:
+        return sum(len(sublist) for sublist in self.orders_accepted_cooks) >= self.production_capacity
     
     def is_active(self) -> bool:
         return not self.is_empty() or self.orders_in_preparation > 0

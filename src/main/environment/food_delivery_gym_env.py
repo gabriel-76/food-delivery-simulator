@@ -26,7 +26,7 @@ class FoodDeliveryGymEnv(Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, function, time_shift, vel_drivers, 
-                prepare_time, operating_radius, percentage_allocation_driver, grid_map_size=100, use_estimate=True, 
+                prepare_time, operating_radius, production_capacity, percentage_allocation_driver, grid_map_size=100, use_estimate=True, 
                 desconsider_capacity=True, max_time_step=10000, reward_objective=1, seed=None, render_mode=None):
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
@@ -45,6 +45,7 @@ class FoodDeliveryGymEnv(Env):
                     self.num_establishments, 
                     prepare_time, 
                     operating_radius, 
+                    production_capacity,
                     percentage_allocation_driver, 
                     use_estimate=use_estimate
                 ),
