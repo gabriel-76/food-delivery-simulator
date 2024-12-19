@@ -17,12 +17,22 @@ class EstablishmentOrderRate(Establishment):
             production_capacity,
             order_production_time_rate,
             operating_radius,
+            percentage_allocation_driver: Number = 0.7,
             max_prepare_time: Number = 60,
             min_prepare_time: Number = 20,
             id: Number = None,
             use_estimate: bool = False,
     ):
-        super().__init__(environment, coordinate, available, catalog, id, production_capacity, use_estimate)
+        super().__init__(
+            environment, 
+            coordinate, 
+            available, 
+            catalog, 
+            percentage_allocation_driver, 
+            id, 
+            production_capacity, 
+            use_estimate
+        )
         self.order_production_time_rate = order_production_time_rate
         self.operating_radius = operating_radius
         self.max_prepare_time = max_prepare_time
@@ -30,6 +40,6 @@ class EstablishmentOrderRate(Establishment):
 
     def time_estimate_to_prepare_order(self) -> SimTime:
         time_to_prepare = None
-        while time_to_prepare is None or time_to_prepare < self.min_prepare_time or time_to_prepare > self.max_prepare_time:
+        while time_to_prepare is None or time_to_prepare < self.min_prepare_time or time_to_prepare > self.max_prepare_time:   # TODO: Pesquisar uma forma de não afetar a distribuição
             time_to_prepare = round(random.expovariate(1 / self.order_production_time_rate))
         return time_to_prepare

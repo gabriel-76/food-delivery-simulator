@@ -10,6 +10,8 @@ from src.main.map.grid_map import GridMap
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
 from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route import Route
+from src.main.statistic.driver_idle_time_metric import DriverIdleTimeMetric
+from src.main.statistic.driver_time_waiting_for_order_metric import DriverTimeWaitingForOrderMetric
 from src.main.statistic.summarized_data_board import SummarizedDataBoard
 from src.main.statistic.driver_orders_delivered_metric import DriverOrdersDeliveredMetric
 from src.main.statistic.driver_total_distance_metric import DriverTotalDistanceMetric
@@ -24,8 +26,8 @@ class FoodDeliveryGymEnv(Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, function, time_shift, vel_drivers, 
-                prepare_time, operating_radius, grid_map_size=100, use_estimate=True, desconsider_capacity=True, 
-                max_time_step=10000, reward_objective=1, seed=None, render_mode=None):
+                prepare_time, operating_radius, production_capacity, percentage_allocation_driver, grid_map_size=100, use_estimate=True, 
+                desconsider_capacity=True, max_time_step=10000, reward_objective=1, seed=None, render_mode=None):
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
         self.num_orders = num_orders
@@ -39,9 +41,24 @@ class FoodDeliveryGymEnv(Env):
         self.simpy_env = FoodDeliverySimpyEnv(
             map=GridMap(self.grid_map_size),
             generators=[
-                InitialEstablishmentOrderRateGenerator(self.num_establishments, prepare_time, operating_radius, use_estimate=use_estimate),
-                InitialDriverGenerator(self.num_drivers, vel_drivers, desconsider_capacity=desconsider_capacity),
-                TimeShiftOrderEstablishmentRateGenerator(function, time_shift=time_shift, max_orders=self.num_orders),
+                InitialEstablishmentOrderRateGenerator(
+                    self.num_establishments, 
+                    prepare_time, 
+                    operating_radius, 
+                    production_capacity,
+                    percentage_allocation_driver, 
+                    use_estimate=use_estimate
+                ),
+                InitialDriverGenerator(
+                    self.num_drivers, 
+                    vel_drivers, 
+                    desconsider_capacity=desconsider_capacity
+                ),
+                TimeShiftOrderEstablishmentRateGenerator(
+                    function, 
+                    time_shift=time_shift, 
+                    max_orders=self.num_orders
+                ),
             ],
             optimizer=None,
             view=GridViewPygame(grid_size=self.grid_map_size) if self.render_mode == "human" else None
@@ -130,7 +147,7 @@ class FoodDeliveryGymEnv(Env):
                 core_event = self.simpy_env.dequeue_core_event()
 
                 if core_event is not None:
-                    print('\n----> Novo pedido <----')
+                    print('\n----> Pedido atual para alocação do motorista <----')
                     print(core_event.order)
                 
                 # Verifica se atingiu o limite de tempo
@@ -171,26 +188,24 @@ class FoodDeliveryGymEnv(Env):
         route = Route(self.simpy_env, [segment_pickup, segment_delivery])
         selected_driver.receive_route_requests(route)
 
-    def calculate_reward(self, last_driver_selected):
-        # Tempo total gasto para o driver entregar o último pedido
-        # Se o driver for nulo ou pedido não foi entregue, o tempo é 0
-        time_to_complete_order = 0
-        if last_driver_selected is not None:
-            time_to_complete_order = last_driver_selected.estimate_total_busy_time()
-        
-        # Distância total percorrida pelos drivers
-        sum_distance_drivers = 0
-        for driver in self.simpy_env.state.drivers:
-            sum_distance_drivers += driver.total_distance
-
+    def calculate_reward(self):
         # Objetivo 1: Minimizar o tempo de entrega -> Recompensa negativa
         if self.reward_objective == 1:
-            reward_time = -time_to_complete_order
-            return reward_time
+            # Soma das estimativas do tempo de ocupação de cada motoristas
+            sum_busy_time_drivers = 0
+            for driver in self.simpy_env.state.drivers:
+                sum_busy_time_drivers += driver.estimate_total_busy_time()
+
+            return -sum_busy_time_drivers
         # Objetivo 2: Minimizar o custo de operação (distância) -> Recompensa negativa
         elif self.reward_objective == 2:
-            reward_distance = -sum_distance_drivers
-            return reward_distance
+            # Distância percorrida desde a última recompensa para o motorista selecionado
+            sum_distance_traveled = 0
+            for driver in self.simpy_env.state.drivers:
+                sum_distance_traveled += driver.total_distance - driver.last_total_distance
+                driver.update_last_total_distance()
+            
+            return -sum_distance_traveled
         
     def step(self, action):
         if self.render_mode == "human":
@@ -217,7 +232,7 @@ class FoodDeliveryGymEnv(Env):
             # print(f"reward: {reward}")
             return observation, reward, terminated, truncated, info
 
-        reward = self.calculate_reward(selected_driver)
+        reward = self.calculate_reward()
         # print(f"reward: {reward}")
 
         return observation, reward, terminated, truncated, info
@@ -235,6 +250,8 @@ class FoodDeliveryGymEnv(Env):
             EstablishmentIdleTimeMetric(self.simpy_env),
             DriverOrdersDeliveredMetric(self.simpy_env),
             DriverTotalDistanceMetric(self.simpy_env),
+            DriverIdleTimeMetric(self.simpy_env),
+            DriverTimeWaitingForOrderMetric(self.simpy_env)
         ],
             num_drivers=self.num_drivers,
             num_establishments=self.num_establishments,

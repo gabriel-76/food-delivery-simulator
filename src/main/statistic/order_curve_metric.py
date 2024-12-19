@@ -33,14 +33,13 @@ class OrderCurveMetric(Metric):
             times, counts = zip(*sorted_times)
             status_series[status] = (times, counts)
 
-        # Plotar os dados com bullet points
+        # Plotar os dados como pontos individuais
         for status, (times, counts) in status_series.items():
-            ax.plot(
+            ax.scatter(
                 times,
                 counts,
                 label=status.name.lower(),
-                marker='o',  # Define marcadores como círculos
-                linestyle='-',  # Conecta os pontos com uma linha
+                s=25
             )
 
         # Configurações dos eixos para números inteiros

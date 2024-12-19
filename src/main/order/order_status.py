@@ -1,6 +1,5 @@
 from enum import Enum, auto
 
-
 class OrderStatus(Enum):
     CREATED = auto()
     PLACED = auto()
@@ -12,6 +11,11 @@ class OrderStatus(Enum):
     DRIVER_REJECTED = auto()
     PREPARING_AND_PICKING_UP = auto()
     READY = auto()
+    READY_AND_DRIVER_ACCEPTED = auto()
+    PREPARING_AND_DRIVER_ACCEPTED = auto()
+    READY_AND_DRIVER_REJECTED = auto()
+    PREPARING_AND_DRIVER_REJECTED = auto()
+    READY_AND_PICKING_UP = auto()
     PICKED_UP = auto()
     DELIVERING = auto()
     DRIVER_ARRIVED_DELIVERY_LOCATION = auto()

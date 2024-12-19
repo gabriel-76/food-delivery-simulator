@@ -117,7 +117,7 @@ class FoodDeliverySimpyEnv(Environment):
         
         if self.last_time_step < self.now:
             self.update_statistcs_variables()
-            self.print_enviroment_state()
+            #self.print_enviroment_state()
             self.last_time_step = self.now
 
     def render(self):
@@ -149,3 +149,6 @@ class FoodDeliverySimpyEnv(Environment):
     def update_statistcs_variables(self):
         for establishment in self._state.establishments:
             establishment.update_statistcs_variables()
+        
+        for driver in self._state.drivers:
+            driver.update_statistcs_variables()

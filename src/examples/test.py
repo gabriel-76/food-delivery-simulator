@@ -11,7 +11,7 @@ NUM_ORDERS = 12*24 # 12 pedidos por hora durante 24 horas
 NUM_ESTABLISHMENTS = 10
 NUM_COSTUMERS = NUM_ORDERS
 GRID_MAP_SIZE = 50 # Tamanho do grid 50x50
-MAX_TIME_STEP = 60*60*24*2 # 2 dias
+MAX_TIME_STEP = 60*24*2 # 2 dias
 # 2 pedidos de 10 em 10 minutos
 FUNCTION = lambda time: 2
 TIME_SHIFT = 10
@@ -22,6 +22,12 @@ VEL_DRIVERS = [3, 5]
 # Variáveis para criação dos Estabelecimentos
 PREPARE_TIME = [20, 60]
 OPERATING_RADIUS = [5, 30]
+PRODUCTION_CAPACITY = [1, 4]
+
+# Variável que controla quando o motorista deve ser alocado
+# A porcentagem se refere ao progresso de preparação do pedido
+# Exemplo: 0.7 indica que o motorista deve será alocado quando o pedido estiver 70% pronto
+PERCENTAGE_ALLOCATION_DRIVER = 0.7
 
 SEED = 101010
 
@@ -44,6 +50,8 @@ def main():
             vel_drivers=VEL_DRIVERS,
             prepare_time=PREPARE_TIME,
             operating_radius=OPERATING_RADIUS,
+            production_capacity=PRODUCTION_CAPACITY,
+            percentage_allocation_driver=PERCENTAGE_ALLOCATION_DRIVER,
             seed=SEED,
             use_estimate=True, 
             desconsider_capacity=True, 

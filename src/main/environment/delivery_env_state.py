@@ -83,14 +83,14 @@ class DeliveryEnvState:
         if options.get("establishments", False):
             print("\nEstabelecimentos:")
             for _, establishment in enumerate(self.establishments):
-                print(f"Estabelecimento {establishment.establishment_id}: Coordenadas = {establishment.coordinate}, Pedidos em preparação = {establishment.orders_in_preparation}, Lenght vetor de pedidos aceitos = {len(establishment.orders_accepted)}, Tempo ocupado = {establishment.get_establishment_busy_time()}")
+                print(f"Estabelecimento {establishment.establishment_id}: Coordenadas = {establishment.coordinate}, Pedidos em preparação = {establishment.orders_in_preparation}, Lenght vetor de pedidos aceitos = {sum(len(sublist) for sublist in establishment.orders_accepted_cooks)}, Tempo ocupado = {establishment.get_establishment_busy_time()}")
 
         if options.get("drivers", False):
             print("\nMotoristas:")
             for _, driver in enumerate(self.drivers):
                 print(f"Motorista {driver.driver_id}: Coordenadas = {driver.coordinate}, Última coordenada futura = {driver.last_future_coordinate}, Status = {driver.status} ")
                 if driver.current_route_segment and driver.current_route_segment.order:
-                    print(f"             Status do Pedido Atual: {driver.current_route_segment.order.status}, Estabelecimento do Pedido Atual = {driver.current_route_segment.order.establishment.establishment_id}")
+                    print(f"             ID do Pedido Atual: {driver.current_route_segment.order.order_id}, Status do Pedido Atual: {driver.current_route_segment.order.status}, Estabelecimento do Pedido Atual = {driver.current_route_segment.order.establishment.establishment_id}")
 
         if options.get("orders", False):
             print("\nPedidos:")

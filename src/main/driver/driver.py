@@ -68,9 +68,13 @@ class Driver(MapActor):
         self.route_requests: List[Route] = []
         self.last_future_coordinate: Coordinate = coordinate
 
+        self.total_distance: Number = 0
+        self.last_total_distance: Number = 0
+
         # Variáveis para estatísticas
         self.orders_delivered: Number = 0
-        self.total_distance: Number = 0
+        self.idle_time: Number = 0
+        self.time_waiting_for_order: Number = 0
 
         self.process(self.process_route_requests())
         self.process(self.move())
@@ -126,7 +130,12 @@ class Driver(MapActor):
             distance=self.current_route.distance,
             time=self.now
         ))
-        route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
+        if (route_segment.order.status == OrderStatus.PREPARING):
+            route_segment.order.update_status(OrderStatus.PREPARING_AND_DRIVER_ACCEPTED)
+        elif (route_segment.order.status == OrderStatus.READY):
+            route_segment.order.update_status(OrderStatus.READY_AND_DRIVER_ACCEPTED)
+        else:
+            route_segment.order.update_status(OrderStatus.DRIVER_ACCEPTED)
 
     def accepted_route_extension(self, route: Route) -> None:
         old_distance = self.current_route.distance
@@ -143,14 +152,14 @@ class Driver(MapActor):
 
     def sequential_processor(self) -> ProcessGenerator:
         # Faz o motorista esperar o pedido estar pronto
-        if self.current_route_segment is not None and self.current_route_segment.order.status < OrderStatus.READY: # TODO: Prática ruim depender da sequência
+        if self.current_route_segment is not None and not self.current_route_segment.order.isReady:
             # print(f"Driver {self.coordinate} is waiting for "
             #       f"order {self.current_route_segment.coordinate} "
             #       f"status {self.current_route_segment.order.status.name} "
             #       f"estimated time {self.current_route_segment.order.estimated_time_to_ready} "
             #       f"ready time {self.current_route_segment.order.time_it_was_ready} "
             #       f"current time {self.now}")
-            self.status = DriverStatus.PICKING_UP_WAINTING
+            self.status = DriverStatus.PICKING_UP_WAITING
             yield self.timeout(1)
             self.process(self.sequential_processor())
         # Processa a rota
@@ -158,15 +167,11 @@ class Driver(MapActor):
             route_segment = self.current_route.next()
             self.current_route_segment = route_segment
             if route_segment.is_pickup():
-                timeout = self.time_between_accept_and_start_picking_up()
-                timeout = 0
-                yield self.timeout(timeout)
+                yield self.timeout(self.time_between_accept_and_start_picking_up())
                 self.process(self.picking_up(route_segment.order))
             if route_segment.is_delivery():
                 print(f"Driver {self.driver_id} retirou o pedido no estabelecimento {self.current_route.order.establishment.establishment_id} no tempo {self.now}")
-                timeout = self.time_between_picked_up_and_start_delivery()
-                timeout = 0
-                yield self.timeout(timeout)
+                yield self.timeout(self.time_between_picked_up_and_start_delivery())
                 self.process(self.delivering(route_segment.order))
         else:
             self.current_route = None
@@ -194,17 +199,28 @@ class Driver(MapActor):
             time=self.now
         )
         self.publish_event(event)
-        route_segment.order.update_status(OrderStatus.DRIVER_REJECTED)
+
+        if (route_segment.order.status == OrderStatus.PREPARING):
+            route_segment.order.update_status(OrderStatus.PREPARING_AND_DRIVER_REJECTED)
+        elif (route_segment.order.status == OrderStatus.READY):
+            route_segment.order.update_status(OrderStatus.READY_AND_DRIVER_REJECTED)
+        else:
+            route_segment.order.update_status(OrderStatus.DRIVER_REJECTED)
+            
         rejection = DriverDeliveryRejection(self, self.now)
         self.environment.add_rejected_delivery(route_segment.order, rejection, event)
 
     def picking_up(self, order: Order) -> ProcessGenerator:
         self.start_time_to_last_order = self.now
         self.status = DriverStatus.PICKING_UP
+
         if order.status == OrderStatus.PREPARING:
             order.update_status(OrderStatus.PREPARING_AND_PICKING_UP)
-        elif order.status != OrderStatus.READY:
+        elif order.status == OrderStatus.READY:
+            order.update_status(OrderStatus.READY_AND_PICKING_UP)
+        else:
             order.update_status(OrderStatus.PICKING_UP)
+
         self.publish_event(DriverPickingUpOrder(
             order=order,
             customer_id=order.customer.customer_id,
@@ -283,6 +299,9 @@ class Driver(MapActor):
                 self.total_distance += self.environment.map.distance(old_coordinate, self.coordinate)
             yield self.timeout(1)
 
+    def is_active(self) -> bool:
+        return self.current_route is not None or self.current_route_segment is not None or len(self.route_requests) > 0
+
     def accept_route_condition(self, route: Route) -> bool:
         return self.fits(route) and self.available
 
@@ -294,7 +313,6 @@ class Driver(MapActor):
 
     def time_to_accept_or_reject_route(self) -> int:
         return random.randrange(3, 10)
-        #return 1
 
     def time_between_accept_and_start_picking_up(self) -> int:
         return random.randrange(0, 3)
@@ -320,27 +338,30 @@ class Driver(MapActor):
         # Se o motorista já está em uma rota, inclui o tempo restante dessa rota
         if self.current_route is not None:
             if self.current_route_segment is not None:
+                current_order = self.current_route_segment.order
+
                 # Se o segmento atual é de coleta, considera o tempo para pegar o pedido
                 if self.current_route_segment.is_pickup():
-                    current_order = self.current_route_segment.order
-
-                    if self.status == DriverStatus.PICKING_UP_WAINTING:
+                    if self.status == DriverStatus.PICKING_UP_WAITING:
                         total_busy_time += current_order.estimated_time_to_ready - self.now
                     else:
                         total_busy_time += self.environment.map.estimated_time(
                             self.coordinate, current_order.establishment.coordinate, self.movement_rate
                         )
                     total_busy_time += self.time_between_picked_up_and_start_delivery()
+                    total_busy_time += self.environment.map.estimated_time(
+                        current_order.establishment.coordinate, current_order.customer.coordinate, self.movement_rate
+                    )
 
                 # Se o segmento atual é de entrega, considera o tempo de entrega
                 if self.current_route_segment.is_delivery():
                     if self.status == DriverStatus.DELIVERING:
                         total_busy_time += self.environment.map.estimated_time(
-                            self.coordinate, self.current_route_segment.order.customer.coordinate, self.movement_rate
+                            self.coordinate, current_order.customer.coordinate, self.movement_rate
                         )
 
                 if self.status != DriverStatus.AVAILABLE:
-                    total_busy_time += self.estimate_time_to_costumer_receive_order(self.current_route_segment.order)
+                    total_busy_time += self.estimate_time_to_costumer_receive_order(current_order)
 
             # Atualiza a posição do motorista para o local da entrega
             valid_coordinate = self.current_route_segment.order.customer.coordinate
@@ -389,3 +410,13 @@ class Driver(MapActor):
         estimated_time += self.estimate_time_to_costumer_receive_order(nextOrder)
         
         return estimated_time
+    
+    def update_statistcs_variables(self):
+        if not self.is_active():
+            self.idle_time += 1
+        
+        if self.status == DriverStatus.PICKING_UP_WAITING:
+            self.time_waiting_for_order += 1
+
+    def updateLastTotalDistance(self):
+        self.last_total_distance = self.total_distance
