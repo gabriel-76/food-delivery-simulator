@@ -28,7 +28,7 @@ class InitialEstablishmentOrderRateGenerator(InitialGenerator):
                 coordinate=env.map.random_point(),
                 available=True,
                 catalog=catalog,
-                production_capacity=1,
+                production_capacity=4,
                 use_estimate=self.use_estimate,
                 order_production_time_rate=random.uniform(self.prepare_time[0], self.prepare_time[1]),
                 percentage_allocation_driver=self.percentage_allocation_driver,

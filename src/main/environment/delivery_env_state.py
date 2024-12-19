@@ -83,7 +83,7 @@ class DeliveryEnvState:
         if options.get("establishments", False):
             print("\nEstabelecimentos:")
             for _, establishment in enumerate(self.establishments):
-                print(f"Estabelecimento {establishment.establishment_id}: Coordenadas = {establishment.coordinate}, Pedidos em preparação = {establishment.orders_in_preparation}, Lenght vetor de pedidos aceitos = {len(establishment.orders_accepted)}, Tempo ocupado = {establishment.get_establishment_busy_time()}")
+                print(f"Estabelecimento {establishment.establishment_id}: Coordenadas = {establishment.coordinate}, Pedidos em preparação = {establishment.orders_in_preparation}, Lenght vetor de pedidos aceitos = {sum(len(sublist) for sublist in establishment.orders_accepted_cooks)}, Tempo ocupado = {establishment.get_establishment_busy_time()}")
 
         if options.get("drivers", False):
             print("\nMotoristas:")

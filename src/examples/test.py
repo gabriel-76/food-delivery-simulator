@@ -31,7 +31,7 @@ PERCENTAGE_ALLOCATION_DRIVER = 0.7
 SEED = 101010
 
 # Escolha se deseja salvar o log em um arquivo
-SAVE_LOG_TO_FILE = False
+SAVE_LOG_TO_FILE = True
 
 if SAVE_LOG_TO_FILE:
     log_file = open("log.txt", "w", encoding="utf-8")

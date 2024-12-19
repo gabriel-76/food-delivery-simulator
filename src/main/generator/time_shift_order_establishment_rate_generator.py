@@ -55,6 +55,6 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
                 print(f'Número máximo de pedidos atingido: {self.max_orders}')
                 return
 
-            establishment = random.choice(env.state.establishments)
-            #establishment = env.state.establishments[2]
+            #establishment = random.choice(env.state.establishments)
+            establishment = env.state.establishments[0]
             self.process_establishment(env, establishment)
