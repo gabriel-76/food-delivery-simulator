@@ -22,7 +22,7 @@ VEL_DRIVERS = [3, 5]
 # Variáveis para criação dos Estabelecimentos
 PREPARE_TIME = [20, 60]
 OPERATING_RADIUS = [5, 30]
-PRODUCTION_CAPACITY = [1, 4]
+PRODUCTION_CAPACITY = [4, 4]
 
 # Variável que controla quando o motorista deve ser alocado
 # A porcentagem se refere ao progresso de preparação do pedido
@@ -59,7 +59,7 @@ def main():
             reward_objective=1,
             function=FUNCTION,
             time_shift=TIME_SHIFT,
-            #render_mode='human'
+            render_mode='human'
         )
 
         # Verificar se o ambiente está implementado corretamente

@@ -206,7 +206,7 @@ class Establishment(MapActor):
         time_to_prepare = self.time_to_prepare_order(order.estimated_time_to_prepare)
         order.set_real_time_to_prepare(time_to_prepare)
 
-        time_to_allocate_driver = round(order.estimated_time_to_prepare * self.percentage_allocation_driver)
+        time_to_allocate_driver = round(time_to_prepare * self.percentage_allocation_driver)
 
         # Define o tempo restante para preparar o pedido após alocar o motorista
         if time_to_allocate_driver <= time_to_prepare:
