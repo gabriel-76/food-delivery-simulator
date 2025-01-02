@@ -1,8 +1,8 @@
 simpy
 matplotlib
 pygame
-gymnasium
-numpy
+gymnasium==1.0.0
+numpy==1.26.4
 ortools
-stable-baselines3
+stable-baselines3==2.4.0
 sb3-contrib

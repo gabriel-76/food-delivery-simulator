@@ -1,3 +1,4 @@
+from typing import Optional
 import numpy as np
 from gymnasium import Env
 from gymnasium.spaces import Dict, Box, Discrete
@@ -160,7 +161,7 @@ class FoodDeliveryGymEnv(Env):
 
         return core_event, terminated, truncated
 
-    def reset(self, seed=None, options=None):
+    def reset(self, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.simpy_env.seed(seed)
 
