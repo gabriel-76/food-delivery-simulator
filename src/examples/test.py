@@ -59,7 +59,7 @@ def main():
             reward_objective=1,
             function=FUNCTION,
             time_shift=TIME_SHIFT,
-            render_mode='human'
+            #render_mode='human'
         )
 
         # Verificar se o ambiente está implementado corretamente

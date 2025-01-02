@@ -8,6 +8,7 @@ from simpy.events import ProcessGenerator
 from src.main.actors.map_actor import MapActor
 from src.main.base.types import Coordinate, Number
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
+from src.main.establishment.cook import Cook
 from src.main.events.estimated_order_preparation_time import EstimatedOrderPreparationTime
 from src.main.events.establishment_accepted_order import EstablishmentAcceptedOrder
 from src.main.events.establishment_finished_order import EstablishmentFinishedOrder
@@ -48,11 +49,8 @@ class Establishment(MapActor):
         self.orders_rejected: List[Order] = []
         
         self.num_cooks = production_capacity
-        self.overloaded_until_cooks: List[SimTime] = [0] * self.num_cooks
-        self.current_order_duration_cooks: List[SimTime] = [0] * self.num_cooks
-        self.order_list_duration_cooks: List[SimTime] = [0] * self.num_cooks
-        self.cooks_are_cooking: List[bool] = [False] * self.num_cooks
-        self.orders_accepted_cooks: List[List[Order]] =  [[] for _ in range(self.num_cooks)]
+        # Cria uma lista de instâncias de Cook
+        self.cooks: list[Cook] = [Cook(self.environment) for _ in range(self.num_cooks)]
 
         # Variáveis para estatísticas
         self.orders_fulfilled: Number = 0
@@ -88,15 +86,15 @@ class Establishment(MapActor):
         self.publish_event(event)
         estimated_time = self.estimate_preparation_time(order)
 
-        available_cook_index = self.get_available_cook()
+        available_cook = self.get_available_cook()
 
-        self.update_overload_time(available_cook_index, estimated_time)
-        order.establishment_accepted(self.now, estimated_time, self.overloaded_until_cooks[available_cook_index])
+        available_cook.update_overload_time(estimated_time)
+        order.establishment_accepted(self.now, estimated_time, available_cook.get_overloaded_until())
 
-        self.orders_accepted_cooks[available_cook_index].append(order)
+        available_cook.add_order_to_list(order)
 
-        if (len(self.orders_accepted_cooks[available_cook_index]) > self.max_orders_in_queue):
-            self.max_orders_in_queue = len(self.orders_accepted_cooks[available_cook_index])
+        if (available_cook.get_length_orders_accepted() > self.max_orders_in_queue):
+            self.max_orders_in_queue = available_cook.get_length_orders_accepted()
 
         print('\n----> Novo pedido <----')
         print(order)
@@ -107,48 +105,9 @@ class Establishment(MapActor):
 
         establishment_busy_time = 0
         for i in range(0, self.num_cooks):
-            establishment_busy_time += self.overloaded_until_cooks[i] - self.now
+            establishment_busy_time += self.cooks[i].get_overloaded_until() - self.now
 
         return establishment_busy_time
-
-    def update_overload_time(self, cook_index, estimated_time = None, afterAcceptOrder = False) -> None:
-
-        # Se uma estimativa é passada, ela é usada para calcular o tempo de ocupação
-        if estimated_time is not None:
-
-            # Se esse método for chamado dentro do método process_accepted_orders
-            if afterAcceptOrder:
-
-                #   Garantimos que as durações sejam atualizadas somente se o restaurante estiver vazio e com a duração 
-                # do pedido atual igual a 0, pois se a duração do pedido atual é diferente de 0, significa que esse é o 
-                # primeiro pedido ou o primeiro pedido depois certo tempo vazio
-                if self.current_order_duration_cooks[cook_index] == 0:
-
-                    if self.order_list_duration_cooks[cook_index] != 0:
-                        self.order_list_duration_cooks[cook_index] -= estimated_time
-
-                    self.current_order_duration_cooks[cook_index] = estimated_time
-
-                    self.overloaded_until_cooks[cook_index] = self.now + self.current_order_duration_cooks[cook_index] + self.order_list_duration_cooks[cook_index]
-                    
-                else:
-                    self.overloaded_until_cooks[cook_index] = max(self.overloaded_until_cooks[cook_index], self.now)
-
-            #   Se esse método for chamado fora do método process_accepted_orders só irá atualizar a duração do pedido atual 
-            # caso seja o primeiro pedido ou o primeiro pedido depois certo tempo vazio
-            #   Além disso a estimativa só será adicionada na duração da lista de pedidos aceitos se for chamado fora do método
-            # process_accepted_orders
-            else:
-                if self.order_list_duration_cooks[cook_index] == 0 and self.current_order_duration_cooks[cook_index] == 0:
-                    self.current_order_duration_cooks[cook_index] = estimated_time
-                    self.overloaded_until_cooks[cook_index] = self.now + self.current_order_duration_cooks[cook_index]
-                else:
-                    self.order_list_duration_cooks[cook_index] += estimated_time
-                    self.overloaded_until_cooks[cook_index] += estimated_time
-        
-        # Se nenhuma estimativa é passada, o tempo de sobrecarga é atualizado com o tempo atual
-        else:
-            self.overloaded_until_cooks[cook_index] = max(self.overloaded_until_cooks[cook_index], self.now)
 
     def estimate_preparation_time(self, order) -> SimTime:
         estimated_time = self.time_estimate_to_prepare_order()
@@ -176,25 +135,25 @@ class Establishment(MapActor):
 
     def process_accepted_orders(self) -> ProcessGenerator:
         while True:
-            for cook_index in range(0, self.num_cooks):
-                if len(self.orders_accepted_cooks[cook_index]) > 0 and not self.cooks_are_cooking[cook_index]:
-                    order = self.orders_accepted_cooks[cook_index].pop(0)
-                    self.update_overload_time(cook_index, order.estimated_time_to_prepare, True)
+            for cook in self.cooks:
+                if cook.get_length_orders_accepted() > 0 and not cook.get_is_cooking():
+                    order = cook.pop_order()
+                    cook.update_overload_time(order.estimated_time_to_prepare, True)
 
                     updated_estimated_time = None
-                    if len(self.orders_accepted_cooks[cook_index]) == 0:
-                        updated_estimated_time = self.overloaded_until_cooks[cook_index]
+                    if cook.get_length_orders_accepted() == 0:
+                        updated_estimated_time = cook.get_overloaded_until()
                     else:
                         updated_estimated_time = self.now + order.estimated_time_to_prepare
-
-                    self.cooks_are_cooking[cook_index] = True
+                    
+                    cook.set_is_cooking(True)
                     self.orders_in_preparation += 1
                     order.preparation_started(self.now, updated_estimated_time)
-                    self.process(self.prepare_order(cook_index, order))
+                    self.process(self.prepare_order(cook, order))
 
                 yield self.timeout(self.time_check_to_start_preparation())
 
-    def prepare_order(self, cook_index, order) -> ProcessGenerator:
+    def prepare_order(self, cook, order) -> ProcessGenerator:
         self.publish_event(EstablishmentPreparingOrder(
             order=order,
             customer_id=order.customer.customer_id,
@@ -219,7 +178,7 @@ class Establishment(MapActor):
             excess_allocation_time = time_to_allocate_driver - time_to_prepare
             yield from self._handle_driver_allocation(order, excess_allocation_time)
 
-        self.finish_order(cook_index, order)
+        self.finish_order(cook, order)
 
     def _handle_driver_allocation(self, order, allocation_time):
         # Gerencia a alocação do motorista.
@@ -234,7 +193,7 @@ class Establishment(MapActor):
         self.environment.add_core_event(allocation_event)
         order.driver_allocated(self.now)
 
-    def finish_order(self, cook_index, order: Order) -> None:
+    def finish_order(self, cook, order: Order) -> None:
         event = EstablishmentFinishedOrder(
             order=order,
             customer_id=order.customer.customer_id,
@@ -244,9 +203,9 @@ class Establishment(MapActor):
         self.publish_event(event)
         order.ready(self.now)
 
-        self.cooks_are_cooking[cook_index] = False
+        cook.set_is_cooking(False)
         self.orders_in_preparation -= 1
-        self.current_order_duration_cooks[cook_index] = 0
+        cook.set_current_order_duration(0)
         self.orders_fulfilled += 1
 
         print(f"\nPedido pronto no estabelecimento {self.establishment_id}: ")
@@ -257,25 +216,25 @@ class Establishment(MapActor):
 
     def update_overload_time_cooks(self) -> None:
         for i in range(0, self.num_cooks):
-            self.update_overload_time(i)
+            self.cooks[i].update_overload_time()
 
     def get_available_cook(self):
         self.update_overload_time_cooks()
-        available_cook = 0
+        available_cook_index = 0
         for i in range(1, self.num_cooks):
-            if self.overloaded_until_cooks[i] < self.overloaded_until_cooks[available_cook]:
-                available_cook = i
-        return available_cook
+            if self.cooks[i].get_overloaded_until() < self.cooks[available_cook_index].get_overloaded_until():
+                available_cook_index = i
+        return self.cooks[available_cook_index]
 
 
     def is_empty(self) -> bool:
-        return sum(len(sublist) for sublist in self.orders_accepted_cooks) == 0
+        return sum(cook.get_length_orders_accepted() for cook in self.cooks) == 0
 
     def is_within_capacity(self) -> bool:
-        return sum(len(sublist) for sublist in self.orders_accepted_cooks) < self.production_capacity
+        return self.orders_in_preparation < self.production_capacity
 
     def is_full(self) -> bool:
-        return sum(len(sublist) for sublist in self.orders_accepted_cooks) >= self.production_capacity
+        return self.orders_in_preparation >= self.production_capacity
     
     def is_active(self) -> bool:
         return not self.is_empty() or self.orders_in_preparation > 0
