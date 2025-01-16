@@ -9,6 +9,7 @@ from src.main.generator.initial_generator import InitialGenerator
 
 class InitialDriverGenerator(InitialGenerator):
     def __init__(self, num_drivers, vel_drivers, desconsider_capacity=False):
+        super().__init__()
         self.num_drivers = num_drivers
         self.vel_drivers = vel_drivers
         self.desconsider_capacity = desconsider_capacity

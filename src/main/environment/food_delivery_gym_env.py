@@ -1,3 +1,4 @@
+import traceback
 from typing import Optional
 import numpy as np
 from gymnasium import Env
@@ -28,47 +29,27 @@ class FoodDeliveryGymEnv(Env):
 
     def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, function, time_shift, vel_drivers, 
                 prepare_time, operating_radius, production_capacity, percentage_allocation_driver, grid_map_size=100, use_estimate=True, 
-                desconsider_capacity=True, max_time_step=10000, reward_objective=1, seed=None, render_mode=None):
+                desconsider_capacity=True, max_time_step=10000, reward_objective=1, render_mode=None):
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
         self.num_orders = num_orders
         self.num_costumers = num_costumers
-        self.max_time_step = max_time_step
+        self.function = function
+        self.time_shift = time_shift
+        self.vel_drivers = vel_drivers
+        self.prepare_time = prepare_time
+        self.operating_radius = operating_radius
+        self.production_capacity = production_capacity
+        self.percentage_allocation_driver = percentage_allocation_driver
         self.grid_map_size = grid_map_size
-
+        self.use_estimate = use_estimate
+        self.desconsider_capacity = desconsider_capacity
+        self.max_time_step = max_time_step
+        
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
-        self.simpy_env = FoodDeliverySimpyEnv(
-            map=GridMap(self.grid_map_size),
-            generators=[
-                InitialEstablishmentOrderRateGenerator(
-                    self.num_establishments, 
-                    prepare_time, 
-                    operating_radius, 
-                    production_capacity,
-                    percentage_allocation_driver, 
-                    use_estimate=use_estimate
-                ),
-                InitialDriverGenerator(
-                    self.num_drivers, 
-                    vel_drivers, 
-                    desconsider_capacity=desconsider_capacity
-                ),
-                TimeShiftOrderEstablishmentRateGenerator(
-                    function, 
-                    time_shift=time_shift, 
-                    max_orders=self.num_orders
-                ),
-            ],
-            optimizer=None,
-            view=GridViewPygame(grid_size=self.grid_map_size) if self.render_mode == "human" else None
-        )
-
-        self.simpy_env.seed(seed)
-
-        self.last_order = None
-        self.last_num_orders_delivered = 0
+        self.simpy_env = None # Ambiente de simulação será criado no reset
 
         # Definindo o objetivo da recompensa
         valid_objectives = [1, 2]
@@ -78,10 +59,10 @@ class FoodDeliveryGymEnv(Env):
 
         # Espaço de Observação
         self.observation_space = Dict({
-            'drivers_busy_time': Box(low=0, high=np.inf, shape=(self.num_drivers, 1), dtype=np.int32),
-            'time_to_drivers_complete_order': Box(low=0, high=np.inf, shape=(self.num_drivers, 1), dtype=np.int32),
+            'drivers_busy_time': Box(low=0, high=np.inf, shape=(self.num_drivers,), dtype=np.int32),
+            'time_to_drivers_complete_order': Box(low=0, high=np.inf, shape=(self.num_drivers,), dtype=np.int32),
             'remaining_orders': Discrete(self.num_orders + 1),
-            'establishment_busy_time': Box(low=0, high=np.inf, shape=(self.num_establishments, 1), dtype=np.int32),
+            'establishment_busy_time': Box(low=0, high=np.inf, shape=(self.num_establishments,), dtype=np.int32),
             'current_time_step': Discrete(max_time_step)
         })
 
@@ -90,12 +71,12 @@ class FoodDeliveryGymEnv(Env):
 
     def get_observation(self):
         # 1. drivers_busy_time: Tempo de ocupação de cada motorista
-        drivers_busy_time = np.zeros((self.num_drivers, 1), dtype=np.int32)
+        drivers_busy_time = np.zeros((self.num_drivers,), dtype=np.int32)
         for i, driver in enumerate(self.simpy_env.state.drivers):
             drivers_busy_time[i] = driver.estimate_total_busy_time()
 
         # 2. time_to_drivers_complete_order: Tempo estimado para cada motorista completar o próximo pedido
-        time_to_drivers_complete_order = np.zeros((self.num_drivers, 1), dtype=np.int32)
+        time_to_drivers_complete_order = np.zeros((self.num_drivers,), dtype=np.int32)
         for i, driver in enumerate(self.simpy_env.state.drivers):
             time_to_drivers_complete_order[i] = driver.estimate_time_to_complete_next_order(self.last_order)
 
@@ -103,7 +84,7 @@ class FoodDeliveryGymEnv(Env):
         orders_remaining = self.num_orders - self.simpy_env.state.successfully_assigned_routes
 
         # 4. establishment_next_order_ready_time: Tempo que falta para o próximo pedido em preparação de cada restaurante ficar pronto
-        establishment_busy_time = np.zeros((self.num_establishments, 1), dtype=np.int32)
+        establishment_busy_time = np.zeros((self.num_establishments,), dtype=np.int32)
         for i, establishment in enumerate(self.simpy_env.state.establishments):
             establishment_busy_time[i] = establishment.get_establishment_busy_time()
 
@@ -161,19 +142,45 @@ class FoodDeliveryGymEnv(Env):
 
         return core_event, terminated, truncated
 
-    def reset(self, seed: Optional[int] = None, options: Optional[dict] = None):
+    def reset(self, seed: int | None = None, options: Optional[dict] = None):
+        print("Resetando o ambiente...")
         super().reset(seed=seed)
-        self.simpy_env.seed(seed)
 
         if options:
             self.render_mode = options.get("render_mode", None)
 
         self.simpy_env = FoodDeliverySimpyEnv(
-            map=self.simpy_env.map,
-            generators=self.simpy_env.generators,
-            optimizer=self.simpy_env.optimizer,
-            view=GridViewPygame(self.grid_map_size) if self.render_mode == "human" else None
+            map=GridMap(self.grid_map_size),
+            generators=[
+                InitialEstablishmentOrderRateGenerator(
+                    self.num_establishments, 
+                    self.prepare_time, 
+                    self.operating_radius, 
+                    self.production_capacity,
+                    self.percentage_allocation_driver, 
+                    use_estimate=self.use_estimate,
+                ),
+                InitialDriverGenerator(
+                    self.num_drivers, 
+                    self.vel_drivers, 
+                    desconsider_capacity=self.desconsider_capacity,
+                ),
+                TimeShiftOrderEstablishmentRateGenerator(
+                    self.function, 
+                    time_shift=self.time_shift, 
+                    max_orders=self.num_orders,
+                ),
+            ],
+            optimizer=None,
+            view=GridViewPygame(grid_size=self.grid_map_size) if self.render_mode == "human" else None
         )
+
+        self.simpy_env.seed(seed)
+        for generator in self.simpy_env.generators:
+            generator.reset(seed)
+
+        self.last_order = None
+        self.last_num_orders_delivered = 0
 
         core_event, _, _ = self.advance_simulation_until_event()
         self.last_order = core_event.order if core_event else None
@@ -209,34 +216,40 @@ class FoodDeliveryGymEnv(Env):
             return -sum_distance_traveled
         
     def step(self, action):
-        if self.render_mode == "human":
-            truncated = self.simpy_env.view.quited
+        try:
+            if self.render_mode == "human":
+                truncated = self.simpy_env.view.quited
 
-        terminated = False
-        # print("action: {}".format(action))
-        # print("last_order: {}".format(vars(self.last_order)))
-        selected_driver = self.simpy_env.state.drivers[action]
-        self.select_driver_to_order(selected_driver, self.last_order)
+            terminated = False
+            # print("action: {}".format(action))
+            # print("last_order: {}".format(vars(self.last_order)))
+            selected_driver = self.simpy_env.state.drivers[action]
+            self.select_driver_to_order(selected_driver, self.last_order)
 
-        core_event, terminated, truncated = self.advance_simulation_until_event()
+            core_event, terminated, truncated = self.advance_simulation_until_event()
 
-        self.last_order = core_event.order if core_event else None
+            self.last_order = core_event.order if core_event else None
 
-        observation = self._get_obs()
-        # print(f'observação: {observation}')
-        assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
-        info = self._get_info()
+            observation = self._get_obs()
+            # print(f'observação: {observation}')
+            assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
+            info = self._get_info()
 
-        if terminated or truncated:
-            print("Terminated or truncated!")
-            reward = 0
+            if terminated or truncated:
+                print("Terminated or truncated!")
+                reward = 0
+                # print(f"reward: {reward}")
+                return observation, reward, terminated, truncated, info
+
+            reward = self.calculate_reward()
             # print(f"reward: {reward}")
+
             return observation, reward, terminated, truncated, info
-
-        reward = self.calculate_reward()
-        # print(f"reward: {reward}")
-
-        return observation, reward, terminated, truncated, info
+        except Exception as e:
+            print("Erro ao executar o passo da simulação! Verifique se o método reset() foi chamado antes de utilizar o ambiente.")
+            print(traceback.format_exc())
+            raise
+        
 
     def render(self):
         if self.render_mode == "human":

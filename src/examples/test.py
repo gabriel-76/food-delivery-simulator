@@ -52,7 +52,6 @@ def main():
             operating_radius=OPERATING_RADIUS,
             production_capacity=PRODUCTION_CAPACITY,
             percentage_allocation_driver=PERCENTAGE_ALLOCATION_DRIVER,
-            seed=SEED,
             use_estimate=True,
             desconsider_capacity=True,
             max_time_step=MAX_TIME_STEP,
@@ -63,19 +62,19 @@ def main():
         )
 
         # Verificar se o ambiente está implementado corretamente
-        # check_env(gym_env, warn=True)
+        # check_env(gym_env, warn=True) 
 
-        estado : list[int] = gym_env.reset()
+        estado : list[int] = gym_env.reset(seed=SEED)
         print(f'estado inicial {estado}')
 
         i = 1
         done = False
         soma_recompensa = 0
-        np.random.seed(SEED)
+        # np.random.seed(SEED)
         while not done:
             # acao = 1
-            # acao = gym_env.action_space.sample() # Ação aleatória
-            acao = np.random.randint(0, 10) # Ação aleatória segundo a seed
+            acao = gym_env.action_space.sample() # Ação aleatória
+            # acao = np.random.randint(0, 10) # Ação aleatória segundo a seed
             print("------------------> Step " + str(i) +" <------------------")
             print(f'{acao=}')
             estado, recompensa, done, truncado, info = gym_env.step(acao)
