@@ -58,6 +58,7 @@ def main():
             reward_objective=1,
             function=FUNCTION,
             time_shift=TIME_SHIFT,
+            normalize=True,
             #render_mode='human'
         )
 

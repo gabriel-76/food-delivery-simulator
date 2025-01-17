@@ -29,7 +29,7 @@ class FoodDeliveryGymEnv(Env):
 
     def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, function, time_shift, vel_drivers, 
                 prepare_time, operating_radius, production_capacity, percentage_allocation_driver, grid_map_size=100, use_estimate=True, 
-                desconsider_capacity=True, max_time_step=10000, reward_objective=1, render_mode=None):
+                desconsider_capacity=True, max_time_step=10000, reward_objective=1, render_mode=None, normalize=True):
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
         self.num_orders = num_orders
@@ -45,6 +45,7 @@ class FoodDeliveryGymEnv(Env):
         self.use_estimate = use_estimate
         self.desconsider_capacity = desconsider_capacity
         self.max_time_step = max_time_step
+        self.normalize = normalize
         
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
@@ -58,16 +59,41 @@ class FoodDeliveryGymEnv(Env):
         self.reward_objective = reward_objective
 
         # Espaço de Observação
-        self.observation_space = Dict({
-            'drivers_busy_time': Box(low=0, high=np.inf, shape=(self.num_drivers,), dtype=np.int32),
-            'time_to_drivers_complete_order': Box(low=0, high=np.inf, shape=(self.num_drivers,), dtype=np.int32),
-            'remaining_orders': Discrete(self.num_orders + 1),
-            'establishment_busy_time': Box(low=0, high=np.inf, shape=(self.num_establishments,), dtype=np.int32),
-            'current_time_step': Discrete(max_time_step)
-        })
+        if self.normalize:
+            self.observation_space = Dict({
+                'drivers_busy_time': Box(low=0, high=1, shape=(self.num_drivers,), dtype=np.float32),
+                'time_to_drivers_complete_order': Box(low=0, high=1, shape=(self.num_drivers,), dtype=np.float32),
+                'remaining_orders': Box(low=0, high=1, shape=(1,), dtype=np.float32),
+                'establishment_busy_time': Box(low=0, high=1, shape=(self.num_establishments,), dtype=np.float32),
+                'current_time_step': Box(low=0, high=1, shape=(1,), dtype=np.float32)
+            })
+            
+            self.limits_observation_space = {
+                'drivers_busy_time': (0, max_time_step),
+                'time_to_drivers_complete_order': (0, max_time_step),
+                'remaining_orders': (0, self.num_orders + 1),
+                'establishment_busy_time': (0, max_time_step),
+                'current_time_step': (0, max_time_step)
+            }
+        else:
+            self.observation_space = Dict({
+                'drivers_busy_time': Box(low=0, high=max_time_step, shape=(self.num_drivers,), dtype=np.int32),
+                'time_to_drivers_complete_order': Box(low=0, high=max_time_step, shape=(self.num_drivers,), dtype=np.int32),
+                'remaining_orders': Discrete(self.num_orders + 1),
+                'establishment_busy_time': Box(low=0, high=max_time_step, shape=(self.num_establishments,), dtype=np.int32),
+                'current_time_step': Discrete(max_time_step)
+            })
 
         # Espaço de Ação
         self.action_space = Discrete(self.num_drivers)  # Escolher qual driver pegará o pedido
+
+    def normalize_observation(self, obs):
+        normalized_obs = {}
+        for key, value in obs.items():
+            min_value, max_value = self.limits_observation_space[key]
+            normalized_obs[key] = (value - min_value) / (max_value - min_value)
+        
+        return normalized_obs
 
     def get_observation(self):
         # 1. drivers_busy_time: Tempo de ocupação de cada motorista
@@ -82,6 +108,7 @@ class FoodDeliveryGymEnv(Env):
 
         # 3. orders_remaining: Número de pedidos que faltam ser atribuidos a um motorista
         orders_remaining = self.num_orders - self.simpy_env.state.successfully_assigned_routes
+        orders_remaining = np.array([orders_remaining]) if self.normalize else orders_remaining
 
         # 4. establishment_next_order_ready_time: Tempo que falta para o próximo pedido em preparação de cada restaurante ficar pronto
         establishment_busy_time = np.zeros((self.num_establishments,), dtype=np.int32)
@@ -90,6 +117,7 @@ class FoodDeliveryGymEnv(Env):
 
         # 5. current_time_step: O tempo atual da simulação (número do passo)
         current_time_step = self.simpy_env.now
+        current_time_step = np.array([current_time_step]) if self.normalize else current_time_step
 
         # Criando a observação final no formato esperado
         obs = {
@@ -100,7 +128,7 @@ class FoodDeliveryGymEnv(Env):
             'current_time_step': current_time_step
         }
 
-        return obs
+        return self.normalize_observation(obs) if self.normalize else obs
        
     def _get_info(self):
         return {'info': self.simpy_env.now}
@@ -179,14 +207,14 @@ class FoodDeliveryGymEnv(Env):
         for generator in self.simpy_env.generators:
             generator.reset(seed)
 
-        self.last_order = None
         self.last_num_orders_delivered = 0
-
         core_event, _, _ = self.advance_simulation_until_event()
         self.last_order = core_event.order if core_event else None
 
         observation = self._get_obs()
         info = self._get_info()
+
+        print(observation)
 
         return observation, info
     
@@ -217,6 +245,9 @@ class FoodDeliveryGymEnv(Env):
         
     def step(self, action):
         try:
+            if action < 0 or action >= self.num_drivers:
+                raise ValueError(f"A ação {action} é inválida! Deve ser um número entre 0 e {self.num_drivers}")
+
             if self.render_mode == "human":
                 truncated = self.simpy_env.view.quited
 
@@ -232,6 +263,9 @@ class FoodDeliveryGymEnv(Env):
 
             observation = self._get_obs()
             # print(f'observação: {observation}')
+
+            print(observation)
+
             assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
             info = self._get_info()
 
@@ -245,8 +279,19 @@ class FoodDeliveryGymEnv(Env):
             # print(f"reward: {reward}")
 
             return observation, reward, terminated, truncated, info
+        
+        except ValueError as e:
+            print(e)
+            print(traceback.format_exc())
+            raise
+
+        except AttributeError as e:
+            print("Erro ao executar o passo da simulação!\nVerifique se o método reset() foi chamado antes de utilizar o ambiente.")
+            print(traceback.format_exc())
+            raise
+
         except Exception as e:
-            print("Erro ao executar o passo da simulação! Verifique se o método reset() foi chamado antes de utilizar o ambiente.")
+            print(e)
             print(traceback.format_exc())
             raise
         
