@@ -412,5 +412,5 @@ class Driver(MapActor):
         if self.status == DriverStatus.PICKING_UP_WAITING:
             self.time_waiting_for_order += 1
 
-    def updateLastTotalDistance(self):
+    def update_last_total_distance(self):
         self.last_total_distance = self.total_distance

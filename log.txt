@@ -83,7 +83,6 @@ Tempo estimado para ficar pronto: 35
 Tempo em que o motorista foi alocado: 25
 Tempo em que ficou pronto: None
 
-Backend tkagg is interactive backend. Turning interactive mode on.
 {'drivers_busy_time': array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]), 'time_to_drivers_complete_order': array([0.00659722, 0.00590278, 0.00416667, 0.003125  , 0.00763889,
        0.003125  , 0.00659722, 0.003125  , 0.00590278, 0.00694444]), 'remaining_orders': array([0.99653979]), 'establishment_busy_time': array([0.        , 0.        , 0.00833333, 0.        , 0.02743056,
        0.        , 0.        , 0.        , 0.0125    , 0.00347222]), 'current_time_step': array([0.00868056])}
@@ -91,7 +90,7 @@ estado inicial ({'drivers_busy_time': array([0., 0., 0., 0., 0., 0., 0., 0., 0.,
        0.003125  , 0.00659722, 0.003125  , 0.00590278, 0.00694444]), 'remaining_orders': array([0.99653979]), 'establishment_busy_time': array([0.        , 0.        , 0.00833333, 0.        , 0.02743056,
        0.        , 0.        , 0.        , 0.0125    , 0.00347222]), 'current_time_step': array([0.00868056])}, {'info': 25})
 ------------------> Step 1 <------------------
-acao=2
+acao=6
 
 ----> Novo pedido <----
 ID do Pedido: 5
@@ -120,7 +119,7 @@ Tempo estimado para ficar pronto: 35
 Tempo em que o motorista foi alocado: 25
 Tempo em que ficou pronto: 30
 
-Driver 3 retirou o pedido no estabelecimento 10 no tempo 32
+Driver 7 retirou o pedido no estabelecimento 10 no tempo 33
 
 ----> Novo pedido <----
 ID do Pedido: 8
@@ -141,11 +140,11 @@ ID do Pedido: 7
 Coordenadas do Customer : (15, 13)
 Restaurante: 9
 Status: ESTABLISHMENT_ACCEPTED
-Tempo em que o pedido foi aceito: 35
-Tempo estimado de preparação: 44
+Tempo em que o pedido foi aceito: 33
+Tempo estimado de preparação: 47
 Tempo em que a preparação começou: None
 Tempo real de preparação: None
-Tempo estimado para ficar pronto: 79
+Tempo estimado para ficar pronto: 80
 Tempo em que o motorista foi alocado: None
 Tempo em que ficou pronto: None
 
@@ -163,38 +162,24 @@ Tempo estimado para ficar pronto: 49
 Tempo em que o motorista foi alocado: 37
 Tempo em que ficou pronto: None
 
-{'drivers_busy_time': array([0.        , 0.        , 0.00173611, 0.        , 0.        ,
-       0.        , 0.        , 0.        , 0.        , 0.        ]), 'time_to_drivers_complete_order': array([0.00798611, 0.00590278, 0.00729167, 0.00625   , 0.00590278,
-       0.00381944, 0.00243056, 0.00555556, 0.00486111, 0.00625   ]), 'remaining_orders': array([0.99307958]), 'establishment_busy_time': array([0.        , 0.        , 0.00416667, 0.        , 0.01909722,
-       0.00590278, 0.        , 0.        , 0.03506944, 0.        ]), 'current_time_step': array([0.01284722])}
+{'drivers_busy_time': array([0.        , 0.        , 0.        , 0.        , 0.        ,
+       0.        , 0.00069444, 0.        , 0.        , 0.        ]), 'time_to_drivers_complete_order': array([0.00729167, 0.00590278, 0.00868056, 0.00625   , 0.00590278,
+       0.00381944, 0.00381944, 0.00555556, 0.00486111, 0.00625   ]), 'remaining_orders': array([0.99307958]), 'establishment_busy_time': array([0.        , 0.        , 0.00416667, 0.        , 0.01909722,
+       0.00590278, 0.        , 0.        , 0.03541667, 0.        ]), 'current_time_step': array([0.01284722])}
 A observação gerada não está contida no espaço de observação.
 Traceback (most recent call last):
-  File "C:\food-delivery-simulator\src\main\environment\food_delivery_gym_env.py", line 268, in step
+  File "C:\food-delivery-simulator\src\main\environment\food_delivery_gym_env.py", line 272, in step
     assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
 AssertionError: A observação gerada não está contida no espaço de observação.
 
 Traceback (most recent call last):
-  File "C:\Python312\Lib\runpy.py", line 198, in _run_module_as_main
-    return _run_code(code, main_globals, None,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Python312\Lib\runpy.py", line 88, in _run_code
-    exec(code, run_globals)
-  File "c:\Users\marco\.vscode\extensions\ms-python.debugpy-2024.14.0-win32-x64\bundled\libs\debugpy\adapter/../..\debugpy\launcher/../..\debugpy\__main__.py", line 71, in <module>
-    cli.main()
-  File "c:\Users\marco\.vscode\extensions\ms-python.debugpy-2024.14.0-win32-x64\bundled\libs\debugpy\adapter/../..\debugpy\launcher/../..\debugpy/..\debugpy\server\cli.py", line 501, in main
-    run()
-  File "c:\Users\marco\.vscode\extensions\ms-python.debugpy-2024.14.0-win32-x64\bundled\libs\debugpy\adapter/../..\debugpy\launcher/../..\debugpy/..\debugpy\server\cli.py", line 384, in run_module
-    run_module_as_main(options.target, alter_argv=True)
-  File "c:\Users\marco\.vscode\extensions\ms-python.debugpy-2024.14.0-win32-x64\bundled\libs\debugpy\_vendored\pydevd\_pydevd_bundle\pydevd_runpy.py", line 228, in _run_module_as_main
-    return _run_code(code, main_globals, None, "__main__", mod_spec)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "c:\Users\marco\.vscode\extensions\ms-python.debugpy-2024.14.0-win32-x64\bundled\libs\debugpy\_vendored\pydevd\_pydevd_bundle\pydevd_runpy.py", line 118, in _run_code
-    exec(code, run_globals)
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
   File "C:\food-delivery-simulator\src\examples\test.py", line 102, in <module>
     main()
   File "C:\food-delivery-simulator\src\examples\test.py", line 81, in main
     estado, recompensa, done, truncado, info = gym_env.step(acao)
                                                ^^^^^^^^^^^^^^^^^^
-  File "C:\food-delivery-simulator\src\main\environment\food_delivery_gym_env.py", line 268, in step
+  File "C:\food-delivery-simulator\src\main\environment\food_delivery_gym_env.py", line 272, in step
     assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
 AssertionError: A observação gerada não está contida no espaço de observação.
