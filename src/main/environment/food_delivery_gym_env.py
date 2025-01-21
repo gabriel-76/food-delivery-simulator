@@ -60,12 +60,14 @@ class FoodDeliveryGymEnv(Env):
 
         # Espaço de Observação
         if self.normalize:
+            self.dtype_observation = np.float32
+
             self.observation_space = Dict({
-                'drivers_busy_time': Box(low=0, high=1, shape=(self.num_drivers,), dtype=np.float32),
-                'time_to_drivers_complete_order': Box(low=0, high=1, shape=(self.num_drivers,), dtype=np.float32),
-                'remaining_orders': Box(low=0, high=1, shape=(1,), dtype=np.float32),
-                'establishment_busy_time': Box(low=0, high=1, shape=(self.num_establishments,), dtype=np.float32),
-                'current_time_step': Box(low=0, high=1, shape=(1,), dtype=np.float32)
+                'drivers_busy_time': Box(low=0, high=1, shape=(self.num_drivers,), dtype=self.dtype_observation),
+                'time_to_drivers_complete_order': Box(low=0, high=1, shape=(self.num_drivers,), dtype=self.dtype_observation),
+                'remaining_orders': Box(low=0, high=1, shape=(1,), dtype=self.dtype_observation),
+                'establishment_busy_time': Box(low=0, high=1, shape=(self.num_establishments,), dtype=self.dtype_observation),
+                'current_time_step': Box(low=0, high=1, shape=(1,), dtype=self.dtype_observation)
             })
             
             self.limits_observation_space = {
@@ -76,11 +78,12 @@ class FoodDeliveryGymEnv(Env):
                 'current_time_step': (0, max_time_step)
             }
         else:
+            self.dtype_observation = np.int32
             self.observation_space = Dict({
-                'drivers_busy_time': Box(low=0, high=max_time_step, shape=(self.num_drivers,), dtype=np.int32),
-                'time_to_drivers_complete_order': Box(low=0, high=max_time_step, shape=(self.num_drivers,), dtype=np.int32),
+                'drivers_busy_time': Box(low=0, high=max_time_step, shape=(self.num_drivers,), dtype=self.dtype_observation),
+                'time_to_drivers_complete_order': Box(low=0, high=max_time_step, shape=(self.num_drivers,), dtype=self.dtype_observation),
                 'remaining_orders': Discrete(self.num_orders + 1),
-                'establishment_busy_time': Box(low=0, high=max_time_step, shape=(self.num_establishments,), dtype=np.int32),
+                'establishment_busy_time': Box(low=0, high=max_time_step, shape=(self.num_establishments,), dtype=self.dtype_observation),
                 'current_time_step': Discrete(max_time_step)
             })
 
@@ -97,27 +100,27 @@ class FoodDeliveryGymEnv(Env):
 
     def get_observation(self):
         # 1. drivers_busy_time: Tempo de ocupação de cada motorista
-        drivers_busy_time = np.zeros((self.num_drivers,), dtype=np.int32)
+        drivers_busy_time = np.zeros((self.num_drivers,), dtype=self.dtype_observation)
         for i, driver in enumerate(self.simpy_env.state.drivers):
             drivers_busy_time[i] = driver.estimate_total_busy_time()
 
         # 2. time_to_drivers_complete_order: Tempo estimado para cada motorista completar o próximo pedido
-        time_to_drivers_complete_order = np.zeros((self.num_drivers,), dtype=np.int32)
+        time_to_drivers_complete_order = np.zeros((self.num_drivers,), dtype=self.dtype_observation)
         for i, driver in enumerate(self.simpy_env.state.drivers):
             time_to_drivers_complete_order[i] = driver.estimate_time_to_complete_next_order(self.last_order)
 
         # 3. orders_remaining: Número de pedidos que faltam ser atribuidos a um motorista
         orders_remaining = self.num_orders - self.simpy_env.state.successfully_assigned_routes
-        orders_remaining = np.array([orders_remaining]) if self.normalize else orders_remaining
+        orders_remaining = np.array([orders_remaining], dtype=self.dtype_observation) if self.normalize else orders_remaining
 
         # 4. establishment_next_order_ready_time: Tempo que falta para o próximo pedido em preparação de cada restaurante ficar pronto
-        establishment_busy_time = np.zeros((self.num_establishments,), dtype=np.int32)
+        establishment_busy_time = np.zeros((self.num_establishments,), dtype=self.dtype_observation)
         for i, establishment in enumerate(self.simpy_env.state.establishments):
             establishment_busy_time[i] = establishment.get_establishment_busy_time()
 
         # 5. current_time_step: O tempo atual da simulação (número do passo)
         current_time_step = self.simpy_env.now
-        current_time_step = np.array([current_time_step]) if self.normalize else current_time_step
+        current_time_step = np.array([current_time_step], dtype=self.dtype_observation) if self.normalize else current_time_step
 
         # Criando a observação final no formato esperado
         obs = {
@@ -171,8 +174,8 @@ class FoodDeliveryGymEnv(Env):
         return core_event, terminated, truncated
 
     def reset(self, seed: int | None = None, options: Optional[dict] = None):
-        print("Resetando o ambiente...")
         super().reset(seed=seed)
+        self.action_space.seed(seed=seed)
 
         if options:
             self.render_mode = options.get("render_mode", None)
@@ -213,8 +216,6 @@ class FoodDeliveryGymEnv(Env):
 
         observation = self._get_obs()
         info = self._get_info()
-
-        print(observation)
 
         return observation, info
     
@@ -262,11 +263,9 @@ class FoodDeliveryGymEnv(Env):
             self.last_order = core_event.order if core_event else None
 
             observation = self._get_obs()
-            # print(f'observação: {observation}')
-
-            print(observation)
 
             assert self.observation_space.contains(observation), "A observação gerada não está contida no espaço de observação."
+            
             info = self._get_info()
 
             if terminated or truncated:
