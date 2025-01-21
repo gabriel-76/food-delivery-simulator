@@ -7,6 +7,7 @@ from src.main.generator.generator import Generator
 class TimeShiftGenerator(Generator, ABC):
 
     def __init__(self, function=lambda time: 1, time_shift=1):
+        super().__init__()
         self.function = function
         self.time_shift = time_shift
 

@@ -6,6 +6,9 @@ from src.main.generator.generator import Generator
 
 class InitialGenerator(Generator, ABC):
 
+    def __init__(self):
+        super().__init__()
+
     @abstractmethod
     def run(self, env: FoodDeliverySimpyEnv): pass
 

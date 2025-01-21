@@ -8,13 +8,11 @@ from src.main.order.order import Order
 
 
 class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
-    # Variável estática para o ID incremental dos pedidos
-    current_order_id = 1
 
     def __init__(self, function, time_shift=1, max_orders=None):
         super().__init__(function, time_shift)
-        self.hash_timeout = {}
         self.max_orders = max_orders
+        self.current_order_id = 1
 
     def process_establishment(self, env: FoodDeliverySimpyEnv, establishment):
 
@@ -38,10 +36,10 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
                 establishment, 
                 env.now, 
                 items, 
-                id=TimeShiftOrderEstablishmentRateGenerator.current_order_id
+                id=self.current_order_id
             )
 
-            TimeShiftOrderEstablishmentRateGenerator.current_order_id += 1
+            self.current_order_id += 1
 
             env.state.add_customers([customer])
             env.state.add_orders([order])
@@ -55,6 +53,6 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
                 print(f'Número máximo de pedidos atingido: {self.max_orders}')
                 return
 
-            #establishment = random.choice(env.state.establishments)
-            establishment = env.state.establishments[0]
+            establishment = random.choice(env.state.establishments)
+            #establishment = env.state.establishments[0]
             self.process_establishment(env, establishment)
