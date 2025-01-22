@@ -1,4 +1,3 @@
-import random
 from typing import List
 
 from src.main.base.types import Coordinate, Number
@@ -29,10 +28,10 @@ class GridMap(Map):
         return round(self.distance(coord1, coord2) / rate)
 
     def random_point(self, not_repeated=False) -> Coordinate:
-        point = random.randrange(self.size), random.randrange(self.size)
+        point = self.rng.randrange(self.size), self.rng.randrange(self.size)
         if not_repeated:
             while point in self.generated_points:
-                point = random.randrange(self.size), random.randrange(self.size)
+                point = self.rng.randrange(self.size), self.rng.randrange(self.size)
             self.generated_points[point] = True
         return point
 

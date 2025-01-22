@@ -1,4 +1,3 @@
-import random
 import uuid
 from typing import List
 
@@ -240,20 +239,20 @@ class Establishment(MapActor):
         return not self.is_empty() or self.orders_in_preparation > 0
 
     def time_to_process_order_requests(self) -> SimTime:
-        return random.randrange(1, 5)
+        return self.rng.randrange(1, 5)
 
     def time_to_accept_or_reject_order(self, order: Order) -> SimTime:
-        return random.randrange(1, 5)
+        return self.rng.randrange(1, 5)
 
     def time_check_to_start_preparation(self) -> SimTime:
-        return random.randrange(1, 5)
+        return self.rng.randrange(1, 5)
 
     def time_estimate_to_prepare_order(self) -> SimTime:
-        return random.randrange(8, 20)
+        return self.rng.randrange(8, 20)
 
     def time_to_prepare_order(self, estimated_time: SimTime) -> SimTime:
         # Não faz sentido o tempo de preparo ser menor que 1
-        return max(1, estimated_time + random.randrange(-5, 5))
+        return max(1, estimated_time + self.rng.randrange(-5, 5))
 
     def condition_to_accept(self, order) -> bool:
         return self.available

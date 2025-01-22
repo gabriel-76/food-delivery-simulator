@@ -1,5 +1,3 @@
-import random
-
 from src.main.base.dimensions import Dimensions
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver import Driver, DriverStatus
@@ -20,7 +18,7 @@ class TimeShiftDriverGenerator(TimeShiftGenerator):
                 capacity=capacity,
                 available=True,
                 status=DriverStatus.AVAILABLE,
-                movement_rate=random.uniform(1, 30),
+                movement_rate=self.rng.uniform(1, 30),
             ) for _ in self.range(env)
         ]
         env.add_drivers(drivers)

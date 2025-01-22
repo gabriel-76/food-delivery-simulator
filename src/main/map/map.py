@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 from typing import List
 
 from src.main.base.types import Coordinate, Number
-
+from src.main.utils.random_manager import RandomManager
 
 class Map(ABC):
 
     def __init__(self, size):
         self.size = size
+        self.rng = RandomManager().get_random_instance()
 
     @abstractmethod
     def distance(self, coord1: Coordinate, coord2: Coordinate) -> Number:

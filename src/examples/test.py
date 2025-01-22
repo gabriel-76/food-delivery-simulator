@@ -73,11 +73,8 @@ def main():
         i = 1
         done = False
         soma_recompensa = 0
-        # np.random.seed(SEED)
         while not done:
-            # acao = 1
             acao = gym_env.action_space.sample() # Ação aleatória
-            # acao = np.random.randint(0, 10) # Ação aleatória segundo a seed
             print("------------------> Step " + str(i) +" <------------------")
             print(f'{acao=}')
             estado, recompensa, done, truncado, info = gym_env.step(acao)

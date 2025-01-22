@@ -1,5 +1,3 @@
-import random
-
 from src.main.base.dimensions import Dimensions
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
 from src.main.generator.time_shift_generator import TimeShiftGenerator
@@ -24,8 +22,8 @@ class TimeShiftEstablishmentOrderRateGenerator(TimeShiftGenerator):
                 catalog=catalog,
                 production_capacity=1,
                 use_estimate=self.use_estimate,
-                order_production_time_rate=random.randint(1, 10),
-                operating_radius=random.randint(10, 30)
+                order_production_time_rate=self.rng.randint(1, 10),
+                operating_radius=self.rng.randint(10, 30)
             )
             for _ in self.range(env)
         ]

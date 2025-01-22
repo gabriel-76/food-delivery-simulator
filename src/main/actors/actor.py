@@ -6,12 +6,13 @@ from simpy.core import SimTime
 from simpy.events import ProcessGenerator, Timeout
 
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-
+from src.main.utils.random_manager import RandomManager
 
 class Actor(ABC):
 
     def __init__(self, environment: FoodDeliverySimpyEnv) -> None:
         self._environment = environment
+        self.rng = RandomManager().get_random_instance()
 
     def publish_event(self, event) -> None:
         self._environment.add_event(event)

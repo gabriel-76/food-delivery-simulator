@@ -1,4 +1,3 @@
-import random
 import uuid
 from typing import Optional, List
 
@@ -303,19 +302,19 @@ class Driver(MapActor):
         return self.fits(route) and self.available
 
     def estimate_time_to_driver_receive_order(self) -> int:
-        return random.randrange(1, 5)
+        return self.rng.randrange(1, 5)
 
     def time_to_accept_or_reject_route(self) -> int:
-        return random.randrange(3, 10)
+        return self.rng.randrange(3, 10)
 
     def time_between_accept_and_start_picking_up(self) -> int:
-        return random.randrange(0, 3)
+        return self.rng.randrange(0, 3)
 
     def time_to_picking_up_order(self, order: Order):
         return self.environment.map.estimated_time(self.coordinate, order.establishment.coordinate, self.movement_rate)
 
     def time_between_picked_up_and_start_delivery(self) -> int:
-        return random.randrange(0, 3)
+        return self.rng.randrange(0, 3)
 
     def time_to_deliver_order(self, order: Order) -> int:
         establishment_coordinates = order.establishment.coordinate
