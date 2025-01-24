@@ -1,16 +1,16 @@
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from src.main.cost.cost_function import CostFunction
-from src.main.optimizer.optimizer import Optimizer
+from src.main.optimizer.optimizer_simpy.optimizer_simpy import OptimizerSimpy
 from src.main.order.optimization_delivery_rejection import OptimizationDeliveryRejection
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
 from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route import Route
 
 
-class OrToolsOptimizer(Optimizer):
-    def __init__(self, cost_function: CostFunction, time_shift=1):
-        super().__init__(cost_function, time_shift)
+class OrToolsOptimizerSimpy(OptimizerSimpy):
+    def __init__(self, cost_function: CostFunction):
+        super().__init__(cost_function)
 
     def select_driver(self, env, route):
         pass

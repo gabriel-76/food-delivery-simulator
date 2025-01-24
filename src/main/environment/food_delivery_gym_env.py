@@ -317,3 +317,12 @@ class FoodDeliveryGymEnv(Env):
 
     def close(self):
         self.simpy_env.close()
+
+    def get_simpy_env(self):
+        return self.simpy_env
+
+    def get_last_order(self):
+        return self.last_order
+    
+    def get_available_drivers(self, route):
+        return self.simpy_env.available_drivers(route)
