@@ -165,7 +165,7 @@ class FoodDeliveryGymEnv(Env):
                     print(core_event.order)
                 
                 # Verifica se atingiu o limite de tempo
-                if self.simpy_env.now >= self.max_time_step:
+                if self.simpy_env.now >= self.max_time_step - 1:
                     print("Limite de tempo atingido!")
                     truncated = True
             else:
@@ -324,5 +324,5 @@ class FoodDeliveryGymEnv(Env):
     def get_last_order(self):
         return self.last_order
     
-    def get_available_drivers(self, route):
-        return self.simpy_env.available_drivers(route)
+    def get_drivers(self):
+        return self.simpy_env.get_drivers()

@@ -15,4 +15,4 @@ class NearestDriverOptimizerGym(OptimizerGym):
         # drivers = list(filter(lambda driver: driver.current_route is None or
         # driver.current_route.size() <= 1, drivers))
         nearest_driver = min(drivers, key=lambda driver: self.compare_distance(self.gym_env.simpy_env.map, driver, route))
-        return nearest_driver
+        return drivers.index(nearest_driver)

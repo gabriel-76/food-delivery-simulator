@@ -53,6 +53,9 @@ class FoodDeliverySimpyEnv(Environment):
 
     def available_drivers(self, route):
         return [driver for driver in self._state.drivers if driver.check_availability(route)]
+    
+    def get_drivers(self):
+        return self._state.drivers
 
     def add_ready_order(self, order, event):
         self._state.orders_awaiting_delivery.append(order)

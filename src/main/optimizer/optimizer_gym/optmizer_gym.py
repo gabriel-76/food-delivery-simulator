@@ -28,25 +28,20 @@ class OptimizerGym(Optimizer, ABC):
     def select_driver(self, drivers: List[Driver], route: Route):
         pass
 
-    def process_order(self, order: Order):
+    def assign_driver_to_order(self, order: Order):
         segment_pickup = PickupRouteSegment(order)
         segment_delivery = DeliveryRouteSegment(order)
         route = Route(self.gym_env.get_simpy_env(), [segment_pickup, segment_delivery])
 
-        drivers = self.gym_env.get_available_drivers(route)
+        drivers = self.gym_env.get_drivers()
 
-        driver_index = self.select_driver(drivers, route)
-
-        if driver_index is not None:
-            self.gym_env.step(driver_index)
-        else:
-            raise Exception("Driver not found")
+        return self.select_driver(drivers, route)
 
     def run(self):
         self.initialize()
 
         while not (self.done or self.truncated):
-            action = self.process_order(self.gym_env.get_last_order())
+            action = self.assign_driver_to_order(self.gym_env.get_last_order())
             self.state, reward, self.done, self.truncated, info = self.gym_env.step(action)
             
             print(f"State: {self.state}, Reward: {reward}, Done: {self.done}, Truncated: {self.truncated}")

@@ -1,4 +1,9 @@
+import sys
+from src.main.cost.simple_cost_function import SimpleCostFunction
 from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
+from src.main.optimizer.optimizer_gym.first_driver_optimizer_gym import FirstDriverOptimizerGym
+from src.main.optimizer.optimizer_gym.lowest_cost_driver_optimizer_gym import LowestCostDriverOptimizerGym
+from src.main.optimizer.optimizer_gym.nearest_driver_optimizer_gym import NearestDriverOptimizerGym
 from src.main.optimizer.optimizer_gym.random_driver_optimizer_gym import RandomDriverOptimizerGym
 
 NUM_DRIVERS = 10
@@ -28,6 +33,13 @@ PERCENTAGE_ALLOCATION_DRIVER = 0.7
 NORMALIZE = False
 SEED = 101010
 
+# Escolha se deseja salvar o log em um arquivo
+SAVE_LOG_TO_FILE = True
+
+if SAVE_LOG_TO_FILE:
+    log_file = open("log.txt", "w", encoding="utf-8")
+    sys.stdout = log_file
+    sys.stderr = log_file
 
 def main():
     gym_env = FoodDeliveryGymEnv(
@@ -51,9 +63,15 @@ def main():
         #render_mode='human'
     )
 
-    optimizer = RandomDriverOptimizerGym(gym_env, seed=SEED)
+    #optimizer = RandomDriverOptimizerGym(gym_env, seed=SEED)
+    #optimizer = FirstDriverOptimizerGym(gym_env, seed=SEED)
+    #optimizer = NearestDriverOptimizerGym(gym_env, seed=SEED)
+    optimizer = LowestCostDriverOptimizerGym(gym_env, seed=SEED, cost_function=SimpleCostFunction())
 
     optimizer.run()
 
 if __name__ == '__main__':
     main()
+
+if SAVE_LOG_TO_FILE:
+    log_file.close()
