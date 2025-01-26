@@ -1,13 +1,13 @@
 from src.main.cost.cost_function import CostFunction
 from src.main.driver.driver import Driver
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
-from src.main.optimizer.optimizer import Optimizer
+from src.main.optimizer.optimizer_simpy.optimizer_simpy import OptimizerSimpy
 from src.main.route.route import Route
 
 
-class LowestCostDriverOptimizer(Optimizer):
-    def __init__(self, cost_function: CostFunction, time_shift=1):
-        super().__init__(cost_function, time_shift)
+class LowestCostDriverOptimizerSimpy(OptimizerSimpy):
+    def __init__(self, cost_function: CostFunction):
+        super().__init__(cost_function)
 
     def compare_distance(self, env: FoodDeliverySimpyEnv, driver: Driver, route: Route):
         return self.cost_function.cost(env.map, driver, route.route_segments[0])

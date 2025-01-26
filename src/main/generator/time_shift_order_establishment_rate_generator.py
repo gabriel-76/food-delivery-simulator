@@ -1,5 +1,3 @@
-import random
-
 from src.main.base.geometry import point_in_gauss_circle
 from src.main.customer.customer import Customer
 from src.main.environment.food_delivery_simpy_env import FoodDeliverySimpyEnv
@@ -23,13 +21,14 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
                 coordinate=point_in_gauss_circle(
                     establishment.coordinate,
                     establishment.operating_radius,
-                    env.map.size
+                    env.map.size,
+                    self.rng
                 ),
                 available=True,
                 single_order=True
             )
 
-            items = random.sample(establishment.catalog.items, 2)
+            items = self.rng.sample(establishment.catalog.items, 2)
 
             order = Order(
                 customer, 
@@ -53,6 +52,6 @@ class TimeShiftOrderEstablishmentRateGenerator(TimeShiftGenerator):
                 print(f'Número máximo de pedidos atingido: {self.max_orders}')
                 return
 
-            establishment = random.choice(env.state.establishments)
+            establishment = self.rng.choice(env.state.establishments)
             #establishment = env.state.establishments[0]
             self.process_establishment(env, establishment)

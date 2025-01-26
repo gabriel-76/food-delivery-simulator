@@ -1,5 +1,3 @@
-import random
-
 from src.main.base.dimensions import Dimensions
 from src.main.driver.capacity import Capacity
 from src.main.driver.driver import Driver, DriverStatus
@@ -26,9 +24,9 @@ class InitialDriverGenerator(InitialGenerator):
                 capacity=None if self.desconsider_capacity else capacity,
                 available=True,
                 status=DriverStatus.AVAILABLE,
-                movement_rate=random.uniform(self.vel_drivers[0], self.vel_drivers[1]),
+                movement_rate=self.rng.uniform(self.vel_drivers[0], self.vel_drivers[1]),
                 # Gerar uma cor aleatória RGB para cada motorista
-                color=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)),
+                color=(self.rng.randint(0, 255), self.rng.randint(0, 255), self.rng.randint(0, 255)),
             ) for i in range(self.num_drivers)
         ]
         env.add_drivers(drivers)

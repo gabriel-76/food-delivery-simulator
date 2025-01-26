@@ -3,7 +3,7 @@ from src.main.generator.initial_driver_generator import InitialDriverGenerator
 from src.main.generator.initial_establishment_order_rate_generator import InitialEstablishmentOrderRateGenerator
 from src.main.generator.time_shift_order_establishment_rate_generator import TimeShiftOrderEstablishmentRateGenerator
 from src.main.map.grid_map import GridMap
-from src.main.optimizer.random_driver_optimizer import RandomDriverOptimizer
+from src.main.optimizer.optimizer_simpy.random_driver_optimizer_simpy import RandomDriverOptimizerSimpy
 from src.main.statistic.custom_board import CustomBoard
 from src.main.statistic.delay_metric import DelayMetric
 from src.main.statistic.distance_metric import DistanceMetric
@@ -21,7 +21,7 @@ def run():
             InitialDriverGenerator(20),
             TimeShiftOrderEstablishmentRateGenerator(lambda time: 1),
         ],
-        optimizer=RandomDriverOptimizer()
+        optimizer=RandomDriverOptimizerSimpy()
     )
     environment.run(100, render_mode='human')
 

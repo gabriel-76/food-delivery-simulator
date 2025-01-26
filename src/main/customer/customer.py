@@ -1,4 +1,3 @@
-import random
 import uuid
 
 from simpy.events import ProcessGenerator
@@ -48,5 +47,5 @@ class Customer(MapActor):
         order.update_status(OrderStatus.RECEIVED)
 
     def time_to_receive_order(self):
-        return random.randrange(2, 10)
+        return self.rng.randrange(2, 10)
 

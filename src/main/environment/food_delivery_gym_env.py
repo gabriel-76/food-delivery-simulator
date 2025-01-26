@@ -22,6 +22,7 @@ from src.main.statistic.establishment_idle_time_metric import EstablishmentIdleT
 from src.main.statistic.establishment_max_orders_in_queue_metric import EstablishmentMaxOrdersInQueueMetric
 from src.main.statistic.establishment_orders_fulfilled_metric import EstablishmentOrdersFulfilledMetric
 from src.main.statistic.order_curve_metric import OrderCurveMetric
+from src.main.utils.random_manager import RandomManager
 from src.main.view.grid_view_pygame import GridViewPygame
 
 class FoodDeliveryGymEnv(Env):
@@ -164,7 +165,7 @@ class FoodDeliveryGymEnv(Env):
                     print(core_event.order)
                 
                 # Verifica se atingiu o limite de tempo
-                if self.simpy_env.now >= self.max_time_step:
+                if self.simpy_env.now >= self.max_time_step - 1:
                     print("Limite de tempo atingido!")
                     truncated = True
             else:
@@ -176,6 +177,7 @@ class FoodDeliveryGymEnv(Env):
     def reset(self, seed: int | None = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.action_space.seed(seed=seed)
+        RandomManager().set_seed(seed=seed)
 
         if options:
             self.render_mode = options.get("render_mode", None)
@@ -205,10 +207,6 @@ class FoodDeliveryGymEnv(Env):
             optimizer=None,
             view=GridViewPygame(grid_size=self.grid_map_size) if self.render_mode == "human" else None
         )
-
-        self.simpy_env.seed(seed)
-        for generator in self.simpy_env.generators:
-            generator.reset(seed)
 
         self.last_num_orders_delivered = 0
         core_event, _, _ = self.advance_simulation_until_event()
@@ -319,3 +317,12 @@ class FoodDeliveryGymEnv(Env):
 
     def close(self):
         self.simpy_env.close()
+
+    def get_simpy_env(self):
+        return self.simpy_env
+
+    def get_last_order(self):
+        return self.last_order
+    
+    def get_drivers(self):
+        return self.simpy_env.get_drivers()
