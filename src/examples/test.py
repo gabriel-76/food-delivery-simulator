@@ -73,7 +73,7 @@ def main():
         i = 1
         done = False
         soma_recompensa = 0
-        while not done:
+        while not done or not truncado:
             acao = gym_env.action_space.sample() # Ação aleatória
             print("------------------> Step " + str(i) +" <------------------")
             print(f'{acao=}')

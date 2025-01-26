@@ -163,7 +163,8 @@ class Driver(MapActor):
                 yield self.timeout(self.time_between_accept_and_start_picking_up())
                 self.process(self.picking_up(route_segment.order))
             if route_segment.is_delivery():
-                print(f"Driver {self.driver_id} retirou o pedido no estabelecimento {self.current_route.order.establishment.establishment_id} no tempo {self.now}")
+                # TODO: Logs
+                # print(f"Driver {self.driver_id} retirou o pedido no estabelecimento {self.current_route.order.establishment.establishment_id} no tempo {self.now}")
                 yield self.timeout(self.time_between_picked_up_and_start_delivery())
                 self.process(self.delivering(route_segment.order))
         else:
@@ -278,7 +279,8 @@ class Driver(MapActor):
         self.process(self.sequential_processor())
         self.orders_delivered += 1
         self.environment.state.increment_orders_delivered()
-        print(f"Driver {self.driver_id} entregou o pedido ao cliente no tempo {self.now}")
+        # TODO: Logs
+        # print(f"Driver {self.driver_id} entregou o pedido ao cliente no tempo {self.now}")
 
     def move(self) -> ProcessGenerator:
         while True:

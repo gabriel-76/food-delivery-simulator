@@ -153,23 +153,26 @@ class FoodDeliveryGymEnv(Env):
 
                 # Verifica se um pedido foi entregue
                 if self.simpy_env.state.orders_delivered > self.last_num_orders_delivered:
-                    print("Pedido entregue!")
-                    print(f"Número de pedidos entregues: {self.simpy_env.state.orders_delivered}")
+                    # TODO: Logs
+                    # print("Pedido entregue!")
+                    # print(f"Número de pedidos entregues: {self.simpy_env.state.orders_delivered}")
                     self.last_num_orders_delivered = self.simpy_env.state.orders_delivered
 
                 # Verifica o próximo evento principal
                 core_event = self.simpy_env.dequeue_core_event()
 
-                if core_event is not None:
-                    print('\n----> Pedido atual para alocação do motorista <----')
-                    print(core_event.order)
+                # TODO: Logs
+                # if core_event is not None:
+                #     print('\n----> Pedido atual para alocação do motorista <----')
+                #     print(core_event.order)
                 
                 # Verifica se atingiu o limite de tempo
                 if self.simpy_env.now >= self.max_time_step - 1:
                     print("Limite de tempo atingido!")
                     truncated = True
             else:
-                print("Todos os pedidos foram entregues!")
+                # TODO: Logs
+                # print("Todos os pedidos foram entregues!")
                 terminated = True
 
         return core_event, terminated, truncated
@@ -267,7 +270,8 @@ class FoodDeliveryGymEnv(Env):
             info = self._get_info()
 
             if terminated or truncated:
-                print("Terminated or truncated!")
+                # TODO: Logs
+                # print("Terminated or truncated!")
                 reward = 0
                 # print(f"reward: {reward}")
                 return observation, reward, terminated, truncated, info

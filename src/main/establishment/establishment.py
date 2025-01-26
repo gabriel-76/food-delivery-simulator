@@ -95,8 +95,9 @@ class Establishment(MapActor):
         if (available_cook.get_length_orders_accepted() > self.max_orders_in_queue):
             self.max_orders_in_queue = available_cook.get_length_orders_accepted()
 
-        print('\n----> Novo pedido <----')
-        print(order)
+        # TODO: Logs
+        # print('\n----> Novo pedido <----')
+        # print(order)
 
     def get_establishment_busy_time(self) -> SimTime:
         # É necessário verificar se tempo de ocupação é pelo menos o momento atual para evitar valores negativos
@@ -207,8 +208,9 @@ class Establishment(MapActor):
         cook.set_current_order_duration(0)
         self.orders_fulfilled += 1
 
-        print(f"\nPedido pronto no estabelecimento {self.establishment_id}: ")
-        print(order)
+        # TODO: Logs
+        # print(f"\nPedido pronto no estabelecimento {self.establishment_id}: ")
+        # print(order)
 
         if not self.use_estimate:
             self.environment.add_ready_order(order, event)
