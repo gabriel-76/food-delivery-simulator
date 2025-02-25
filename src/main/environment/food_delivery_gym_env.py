@@ -178,9 +178,10 @@ class FoodDeliveryGymEnv(Env):
         return core_event, terminated, truncated
 
     def reset(self, seed: int | None = None, options: Optional[dict] = None):
-        super().reset(seed=seed)
-        self.action_space.seed(seed=seed)
-        RandomManager().set_seed(seed=seed)
+        if seed is not None:
+            super().reset(seed=seed)
+            self.action_space.seed(seed=seed)
+            RandomManager().set_seed(seed=seed)
 
         if options:
             self.render_mode = options.get("render_mode", None)

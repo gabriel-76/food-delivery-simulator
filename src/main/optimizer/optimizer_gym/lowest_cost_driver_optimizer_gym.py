@@ -9,8 +9,8 @@ from src.main.route.route import Route
 
 class LowestCostDriverOptimizerGym(OptimizerGym):
     
-    def __init__(self, environment: FoodDeliveryGymEnv, seed: int | None = None, cost_function: CostFunction | None = None):
-        super().__init__(environment, seed)
+    def __init__(self, environment: FoodDeliveryGymEnv, cost_function: CostFunction | None = None):
+        super().__init__(environment)
         self.cost_function = cost_function
 
     def compare_distance(self, driver: Driver, route: Route):

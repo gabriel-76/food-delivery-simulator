@@ -10,11 +10,19 @@ from src.main.statistic.metric import Metric
 
 
 class SummarizedDataBoard(Board):
+    image_counter = 0  # Variável estática para controlar o nome das imagens
+
     def __init__(self, metrics: List[Metric], num_drivers: int, num_establishments: int, use_tkinter: bool = False):
         super().__init__(metrics)
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
         self.use_tkinter = use_tkinter
+
+    @classmethod
+    def get_next_image_name(cls) -> str:
+        """Gera um nome de arquivo único para evitar sobrescrições."""
+        cls.image_counter += 1
+        return f"run_{cls.image_counter}_results_fig.png"
 
     def view(self) -> None:
         if self.use_tkinter:
@@ -97,5 +105,9 @@ class SummarizedDataBoard(Board):
             ax = fig.add_subplot(gs[row, col])
             metric.view(ax)
 
+        # Gerar nome de arquivo único e salvar imagem
+        image_name = self.get_next_image_name()
+        fig.savefig("C:/Users/marco/OneDrive/Área de Trabalho/Modelo treinado 6000000 PPO/figs/" + image_name, dpi=300, bbox_inches='tight')
+
         # Mostrar gráficos
-        plt.show()
+        # plt.show()

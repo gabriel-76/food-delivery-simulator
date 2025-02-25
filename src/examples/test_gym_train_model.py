@@ -104,7 +104,7 @@ def main():
 
         # Treinar o modelo com EvalCallback
         model = PPO('MultiInputPolicy', env, verbose=1, tensorboard_log="./ppo_tensorboard/")
-        model.learn(total_timesteps=1000000, callback=eval_callback)
+        model.learn(total_timesteps=6000000, callback=eval_callback)
 
         # Salvar o modelo final
         model.save("ppo_delivery")
@@ -112,31 +112,31 @@ def main():
         # Carregar os dados do Monitor para análise
         log_data = pd.read_csv("logs/monitor.csv", skiprows=1)
 
-        # Plotar recompensa média acumulada por episódio
+        # Plotar recompensa acumulada por episódio
         plt.figure(figsize=(10, 5))
-        plt.plot(log_data["r"].rolling(window=10).mean(), label="Recompensa Média (rolling 10)")
+        plt.plot(log_data["r"], label="Recompensa")
         plt.xlabel("Episódios")
         plt.ylabel("Recompensa")
         plt.title("Curva de Aprendizado - Recompensa por Episódio")
         plt.legend()
         plt.show()
 
-        # Carregar o melhor modelo treinado
-        model = PPO.load("./best_model/best_model.zip")
+        # # Carregar o melhor modelo treinado
+        # model = PPO.load("./ppo_delivery.zip")
 
-        # Testar o modelo treinado
-        obs, info = gym_env.reset(options={'render_mode': 'human'})
+        # # Testar o modelo treinado
+        # obs, info = gym_env.reset(options={'render_mode': 'human'})
 
-        i = 1
-        done = False
-        truncated = False
+        # i = 1
+        # done = False
+        # truncated = False
 
-        while (not done) and (not truncated) and (i <= 1000):
-            action, _states = model.predict(obs)
-            obs, reward, done, truncated, info = gym_env.step(action)
-            i += 1
+        # while (not done) and (not truncated) and (i <= 1000):
+        #     action, _states = model.predict(obs)
+        #     obs, reward, done, truncated, info = gym_env.step(action)
+        #     i += 1
 
-        gym_env.env.show_statistcs_board()
+        # gym_env.env.show_statistcs_board()
 
     except ValueError as e:
         print(e)

@@ -1,10 +1,8 @@
 import sys
-from src.main.cost.simple_cost_function import SimpleCostFunction
+from stable_baselines3 import PPO
+from stable_baselines3.common.env_checker import check_env
+
 from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
-from src.main.optimizer.optimizer_gym.first_driver_optimizer_gym import FirstDriverOptimizerGym
-from src.main.optimizer.optimizer_gym.lowest_cost_driver_optimizer_gym import LowestCostDriverOptimizerGym
-from src.main.optimizer.optimizer_gym.nearest_driver_optimizer_gym import NearestDriverOptimizerGym
-from src.main.optimizer.optimizer_gym.random_driver_optimizer_gym import RandomDriverOptimizerGym
 
 NUM_DRIVERS = 10
 NUM_ORDERS = 12*24 # 12 pedidos por hora durante 24 horas
@@ -30,7 +28,7 @@ PRODUCTION_CAPACITY = [4, 4]
 # Exemplo: 0.7 indica que o motorista deve será alocado quando o pedido estiver 70% pronto
 PERCENTAGE_ALLOCATION_DRIVER = 0.7
 
-NORMALIZE = False
+NORMALIZE = True
 SEEDS = [96201, 497000, 720394, 975084, 774393, 759633, 454796, 204492, 62982, 636872,
  90356, 857421, 255340, 551433, 928406, 919090, 731526, 367840, 826456, 376960,
  847025, 536052, 916556, 459777, 146860, 335491, 52134, 965297, 915470, 818817,
@@ -55,7 +53,7 @@ SEEDS = [96201, 497000, 720394, 975084, 774393, 759633, 454796, 204492, 62982, 6
 # Escolha se deseja salvar o log em um arquivo
 SAVE_LOG_TO_FILE = False
 
-RESULTS_FILE = "C:/Users/marco/OneDrive/Área de Trabalho/Simple Cost Function Heurística/results.txt"
+RESULTS_FILE = "C:/Users/marco/OneDrive/Área de Trabalho/Modelo treinado 6000000 PPO/results.txt"
 
 if SAVE_LOG_TO_FILE:
     log_file = open("log.txt", "w", encoding="utf-8")
@@ -63,6 +61,7 @@ if SAVE_LOG_TO_FILE:
     sys.stderr = log_file
 
 def main():
+    # Criando o ambiente de treinamento
     gym_env = FoodDeliveryGymEnv(
         num_drivers=NUM_DRIVERS,
         num_establishments=NUM_ESTABLISHMENTS,
@@ -81,13 +80,12 @@ def main():
         function=FUNCTION,
         time_shift=TIME_SHIFT,
         normalize=NORMALIZE,
-        #render_mode='human'
     )
 
-    #optimizer = RandomDriverOptimizerGym(gym_env)
-    #optimizer = FirstDriverOptimizerGym(gym_env)
-    #optimizer = NearestDriverOptimizerGym(gym_env)
-    optimizer = LowestCostDriverOptimizerGym(gym_env, cost_function=SimpleCostFunction())
+    check_env(gym_env, warn=True)
+
+    # Carregar o melhor modelo treinado
+    model = PPO.load("./best_model.zip")
 
     total_rewards = []
     num_runs = 200
@@ -97,9 +95,19 @@ def main():
             seed = SEEDS[i]
             print(f"Run {i + 1} - Seed: {seed}")
 
-            resultado = optimizer.run(seed=seed)
+            # Testar o modelo treinado
+            obs, info = gym_env.reset(seed=seed)
 
-            sum_reward = resultado["sum_reward"]
+            sum_reward = 0
+            done = False
+            truncated = False
+            while (not done) and (not truncated) and (i <= 1000):
+                action, _states = model.predict(obs)
+                obs, reward, done, truncated, info = gym_env.step(action)
+                sum_reward += reward
+
+            gym_env.show_statistcs_board()
+
             total_rewards.append(sum_reward)
 
             results_file.write(f"Execução {i + 1}: Seed = {seed}, Soma das Recompensas = {sum_reward}\n")

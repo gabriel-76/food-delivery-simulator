@@ -12,15 +12,14 @@ from src.main.route.route import Route
 
 class OptimizerGym(Optimizer, ABC):
 
-    def __init__(self, environment: FoodDeliveryGymEnv, seed: int | None = None):
+    def __init__(self, environment: FoodDeliveryGymEnv):
         self.gym_env = environment
-        self.seed = seed
         self.state = None
         self.done = False
         self.truncated = False
 
-    def initialize(self):
-        self.state = self.gym_env.reset(seed=self.seed)
+    def initialize(self, seed: int | None = None):
+        self.state = self.gym_env.reset(seed=seed)
         self.done = False
         self.truncated = False
 
@@ -37,21 +36,26 @@ class OptimizerGym(Optimizer, ABC):
 
         return self.select_driver(drivers, route)
 
-    def run(self):
-        self.initialize()
+    def run(self, seed: int | None = None):
+        self.initialize(seed=seed)
 
+        sum = 0
         while not (self.done or self.truncated):
             action = self.assign_driver_to_order(self.gym_env.get_last_order())
             self.state, reward, self.done, self.truncated, info = self.gym_env.step(action)
-            
+            sum += reward
+
             print(f"State: {self.state}, Reward: {reward}, Done: {self.done}, Truncated: {self.truncated}")
 
+        print(f"\n\n\nTotal reward: {sum}")
+        print(f"Final Time  Step: {info['info']}")
         self.gym_env.show_statistcs_board()
 
         return {
             "final_state": self.state,
-            "reward": reward,
+            "final_reward": reward,
             "done": self.done,
             "truncated": self.truncated,
+            "sum_reward": sum,
             "info": info,
         }
