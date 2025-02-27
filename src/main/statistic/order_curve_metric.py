@@ -52,7 +52,7 @@ class OrderCurveMetric(Metric):
         ax.set_xlabel('Time')
         ax.set_ylabel('Number of orders')
         ax.set_title('Number of orders by state over time')
-        ax.legend(title='Status')
+        ax.legend('Number of orders by state over time')
         ax.grid(False)
 
 

@@ -1,15 +1,24 @@
+from collections import defaultdict
+from statistics import mode
 from typing import List, Optional, Union
 
+import numpy as np
 from simpy import Environment, Event
 from simpy.core import SimTime
 
 from src.main.environment.delivery_env_state import DeliveryEnvState
+from src.main.events.event_type import EventType
 from src.main.map.map import Map
 from src.main.order.delivery_rejection import DeliveryRejection
 from src.main.view.food_delivery_view import FoodDeliveryView
 
 
 class FoodDeliverySimpyEnv(Environment):
+
+    # Armazena listas de valores para cálculos estatísticos
+    establishment_metrics = defaultdict(lambda: defaultdict(list))
+    driver_metrics = defaultdict(lambda: defaultdict(list))
+
     def __init__(self, map: Map, generators, optimizer, view: FoodDeliveryView = None):
         super().__init__()
         self.map = map
@@ -148,3 +157,42 @@ class FoodDeliverySimpyEnv(Environment):
         
         for driver in self._state.drivers:
             driver.update_statistcs_variables()
+
+    def save_statatistic_data(self):
+        for establishment in self._state.establishments:
+            id = establishment.establishment_id
+            FoodDeliverySimpyEnv.establishment_metrics[id]["orders_fulfilled"].append(establishment.orders_fulfilled)
+            FoodDeliverySimpyEnv.establishment_metrics[id]["idle_time"].append(establishment.idle_time)
+            FoodDeliverySimpyEnv.establishment_metrics[id]["active_time"].append(establishment.active_time)
+            FoodDeliverySimpyEnv.establishment_metrics[id]["max_orders_in_queue"].append(establishment.max_orders_in_queue)
+
+        for driver in self._state.drivers:
+            id = driver.driver_id
+            FoodDeliverySimpyEnv.driver_metrics[id]["orders_delivered"].append(driver.orders_delivered)
+            FoodDeliverySimpyEnv.driver_metrics[id]["idle_time"].append(driver.idle_time)
+            FoodDeliverySimpyEnv.driver_metrics[id]["time_waiting_for_order"].append(driver.time_waiting_for_order)
+            FoodDeliverySimpyEnv.driver_metrics[id]["total_distance"].append(driver.total_distance)
+    
+    def compute_statistics(self):
+        """Calcula média, desvio padrão, mediana e moda para os dados coletados."""
+
+        def calculate_stats(values):
+            return {
+                "mean": np.mean(values) if values else 0,
+                "std_dev": np.std(values) if len(values) > 1 else 0,
+                "median": np.median(values) if values else 0,
+                "mode": mode(values) if values else 0
+            }
+
+        statistics = {
+            "establishments": {},
+            "drivers": {}
+        }
+
+        for id, metrics in FoodDeliverySimpyEnv.establishment_metrics.items():
+            statistics["establishments"][id] = {key: calculate_stats(values) for key, values in metrics.items()}
+
+        for id, metrics in FoodDeliverySimpyEnv.driver_metrics.items():
+            statistics["drivers"][id] = {key: calculate_stats(values) for key, values in metrics.items()}
+
+        return statistics

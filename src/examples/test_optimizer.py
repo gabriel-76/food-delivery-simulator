@@ -55,7 +55,7 @@ SEEDS = [96201, 497000, 720394, 975084, 774393, 759633, 454796, 204492, 62982, 6
 # Escolha se deseja salvar o log em um arquivo
 SAVE_LOG_TO_FILE = False
 
-RESULTS_FILE = "C:/Users/marco/OneDrive/Área de Trabalho/Simple Cost Function Heurística/results.txt"
+RESULTS_DIR = "C:/Users/marco/OneDrive/Área de Trabalho/teste/"
 
 if SAVE_LOG_TO_FILE:
     log_file = open("log.txt", "w", encoding="utf-8")
@@ -81,18 +81,19 @@ def main():
         function=FUNCTION,
         time_shift=TIME_SHIFT,
         normalize=NORMALIZE,
+        dir_path=RESULTS_DIR,
         #render_mode='human'
     )
 
-    #optimizer = RandomDriverOptimizerGym(gym_env)
+    optimizer = RandomDriverOptimizerGym(gym_env)
     #optimizer = FirstDriverOptimizerGym(gym_env)
     #optimizer = NearestDriverOptimizerGym(gym_env)
-    optimizer = LowestCostDriverOptimizerGym(gym_env, cost_function=SimpleCostFunction())
+    #optimizer = LowestCostDriverOptimizerGym(gym_env, cost_function=SimpleCostFunction())
 
     total_rewards = []
-    num_runs = 200
+    num_runs = 10
 
-    with open(RESULTS_FILE, "w", encoding="utf-8") as results_file:
+    with open(RESULTS_DIR + "results.txt", "w", encoding="utf-8") as results_file:
         for i in range(num_runs):
             seed = SEEDS[i]
             print(f"Run {i + 1} - Seed: {seed}")
@@ -107,7 +108,10 @@ def main():
         avg_reward = sum(total_rewards) / num_runs
         results_file.write(f"\nMédia das somas das recompensas: {avg_reward:.2f}\n")
     
-    print(f"Resultados salvos em {RESULTS_FILE}")
+    print(f"Resultados salvos em " + RESULTS_DIR + "results.txt")
+
+    optimizer.show_mean_statistic_board()
+
 
 
 if __name__ == '__main__':

@@ -59,3 +59,6 @@ class OptimizerGym(Optimizer, ABC):
             "sum_reward": sum,
             "info": info,
         }
+    
+    def show_mean_statistic_board(self):
+        self.gym_env.show_total_mean_statistics_board()

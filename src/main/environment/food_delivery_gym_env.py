@@ -26,11 +26,15 @@ from src.main.utils.random_manager import RandomManager
 from src.main.view.grid_view_pygame import GridViewPygame
 
 class FoodDeliveryGymEnv(Env):
+
+    num_episodes = 0
+    sum_rewards_mean = 0
+
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, function, time_shift, vel_drivers, 
                 prepare_time, operating_radius, production_capacity, percentage_allocation_driver, grid_map_size=100, use_estimate=True, 
-                desconsider_capacity=True, max_time_step=10000, reward_objective=1, render_mode=None, normalize=True):
+                desconsider_capacity=True, max_time_step=10000, reward_objective=1, render_mode=None, normalize=True, dir_path=None):
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
         self.num_orders = num_orders
@@ -47,6 +51,10 @@ class FoodDeliveryGymEnv(Env):
         self.desconsider_capacity = desconsider_capacity
         self.max_time_step = max_time_step
         self.normalize = normalize
+        self.calculate_total_mean = True
+        self.dir_path = dir_path
+        
+        self.sum_rewards = 0
         
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
@@ -183,6 +191,13 @@ class FoodDeliveryGymEnv(Env):
             self.action_space.seed(seed=seed)
             RandomManager().set_seed(seed=seed)
 
+        if self.calculate_total_mean:
+            if FoodDeliveryGymEnv.num_episodes > 0:
+                self.simpy_env.save_statatistic_data()
+                FoodDeliveryGymEnv.sum_rewards_mean += (self.sum_rewards - FoodDeliveryGymEnv.sum_rewards_mean) / FoodDeliveryGymEnv.num_episodes
+
+            FoodDeliveryGymEnv.num_episodes += 1
+
         if options:
             self.render_mode = options.get("render_mode", None)
 
@@ -213,6 +228,7 @@ class FoodDeliveryGymEnv(Env):
         )
 
         self.last_num_orders_delivered = 0
+        self.sum_rewards = 0
         core_event, _, _ = self.advance_simulation_until_event()
         self.last_order = core_event.order if core_event else None
 
@@ -278,6 +294,7 @@ class FoodDeliveryGymEnv(Env):
                 return observation, reward, terminated, truncated, info
 
             reward = self.calculate_reward()
+            self.sum_rewards += reward
             # print(f"reward: {reward}")
 
             return observation, reward, terminated, truncated, info
@@ -316,6 +333,33 @@ class FoodDeliveryGymEnv(Env):
         ],
             num_drivers=self.num_drivers,
             num_establishments=self.num_establishments,
+            sum_rewards=self.sum_rewards,
+            save_figs=True,
+            dir_path=self.dir_path,
+            use_total_mean=False,
+            use_tkinter=False
+        )
+        custom_board.view()
+    
+    def show_total_mean_statistics_board(self):
+        statistics = self.simpy_env.compute_statistics()
+
+        custom_board = SummarizedDataBoard(metrics=[
+            EstablishmentOrdersFulfilledMetric(self.simpy_env, establishments_statistics=statistics["establishments"]),
+            EstablishmentMaxOrdersInQueueMetric(self.simpy_env, establishments_statistics=statistics["establishments"]),
+            EstablishmentActiveTimeMetric(self.simpy_env, establishments_statistics=statistics["establishments"]),
+            EstablishmentIdleTimeMetric(self.simpy_env, establishments_statistics=statistics["establishments"]),
+            DriverOrdersDeliveredMetric(self.simpy_env, drivers_statistics=statistics["drivers"]),
+            DriverTotalDistanceMetric(self.simpy_env, drivers_statistics=statistics["drivers"]),
+            DriverIdleTimeMetric(self.simpy_env, drivers_statistics=statistics["drivers"]),
+            DriverTimeWaitingForOrderMetric(self.simpy_env, drivers_statistics=statistics["drivers"])
+        ],
+            num_drivers=self.num_drivers,
+            num_establishments=self.num_establishments,
+            sum_rewards=self.sum_rewards_mean,
+            save_figs=True,
+            dir_path=self.dir_path,
+            use_total_mean=True,
             use_tkinter=False
         )
         custom_board.view()

@@ -1,6 +1,9 @@
 from math import ceil
+import os
 from typing import List
 
+import matplotlib
+matplotlib.use("Agg") 
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
@@ -12,17 +15,36 @@ from src.main.statistic.metric import Metric
 class SummarizedDataBoard(Board):
     image_counter = 0  # Variável estática para controlar o nome das imagens
 
-    def __init__(self, metrics: List[Metric], num_drivers: int, num_establishments: int, use_tkinter: bool = False):
+    def __init__(
+            self, 
+            metrics: List[Metric], 
+            num_drivers: int, 
+            num_establishments: int, 
+            sum_rewards: int, 
+            save_figs: bool = False, 
+            dir_path: str = "./", 
+            use_total_mean: bool = False, 
+            use_tkinter: bool = False
+        ):
         super().__init__(metrics)
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
+        self.sum_rewards = sum_rewards
+        self.save_figs = save_figs
+        self.dir_path = dir_path
+        self.figs_dir = os.path.join(self.dir_path, "figs")
+        # Criar a pasta 'figs' caso não exista
+        os.makedirs(self.figs_dir, exist_ok=True)
+        self.use_total_mean = use_total_mean
         self.use_tkinter = use_tkinter
 
-    @classmethod
-    def get_next_image_name(cls) -> str:
+    def get_next_image_name(self) -> str:
         """Gera um nome de arquivo único para evitar sobrescrições."""
-        cls.image_counter += 1
-        return f"run_{cls.image_counter}_results_fig.png"
+        if self.use_total_mean:
+            return f"mean_results_{self.sum_rewards}_fig.png"
+        else:
+            SummarizedDataBoard.image_counter += 1
+            return f"run_{self.image_counter}_results_{self.sum_rewards}_fig.png"
 
     def view(self) -> None:
         if self.use_tkinter:
@@ -93,21 +115,37 @@ class SummarizedDataBoard(Board):
         fig = plt.figure(figsize=(12, fig_height))
         gs = fig.add_gridspec(ceil((len(self.metrics) - 1) / 2) + 1, 2, hspace=0.9)
 
-        # Primeiro gráfico destacado
-        ax1 = fig.add_subplot(gs[0, :])
-        self.metrics[0].view(ax1)
+        if not self.use_total_mean:
+            # Primeiro gráfico destacado
+            ax1 = fig.add_subplot(gs[0, :])
+            self.metrics[0].view(ax1)
+            
+            # Gráficos restantes
+            for i, metric in enumerate(self.metrics[1:], start=1):
+                row = (i + 1) // 2
+                col = (i - 1) % 2
 
-        # Gráficos restantes
-        for i, metric in enumerate(self.metrics[1:], start=1):
-            row = (i + 1) // 2
-            col = (i - 1) % 2
+                ax = fig.add_subplot(gs[row, col])
+                metric.view(ax)
+        else:
+            # Distribuir todos os gráficos uniformemente
+            num_metrics = len(self.metrics)
+            rows = (num_metrics + 1) // 2  # Calcula quantas linhas são necessárias
 
-            ax = fig.add_subplot(gs[row, col])
-            metric.view(ax)
+            for i, metric in enumerate(self.metrics):
+                row = i // 2
+                col = i % 2
 
-        # Gerar nome de arquivo único e salvar imagem
-        image_name = self.get_next_image_name()
-        fig.savefig("C:/Users/marco/OneDrive/Área de Trabalho/Modelo treinado 6000000 PPO/figs/" + image_name, dpi=300, bbox_inches='tight')
-
-        # Mostrar gráficos
-        # plt.show()
+                ax = fig.add_subplot(gs[row, col])
+                metric.view(ax)
+        
+        if self.save_figs:
+            # Gerar nome de arquivo único e salvar imagem
+            image_name = self.get_next_image_name()
+            if self.use_total_mean:
+                fig.savefig(self.dir_path + image_name, dpi=300, bbox_inches='tight')
+            else:
+                fig.savefig(self.figs_dir + "/" + image_name, dpi=300, bbox_inches='tight')
+        else:
+            # Mostrar gráficos
+            plt.show()
