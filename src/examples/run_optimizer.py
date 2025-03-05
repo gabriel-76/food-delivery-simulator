@@ -43,7 +43,7 @@ SAVE_LOG_TO_FILE = False
 RESULTS_DIR = "C:/Users/marco/OneDrive/Área de Trabalho/teste/"
 
 if SAVE_LOG_TO_FILE:
-    log_file = open("log.txt", "w", encoding="utf-8")
+    log_file = open(RESULTS_DIR + "log.txt", "w", encoding="utf-8")
     sys.stdout = log_file
     sys.stderr = log_file
 
@@ -75,7 +75,6 @@ def main():
     #optimizer = NearestDriverOptimizerGym(gym_env)
     #optimizer = LowestCostDriverOptimizerGym(gym_env, cost_function=SimpleCostFunction())
     optimizer = RLModelOptimizerGym(gym_env, PPO.load("./best_model/best_model_6000000.zip"))
-
 
     num_runs = 10
     optimizer.run_simulations(num_runs, RESULTS_DIR, seed=SEED)

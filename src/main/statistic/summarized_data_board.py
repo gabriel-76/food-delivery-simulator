@@ -3,7 +3,6 @@ import os
 from typing import List
 
 import matplotlib
-matplotlib.use("Agg") 
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
@@ -110,6 +109,10 @@ class SummarizedDataBoard(Board):
         root.mainloop()
 
     def _view_with_matplotlib(self) -> None:
+        # Se save_figs for True, usar o backend Agg
+        if self.save_figs:
+            matplotlib.use("Agg")
+
         # Criar a figura Matplotlib
         fig_height = self._calculate_fig_height()
         fig = plt.figure(figsize=(12, fig_height))
