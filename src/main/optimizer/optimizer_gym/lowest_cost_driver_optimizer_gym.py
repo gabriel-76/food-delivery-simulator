@@ -16,6 +16,9 @@ class LowestCostDriverOptimizerGym(OptimizerGym):
     def compare_distance(self, driver: Driver, route: Route):
         map = self.gym_env.simpy_env.map
         return self.cost_function.cost(map, driver, route.route_segments[0])
+    
+    def get_title(self):
+        return "Otimizador do Motorista com Menor Custo"
 
     def select_driver(self, obs: dict, drivers: List[Driver], route: Route):
         # drivers = list(filter(lambda driver: driver.current_route is None or

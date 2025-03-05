@@ -35,7 +35,7 @@ NORMALIZE = True
 SEED = 101010
 
 # Escolha se deseja salvar o log em um arquivo
-SAVE_LOG_TO_FILE = True
+SAVE_LOG_TO_FILE = False
 
 if SAVE_LOG_TO_FILE:
     log_file = open("log.txt", "w", encoding="utf-8")
@@ -63,7 +63,7 @@ def main():
             lambda_code=LAMBDA_CODE,
             time_shift=TIME_SHIFT,
             normalize=NORMALIZE,
-            #render_mode='human'
+            render_mode='human'
         )
 
         # Verificar se o ambiente está implementado corretamente
@@ -74,8 +74,9 @@ def main():
 
         i = 1
         done = False
+        truncado = False
         soma_recompensa = 0
-        while not done or not truncado:
+        while not done and not truncado:
             acao = gym_env.action_space.sample() # Ação aleatória
             print("------------------> Step " + str(i) +" <------------------")
             print(f'{acao=}')

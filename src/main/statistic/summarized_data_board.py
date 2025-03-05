@@ -30,10 +30,12 @@ class SummarizedDataBoard(Board):
         self.num_establishments = num_establishments
         self.sum_reward = sum_reward
         self.save_figs = save_figs
-        self.dir_path = dir_path
-        self.figs_dir = os.path.join(self.dir_path, "figs")
-        # Criar a pasta 'figs' caso não exista
-        os.makedirs(self.figs_dir, exist_ok=True)
+        
+        if self.save_figs == True:
+            self.dir_path = dir_path
+            self.figs_dir = os.path.join(self.dir_path, "figs")
+            # Criar a pasta 'figs' caso não exista
+            os.makedirs(self.figs_dir, exist_ok=True)
         self.use_total_mean = use_total_mean
         self.use_tkinter = use_tkinter
 

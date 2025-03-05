@@ -10,6 +10,9 @@ class NearestDriverOptimizerGym(OptimizerGym):
 
     def compare_distance(self, map: Map, driver: Driver, route: Route):
         return map.distance(driver.coordinate, route.route_segments[0].coordinate)
+    
+    def get_title(self):
+        return "Otimizador do Motorista Mais Próximo"
 
     def select_driver(self, obs: dict, drivers: List[Driver], route: Route):
         # drivers = list(filter(lambda driver: driver.current_route is None or
