@@ -18,6 +18,7 @@ REWARD_OBJECTIVE = 1
 MAX_TIME_STEP = 60*24*2 # 2 dias
 # 2 pedidos de 10 em 10 minutos
 FUNCTION = lambda time: 2
+LAMBDA_CODE = "lambda time: 2"
 TIME_SHIFT = 10
 
 # Variáveis para criação dos Motoristas
@@ -63,9 +64,9 @@ def main():
         max_time_step=MAX_TIME_STEP,
         reward_objective=REWARD_OBJECTIVE,
         function=FUNCTION,
+        lambda_code=LAMBDA_CODE,
         time_shift=TIME_SHIFT,
         normalize=NORMALIZE,
-        dir_path=RESULTS_DIR,
         #render_mode='human'
     )
 
@@ -75,30 +76,9 @@ def main():
     #optimizer = LowestCostDriverOptimizerGym(gym_env, cost_function=SimpleCostFunction())
     optimizer = RLModelOptimizerGym(gym_env, PPO.load("./best_model/best_model_6000000.zip"))
 
-    total_rewards = []
+
     num_runs = 10
-
-    optimizer.initialize(seed=SEED)
-
-    with open(RESULTS_DIR + "results.txt", "w", encoding="utf-8") as results_file:
-        for i in range(num_runs):
-            print(f"Run {i + 1} - Seed: {SEED}")
-
-            resultado = optimizer.run()
-
-            sum_reward = resultado["sum_reward"]
-            total_rewards.append(sum_reward)
-
-            results_file.write(f"Execução {i + 1}: Seed = {SEED}, Soma das Recompensas = {sum_reward}\n")
-
-            optimizer.initialize()
-
-        avg_reward = sum(total_rewards) / num_runs
-        results_file.write(f"\nMédia das somas das recompensas: {avg_reward:.2f}\n")
-    
-    print(f"Resultados salvos em " + RESULTS_DIR + "results.txt")
-
-    optimizer.show_mean_statistic_board()
+    optimizer.run_simulations(num_runs, RESULTS_DIR, seed=SEED)
 
 
 

@@ -20,7 +20,7 @@ class SummarizedDataBoard(Board):
             metrics: List[Metric], 
             num_drivers: int, 
             num_establishments: int, 
-            sum_rewards: int, 
+            sum_reward: int, 
             save_figs: bool = False, 
             dir_path: str = "./", 
             use_total_mean: bool = False, 
@@ -29,7 +29,7 @@ class SummarizedDataBoard(Board):
         super().__init__(metrics)
         self.num_drivers = num_drivers
         self.num_establishments = num_establishments
-        self.sum_rewards = sum_rewards
+        self.sum_reward = sum_reward
         self.save_figs = save_figs
         self.dir_path = dir_path
         self.figs_dir = os.path.join(self.dir_path, "figs")
@@ -41,10 +41,10 @@ class SummarizedDataBoard(Board):
     def get_next_image_name(self) -> str:
         """Gera um nome de arquivo único para evitar sobrescrições."""
         if self.use_total_mean:
-            return f"mean_results_{self.sum_rewards}_fig.png"
+            return f"mean_results_{self.sum_reward}_fig.png"
         else:
             SummarizedDataBoard.image_counter += 1
-            return f"run_{self.image_counter}_results_{self.sum_rewards}_fig.png"
+            return f"run_{self.image_counter}_results_{self.sum_reward}_fig.png"
 
     def view(self) -> None:
         if self.use_tkinter:

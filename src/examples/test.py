@@ -15,6 +15,7 @@ REWARD_OBJECTIVE = 1
 MAX_TIME_STEP = 60*24*2 # 2 dias
 # 2 pedidos de 10 em 10 minutos
 FUNCTION = lambda time: 2
+LAMBDA_CODE = "lambda time: 2"
 TIME_SHIFT = 10
 
 # Variáveis para criação dos Motoristas
@@ -59,6 +60,7 @@ def main():
             max_time_step=MAX_TIME_STEP,
             reward_objective=REWARD_OBJECTIVE,
             function=FUNCTION,
+            lambda_code=LAMBDA_CODE,
             time_shift=TIME_SHIFT,
             normalize=NORMALIZE,
             #render_mode='human'

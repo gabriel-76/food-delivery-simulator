@@ -14,6 +14,9 @@ class RLModelOptimizerGym(OptimizerGym):
         super().__init__(environment)
         self.model = model
 
+    def get_title(self):
+        return "Otimizador por Aprendizado por Reforço"
+
     def select_driver(self, obs: dict, drivers: List[Driver], route: Route):
         action, _states = self.model.predict(obs)
         return action

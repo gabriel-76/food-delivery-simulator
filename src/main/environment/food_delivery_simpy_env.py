@@ -158,7 +158,7 @@ class FoodDeliverySimpyEnv(Environment):
         for driver in self._state.drivers:
             driver.update_statistcs_variables()
 
-    def save_statatistic_data(self):
+    def register_statatistic_data(self):
         for establishment in self._state.establishments:
             id = establishment.establishment_id
             FoodDeliverySimpyEnv.establishment_metrics[id]["orders_fulfilled"].append(establishment.orders_fulfilled)
@@ -173,6 +173,22 @@ class FoodDeliverySimpyEnv(Environment):
             FoodDeliverySimpyEnv.driver_metrics[id]["time_waiting_for_order"].append(driver.time_waiting_for_order)
             FoodDeliverySimpyEnv.driver_metrics[id]["total_distance"].append(driver.total_distance)
     
+    def reset_statistics(self):
+        for establishment in self._state.establishments:
+            id = establishment.establishment_id
+            FoodDeliverySimpyEnv.establishment_metrics[id]["orders_fulfilled"].clear()
+            FoodDeliverySimpyEnv.establishment_metrics[id]["idle_time"].clear()
+            FoodDeliverySimpyEnv.establishment_metrics[id]["active_time"].clear()
+            FoodDeliverySimpyEnv.establishment_metrics[id]["max_orders_in_queue"].clear()
+
+        for driver in self._state.drivers:
+            id = driver.driver_id
+            FoodDeliverySimpyEnv.driver_metrics[id]["orders_delivered"].clear()
+            FoodDeliverySimpyEnv.driver_metrics[id]["idle_time"].clear()
+            FoodDeliverySimpyEnv.driver_metrics[id]["time_waiting_for_order"].clear()
+            FoodDeliverySimpyEnv.driver_metrics[id]["total_distance"].clear()
+
+
     def compute_statistics(self):
         """Calcula média, desvio padrão, mediana e moda para os dados coletados."""
 
@@ -196,3 +212,10 @@ class FoodDeliverySimpyEnv(Environment):
             statistics["drivers"][id] = {key: calculate_stats(values) for key, values in metrics.items()}
 
         return statistics
+    
+    def save_metrics_to_file(self, filename="metrics_data.npz"):
+        np.savez_compressed(
+            filename,
+            establishment_metrics=dict(FoodDeliverySimpyEnv.establishment_metrics),
+            driver_metrics=dict(FoodDeliverySimpyEnv.driver_metrics)
+        )
