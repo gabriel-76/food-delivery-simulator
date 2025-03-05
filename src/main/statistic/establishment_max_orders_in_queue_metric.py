@@ -16,9 +16,10 @@ class EstablishmentMaxOrdersInQueueMetric(Metric):
             means = [self.establishments_statistics[e]['max_orders_in_queue']['mean'] for e in est_ids]
             medians = [self.establishments_statistics[e]['max_orders_in_queue']['median'] for e in est_ids]
             modes = [self.establishments_statistics[e]['max_orders_in_queue']['mode'] for e in est_ids]
+            std_devs = [self.establishments_statistics[e]['max_orders_in_queue']['std_dev'] for e in est_ids]
 
             # Criando o gráfico
-            ax.plot(est_ids, means, marker='o', linestyle='-', label='Média')
+            ax.errorbar(est_ids, means, yerr=std_devs, fmt='o-', label='Média', capsize=5)
             ax.plot(est_ids, medians, marker='s', linestyle='--', label='Mediana')
             ax.plot(est_ids, modes, marker='^', linestyle='-.', label='Moda')
 

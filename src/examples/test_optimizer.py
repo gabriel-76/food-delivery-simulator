@@ -1,10 +1,13 @@
 import sys
+
+from stable_baselines3 import PPO
 from src.main.cost.simple_cost_function import SimpleCostFunction
 from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
 from src.main.optimizer.optimizer_gym.first_driver_optimizer_gym import FirstDriverOptimizerGym
 from src.main.optimizer.optimizer_gym.lowest_cost_driver_optimizer_gym import LowestCostDriverOptimizerGym
 from src.main.optimizer.optimizer_gym.nearest_driver_optimizer_gym import NearestDriverOptimizerGym
 from src.main.optimizer.optimizer_gym.random_driver_optimizer_gym import RandomDriverOptimizerGym
+from src.main.optimizer.optimizer_gym.rl_model_optimizer_gym import RLModelOptimizerGym
 
 NUM_DRIVERS = 10
 NUM_ORDERS = 12*24 # 12 pedidos por hora durante 24 horas
@@ -30,27 +33,8 @@ PRODUCTION_CAPACITY = [4, 4]
 # Exemplo: 0.7 indica que o motorista deve será alocado quando o pedido estiver 70% pronto
 PERCENTAGE_ALLOCATION_DRIVER = 0.7
 
-NORMALIZE = False
-SEEDS = [96201, 497000, 720394, 975084, 774393, 759633, 454796, 204492, 62982, 636872,
- 90356, 857421, 255340, 551433, 928406, 919090, 731526, 367840, 826456, 376960,
- 847025, 536052, 916556, 459777, 146860, 335491, 52134, 965297, 915470, 818817,
- 382679, 427253, 390943, 529428, 312234, 82662, 353958, 716083, 409375, 210292,
- 643406, 601819, 705268, 674149, 953364, 930811, 612797, 42270, 298820, 589932,
- 286904, 426789, 206074, 976086, 82148, 136708, 806702, 740858, 894270, 228764,
- 282714, 622764, 766666, 940901, 119402, 536, 336219, 537844, 215331, 16873,
- 805198, 237897, 448121, 352713, 574553, 900860, 823072, 70946, 293568, 261891,
- 290672, 669883, 562722, 319212, 786031, 380548, 381022, 416983, 416964, 814920,
- 184754, 266952, 685201, 782267, 648630, 712872, 163457, 547493, 249258, 800258,
- 670432, 385484, 808916, 227062, 836645, 74436, 243047, 690344, 738879, 104162,
- 600690, 788223, 122610, 508020, 846147, 517509, 522001, 325753, 67211, 502914,
- 801431, 111305, 509008, 15661, 469966, 230849, 281482, 43646, 341766, 937782,
- 933963, 755295, 82074, 574613, 111948, 651258, 352833, 389444, 988596, 246629,
- 327239, 426148, 815528, 70006, 206969, 839230, 605280, 405068, 566326, 276890,
- 688297, 558110, 168574, 822504, 546932, 824092, 364871, 782401, 358037, 212148,
- 789893, 750291, 352712, 682352, 190424, 575842, 856409, 375330, 805131, 224508,
- 286116, 930337, 991659, 305142, 477310, 96329, 765496, 925841, 357591, 730413,
- 207385, 113670, 59683, 85663, 209367, 17341, 742336, 606249, 745645, 320185,
- 57514, 808264, 133167, 245265, 118631, 752217, 764925, 379876, 91719, 294812]
+NORMALIZE = True
+SEED = 101010
 
 # Escolha se deseja salvar o log em um arquivo
 SAVE_LOG_TO_FILE = False
@@ -85,25 +69,29 @@ def main():
         #render_mode='human'
     )
 
-    optimizer = RandomDriverOptimizerGym(gym_env)
+    #optimizer = RandomDriverOptimizerGym(gym_env)
     #optimizer = FirstDriverOptimizerGym(gym_env)
     #optimizer = NearestDriverOptimizerGym(gym_env)
     #optimizer = LowestCostDriverOptimizerGym(gym_env, cost_function=SimpleCostFunction())
+    optimizer = RLModelOptimizerGym(gym_env, PPO.load("./best_model/best_model_6000000.zip"))
 
     total_rewards = []
     num_runs = 10
 
+    optimizer.initialize(seed=SEED)
+
     with open(RESULTS_DIR + "results.txt", "w", encoding="utf-8") as results_file:
         for i in range(num_runs):
-            seed = SEEDS[i]
-            print(f"Run {i + 1} - Seed: {seed}")
+            print(f"Run {i + 1} - Seed: {SEED}")
 
-            resultado = optimizer.run(seed=seed)
+            resultado = optimizer.run()
 
             sum_reward = resultado["sum_reward"]
             total_rewards.append(sum_reward)
 
-            results_file.write(f"Execução {i + 1}: Seed = {seed}, Soma das Recompensas = {sum_reward}\n")
+            results_file.write(f"Execução {i + 1}: Seed = {SEED}, Soma das Recompensas = {sum_reward}\n")
+
+            optimizer.initialize()
 
         avg_reward = sum(total_rewards) / num_runs
         results_file.write(f"\nMédia das somas das recompensas: {avg_reward:.2f}\n")

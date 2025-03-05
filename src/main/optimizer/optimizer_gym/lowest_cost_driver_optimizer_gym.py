@@ -17,7 +17,7 @@ class LowestCostDriverOptimizerGym(OptimizerGym):
         map = self.gym_env.simpy_env.map
         return self.cost_function.cost(map, driver, route.route_segments[0])
 
-    def select_driver(self, drivers: List[Driver], route: Route):
+    def select_driver(self, obs: dict, drivers: List[Driver], route: Route):
         # drivers = list(filter(lambda driver: driver.current_route is None or
         # driver.current_route.size() <= 1, drivers))
         nearest_driver = min(drivers, key=lambda driver: self.compare_distance(driver, route))

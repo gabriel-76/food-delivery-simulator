@@ -17,9 +17,10 @@ class EstablishmentOrdersFulfilledMetric(Metric):
             means = [self.establishments_statistics[e]['orders_fulfilled']['mean'] for e in est_ids]
             medians = [self.establishments_statistics[e]['orders_fulfilled']['median'] for e in est_ids]
             modes = [self.establishments_statistics[e]['orders_fulfilled']['mode'] for e in est_ids]
+            std_devs = [self.establishments_statistics[e]['orders_fulfilled']['std_dev'] for e in est_ids]
 
             # Criando o gráfico
-            ax.plot(est_ids, means, marker='o', linestyle='-', label='Média')
+            ax.errorbar(est_ids, means, yerr=std_devs, fmt='o-', label='Média', capsize=5)
             ax.plot(est_ids, medians, marker='s', linestyle='--', label='Mediana')
             ax.plot(est_ids, modes, marker='^', linestyle='-.', label='Moda')
 

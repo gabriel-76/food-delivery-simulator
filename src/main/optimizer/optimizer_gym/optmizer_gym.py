@@ -12,36 +12,34 @@ from src.main.route.route import Route
 
 class OptimizerGym(Optimizer, ABC):
 
-    def __init__(self, environment: FoodDeliveryGymEnv):
+    def __init__(self, environment: FoodDeliveryGymEnv, save_statistics: bool = True):
         self.gym_env = environment
         self.state = None
         self.done = False
         self.truncated = False
 
     def initialize(self, seed: int | None = None):
-        self.state = self.gym_env.reset(seed=seed)
+        self.state, info = self.gym_env.reset(seed=seed)
         self.done = False
         self.truncated = False
 
     @abstractmethod
-    def select_driver(self, drivers: List[Driver], route: Route):
+    def select_driver(self, obs: dict, drivers: List[Driver], route: Route):
         pass
 
-    def assign_driver_to_order(self, order: Order):
+    def assign_driver_to_order(self, obs: dict, order: Order):
         segment_pickup = PickupRouteSegment(order)
         segment_delivery = DeliveryRouteSegment(order)
         route = Route(self.gym_env.get_simpy_env(), [segment_pickup, segment_delivery])
 
         drivers = self.gym_env.get_drivers()
 
-        return self.select_driver(drivers, route)
+        return self.select_driver(obs, drivers, route)
 
-    def run(self, seed: int | None = None):
-        self.initialize(seed=seed)
-
+    def run(self):
         sum = 0
         while not (self.done or self.truncated):
-            action = self.assign_driver_to_order(self.gym_env.get_last_order())
+            action = self.assign_driver_to_order(self.state, self.gym_env.get_last_order())
             self.state, reward, self.done, self.truncated, info = self.gym_env.step(action)
             sum += reward
 
