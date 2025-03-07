@@ -10,6 +10,7 @@ from src.main.order.order import Order
 from src.main.route.delivery_route_segment import DeliveryRouteSegment
 from src.main.route.pickup_route_segment import PickupRouteSegment
 from src.main.route.route import Route
+from src.main.statistic.summarized_data_board import SummarizedDataBoard
 
 
 class OptimizerGym(Optimizer, ABC):
@@ -23,6 +24,7 @@ class OptimizerGym(Optimizer, ABC):
     def initialize(self, seed: int | None = None):
         self.reset_env(seed=seed)
         self.gym_env.reset_statistics()
+        SummarizedDataBoard.reset_image_counter()
 
     def reset_env(self, seed: int | None = None):
         self.state, info = self.gym_env.reset(seed=seed)

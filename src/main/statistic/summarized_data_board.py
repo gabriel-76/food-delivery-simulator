@@ -47,6 +47,10 @@ class SummarizedDataBoard(Board):
             SummarizedDataBoard.image_counter += 1
             return f"run_{self.image_counter}_results_{self.sum_reward}_fig.png"
 
+    @staticmethod
+    def reset_image_counter() -> None:
+        SummarizedDataBoard.image_counter = 0
+
     def view(self) -> None:
         if self.use_tkinter:
             self._view_with_tkinter()

@@ -40,7 +40,7 @@ SEED = 101010
 # Escolha se deseja salvar o log em um arquivo
 SAVE_LOG_TO_FILE = False
 
-RESULTS_DIR = "C:/Users/marco/OneDrive/Área de Trabalho/teste/"
+RESULTS_DIR = "./data/200_runs_with_all_agents/"
 
 if SAVE_LOG_TO_FILE:
     log_file = open(RESULTS_DIR + "log.txt", "w", encoding="utf-8")
@@ -70,15 +70,22 @@ def main():
         #render_mode='human'
     )
 
-    #optimizer = RandomDriverOptimizerGym(gym_env)
-    #optimizer = FirstDriverOptimizerGym(gym_env)
-    #optimizer = NearestDriverOptimizerGym(gym_env)
-    #optimizer = LowestCostDriverOptimizerGym(gym_env, cost_function=SimpleCostFunction())
-    optimizer = RLModelOptimizerGym(gym_env, PPO.load("./best_model/best_model_6000000.zip"))
+    num_runs = 200
 
-    num_runs = 10
-    optimizer.run_simulations(num_runs, RESULTS_DIR, seed=SEED)
+    optimizer = RandomDriverOptimizerGym(gym_env)
+    optimizer.run_simulations(num_runs, RESULTS_DIR + "random_heuristic/", seed=SEED)
 
+    optimizer = FirstDriverOptimizerGym(gym_env)
+    optimizer.run_simulations(num_runs, RESULTS_DIR + "first_driver_heuristic/", seed=SEED)
+
+    optimizer = NearestDriverOptimizerGym(gym_env)
+    optimizer.run_simulations(num_runs, RESULTS_DIR + "nearest_driver_heuristic/", seed=SEED)
+
+    optimizer = LowestCostDriverOptimizerGym(gym_env, cost_function=SimpleCostFunction())
+    optimizer.run_simulations(num_runs, RESULTS_DIR + "lowest_cost_driver_heuristic/", seed=SEED)
+
+    optimizer = RLModelOptimizerGym(gym_env, PPO.load("./data/ppo_training/13000000 eps/best_model/best_model.zip"))
+    optimizer.run_simulations(num_runs, RESULTS_DIR + "ppo_agent_trained_13000000/", seed=SEED)
 
 
 if __name__ == '__main__':
