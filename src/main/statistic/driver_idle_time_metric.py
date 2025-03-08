@@ -25,8 +25,8 @@ class DriverIdleTimeMetric(Metric):
 
             # Adicionando títulos e legendas
             ax.set_xlabel('Motoristas')
-            ax.set_ylabel('Distância Total Percorrida')
-            ax.set_title('Estatísticas da Distância Total Percorrida por Motorista')
+            ax.set_ylabel('Tempo Ocioso por Motorista')
+            ax.set_title('Estatísticas do Tempo Ocioso por Motorista')
             ax.legend()
             ax.grid(True)
 
