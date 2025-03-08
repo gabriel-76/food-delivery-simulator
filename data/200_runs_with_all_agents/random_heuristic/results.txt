@@ -1,0 +1,667 @@
+-------------------> Otimizador do Motorista Aleatório <-------------------
+
+---> Configurações Gerais:
+Número de execuções: 200
+Seed de números aleatórios: 101010
+
+---> Configurações do Cenário do Ambiente: Número de motoristas: 10
+Número de estabelecimentos: 10
+Número de pedidos: 288
+Número de clientes: 288
+Tamanho do grid do mapa: 50
+Objetivo da recompensa: 1
+Max Time Step: 2880
+Geração de clientes e pedidos: lambda time: 2 de 10 em 10 segundos
+Porcentagem de alocação de motoristas: 0.7
+Velocidade dos motorista entre: 3 e 5
+Tempo de preparo dos pedidos entre: 20 e 60 minutos
+Raio de operação dos estabelecimentos: 5 e 30
+Capacidade de produção dos estabelecimentos: 4 e 4
+
+---> Registro de execuções:
+Execução 1: Soma das Recompensas = -13149
+Execução 2: Soma das Recompensas = -12085
+Execução 3: Soma das Recompensas = -11805
+Execução 4: Soma das Recompensas = -10498
+Execução 5: Soma das Recompensas = -11870
+Execução 6: Soma das Recompensas = -11708
+Execução 7: Soma das Recompensas = -10224
+Execução 8: Soma das Recompensas = -10827
+Execução 9: Soma das Recompensas = -13734
+Execução 10: Soma das Recompensas = -11180
+Execução 11: Soma das Recompensas = -12456
+Execução 12: Soma das Recompensas = -9829
+Execução 13: Soma das Recompensas = -12168
+Execução 14: Soma das Recompensas = -11334
+Execução 15: Soma das Recompensas = -11497
+Execução 16: Soma das Recompensas = -10869
+Execução 17: Soma das Recompensas = -10969
+Execução 18: Soma das Recompensas = -11654
+Execução 19: Soma das Recompensas = -9479
+Execução 20: Soma das Recompensas = -13857
+Execução 21: Soma das Recompensas = -12202
+Execução 22: Soma das Recompensas = -10012
+Execução 23: Soma das Recompensas = -13976
+Execução 24: Soma das Recompensas = -11429
+Execução 25: Soma das Recompensas = -9548
+Execução 26: Soma das Recompensas = -12122
+Execução 27: Soma das Recompensas = -11297
+Execução 28: Soma das Recompensas = -10551
+Execução 29: Soma das Recompensas = -9767
+Execução 30: Soma das Recompensas = -13054
+Execução 31: Soma das Recompensas = -10689
+Execução 32: Soma das Recompensas = -11599
+Execução 33: Soma das Recompensas = -11683
+Execução 34: Soma das Recompensas = -12596
+Execução 35: Soma das Recompensas = -11332
+Execução 36: Soma das Recompensas = -12788
+Execução 37: Soma das Recompensas = -10416
+Execução 38: Soma das Recompensas = -11844
+Execução 39: Soma das Recompensas = -11417
+Execução 40: Soma das Recompensas = -11564
+Execução 41: Soma das Recompensas = -10796
+Execução 42: Soma das Recompensas = -12213
+Execução 43: Soma das Recompensas = -11277
+Execução 44: Soma das Recompensas = -11771
+Execução 45: Soma das Recompensas = -11604
+Execução 46: Soma das Recompensas = -11440
+Execução 47: Soma das Recompensas = -12034
+Execução 48: Soma das Recompensas = -11685
+Execução 49: Soma das Recompensas = -12161
+Execução 50: Soma das Recompensas = -10196
+Execução 51: Soma das Recompensas = -12280
+Execução 52: Soma das Recompensas = -12882
+Execução 53: Soma das Recompensas = -10463
+Execução 54: Soma das Recompensas = -12871
+Execução 55: Soma das Recompensas = -12763
+Execução 56: Soma das Recompensas = -10913
+Execução 57: Soma das Recompensas = -8538
+Execução 58: Soma das Recompensas = -12305
+Execução 59: Soma das Recompensas = -12617
+Execução 60: Soma das Recompensas = -12910
+Execução 61: Soma das Recompensas = -11947
+Execução 62: Soma das Recompensas = -11700
+Execução 63: Soma das Recompensas = -11115
+Execução 64: Soma das Recompensas = -10556
+Execução 65: Soma das Recompensas = -12164
+Execução 66: Soma das Recompensas = -10404
+Execução 67: Soma das Recompensas = -12637
+Execução 68: Soma das Recompensas = -10895
+Execução 69: Soma das Recompensas = -12725
+Execução 70: Soma das Recompensas = -9990
+Execução 71: Soma das Recompensas = -12266
+Execução 72: Soma das Recompensas = -10077
+Execução 73: Soma das Recompensas = -11704
+Execução 74: Soma das Recompensas = -10291
+Execução 75: Soma das Recompensas = -10659
+Execução 76: Soma das Recompensas = -12259
+Execução 77: Soma das Recompensas = -11014
+Execução 78: Soma das Recompensas = -10026
+Execução 79: Soma das Recompensas = -11929
+Execução 80: Soma das Recompensas = -11728
+Execução 81: Soma das Recompensas = -11246
+Execução 82: Soma das Recompensas = -14483
+Execução 83: Soma das Recompensas = -10989
+Execução 84: Soma das Recompensas = -12591
+Execução 85: Soma das Recompensas = -11758
+Execução 86: Soma das Recompensas = -12467
+Execução 87: Soma das Recompensas = -11414
+Execução 88: Soma das Recompensas = -9420
+Execução 89: Soma das Recompensas = -11863
+Execução 90: Soma das Recompensas = -10025
+Execução 91: Soma das Recompensas = -10676
+Execução 92: Soma das Recompensas = -10045
+Execução 93: Soma das Recompensas = -11640
+Execução 94: Soma das Recompensas = -10913
+Execução 95: Soma das Recompensas = -11600
+Execução 96: Soma das Recompensas = -11821
+Execução 97: Soma das Recompensas = -10821
+Execução 98: Soma das Recompensas = -12691
+Execução 99: Soma das Recompensas = -9933
+Execução 100: Soma das Recompensas = -10167
+Execução 101: Soma das Recompensas = -11112
+Execução 102: Soma das Recompensas = -11822
+Execução 103: Soma das Recompensas = -10642
+Execução 104: Soma das Recompensas = -11806
+Execução 105: Soma das Recompensas = -9831
+Execução 106: Soma das Recompensas = -11826
+Execução 107: Soma das Recompensas = -12399
+Execução 108: Soma das Recompensas = -10287
+Execução 109: Soma das Recompensas = -11880
+Execução 110: Soma das Recompensas = -10476
+Execução 111: Soma das Recompensas = -11168
+Execução 112: Soma das Recompensas = -11522
+Execução 113: Soma das Recompensas = -11655
+Execução 114: Soma das Recompensas = -10727
+Execução 115: Soma das Recompensas = -11018
+Execução 116: Soma das Recompensas = -11637
+Execução 117: Soma das Recompensas = -11635
+Execução 118: Soma das Recompensas = -12330
+Execução 119: Soma das Recompensas = -12913
+Execução 120: Soma das Recompensas = -10879
+Execução 121: Soma das Recompensas = -12210
+Execução 122: Soma das Recompensas = -11043
+Execução 123: Soma das Recompensas = -11880
+Execução 124: Soma das Recompensas = -11256
+Execução 125: Soma das Recompensas = -13691
+Execução 126: Soma das Recompensas = -12616
+Execução 127: Soma das Recompensas = -10497
+Execução 128: Soma das Recompensas = -12473
+Execução 129: Soma das Recompensas = -12053
+Execução 130: Soma das Recompensas = -10334
+Execução 131: Soma das Recompensas = -11969
+Execução 132: Soma das Recompensas = -12229
+Execução 133: Soma das Recompensas = -12955
+Execução 134: Soma das Recompensas = -12629
+Execução 135: Soma das Recompensas = -10757
+Execução 136: Soma das Recompensas = -11030
+Execução 137: Soma das Recompensas = -10576
+Execução 138: Soma das Recompensas = -10751
+Execução 139: Soma das Recompensas = -10958
+Execução 140: Soma das Recompensas = -11812
+Execução 141: Soma das Recompensas = -11278
+Execução 142: Soma das Recompensas = -12161
+Execução 143: Soma das Recompensas = -9995
+Execução 144: Soma das Recompensas = -10239
+Execução 145: Soma das Recompensas = -11047
+Execução 146: Soma das Recompensas = -11212
+Execução 147: Soma das Recompensas = -10775
+Execução 148: Soma das Recompensas = -12258
+Execução 149: Soma das Recompensas = -11924
+Execução 150: Soma das Recompensas = -10420
+Execução 151: Soma das Recompensas = -11424
+Execução 152: Soma das Recompensas = -11129
+Execução 153: Soma das Recompensas = -11628
+Execução 154: Soma das Recompensas = -10648
+Execução 155: Soma das Recompensas = -13567
+Execução 156: Soma das Recompensas = -11339
+Execução 157: Soma das Recompensas = -12313
+Execução 158: Soma das Recompensas = -12320
+Execução 159: Soma das Recompensas = -12932
+Execução 160: Soma das Recompensas = -11663
+Execução 161: Soma das Recompensas = -11533
+Execução 162: Soma das Recompensas = -11654
+Execução 163: Soma das Recompensas = -10325
+Execução 164: Soma das Recompensas = -11972
+Execução 165: Soma das Recompensas = -11621
+Execução 166: Soma das Recompensas = -12194
+Execução 167: Soma das Recompensas = -12522
+Execução 168: Soma das Recompensas = -11143
+Execução 169: Soma das Recompensas = -10554
+Execução 170: Soma das Recompensas = -11435
+Execução 171: Soma das Recompensas = -11705
+Execução 172: Soma das Recompensas = -11140
+Execução 173: Soma das Recompensas = -12210
+Execução 174: Soma das Recompensas = -10847
+Execução 175: Soma das Recompensas = -11155
+Execução 176: Soma das Recompensas = -10386
+Execução 177: Soma das Recompensas = -12154
+Execução 178: Soma das Recompensas = -10677
+Execução 179: Soma das Recompensas = -10072
+Execução 180: Soma das Recompensas = -9846
+Execução 181: Soma das Recompensas = -13139
+Execução 182: Soma das Recompensas = -11502
+Execução 183: Soma das Recompensas = -11934
+Execução 184: Soma das Recompensas = -11200
+Execução 185: Soma das Recompensas = -11718
+Execução 186: Soma das Recompensas = -11429
+Execução 187: Soma das Recompensas = -12442
+Execução 188: Soma das Recompensas = -11341
+Execução 189: Soma das Recompensas = -11902
+Execução 190: Soma das Recompensas = -11004
+Execução 191: Soma das Recompensas = -14138
+Execução 192: Soma das Recompensas = -11068
+Execução 193: Soma das Recompensas = -11700
+Execução 194: Soma das Recompensas = -12246
+Execução 195: Soma das Recompensas = -10865
+Execução 196: Soma das Recompensas = -11100
+Execução 197: Soma das Recompensas = -11186
+Execução 198: Soma das Recompensas = -12301
+Execução 199: Soma das Recompensas = -11356
+Execução 200: Soma das Recompensas = -13412
+
+---> Média das somas das recompensas: -11505.65
+
+---> Estatísticas Finais:
+Establishments:
+  Establishment 1:
+    Orders Fulfilled:
+      Mean: 28.89
+      Std_Dev: 5.341151561227223
+      Median: 29.0
+      Mode: 31
+    Idle Time:
+      Mean: 683.63
+      Std_Dev: 120.39212225058581
+      Median: 681.0
+      Mode: 619
+    Active Time:
+      Mean: 820.46
+      Std_Dev: 120.89651938744969
+      Median: 826.5
+      Mode: 965
+    Max Orders In Queue:
+      Mean: 1.005
+      Std_Dev: 0.07053367989832944
+      Median: 1.0
+      Mode: 1
+
+  Establishment 2:
+    Orders Fulfilled:
+      Mean: 29.44
+      Std_Dev: 5.552152735651281
+      Median: 30.0
+      Mode: 30
+    Idle Time:
+      Mean: 668.54
+      Std_Dev: 122.22994068557834
+      Median: 668.5
+      Mode: 551
+    Active Time:
+      Mean: 835.55
+      Std_Dev: 120.63721440749534
+      Median: 840.5
+      Mode: 825
+    Max Orders In Queue:
+      Mean: 1.0
+      Std_Dev: 0.0
+      Median: 1.0
+      Mode: 1
+
+  Establishment 3:
+    Orders Fulfilled:
+      Mean: 29.18
+      Std_Dev: 5.4843048784691035
+      Median: 30.0
+      Mode: 30
+    Idle Time:
+      Mean: 673.41
+      Std_Dev: 123.6595402708582
+      Median: 663.5
+      Mode: 582
+    Active Time:
+      Mean: 830.68
+      Std_Dev: 123.2789827991779
+      Median: 844.0
+      Mode: 894
+    Max Orders In Queue:
+      Mean: 1.0
+      Std_Dev: 0.0
+      Median: 1.0
+      Mode: 1
+
+  Establishment 4:
+    Orders Fulfilled:
+      Mean: 28.685
+      Std_Dev: 4.651427200333248
+      Median: 28.0
+      Mode: 27
+    Idle Time:
+      Mean: 683.665
+      Std_Dev: 118.52532545831714
+      Median: 680.5
+      Mode: 621
+    Active Time:
+      Mean: 820.425
+      Std_Dev: 116.8671655128163
+      Median: 828.5
+      Mode: 736
+    Max Orders In Queue:
+      Mean: 1.0
+      Std_Dev: 0.0
+      Median: 1.0
+      Mode: 1
+
+  Establishment 5:
+    Orders Fulfilled:
+      Mean: 27.75
+      Std_Dev: 5.211285829812063
+      Median: 28.0
+      Mode: 29
+    Idle Time:
+      Mean: 703.905
+      Std_Dev: 122.75734591054011
+      Median: 699.5
+      Mode: 661
+    Active Time:
+      Mean: 800.185
+      Std_Dev: 123.35510032017322
+      Median: 805.0
+      Mode: 864
+    Max Orders In Queue:
+      Mean: 1.0
+      Std_Dev: 0.0
+      Median: 1.0
+      Mode: 1
+
+  Establishment 6:
+    Orders Fulfilled:
+      Mean: 28.815
+      Std_Dev: 4.666987786570692
+      Median: 29.0
+      Mode: 28
+    Idle Time:
+      Mean: 679.405
+      Std_Dev: 117.00761075673668
+      Median: 678.5
+      Mode: 652
+    Active Time:
+      Mean: 824.685
+      Std_Dev: 116.26665805380321
+      Median: 828.0
+      Mode: 756
+    Max Orders In Queue:
+      Mean: 1.0
+      Std_Dev: 0.0
+      Median: 1.0
+      Mode: 1
+
+  Establishment 7:
+    Orders Fulfilled:
+      Mean: 28.85
+      Std_Dev: 5.515206251809627
+      Median: 29.0
+      Mode: 29
+    Idle Time:
+      Mean: 683.39
+      Std_Dev: 124.02220728563091
+      Median: 679.5
+      Mode: 668
+    Active Time:
+      Mean: 820.7
+      Std_Dev: 123.66353545002666
+      Median: 813.5
+      Mode: 937
+    Max Orders In Queue:
+      Mean: 1.0
+      Std_Dev: 0.0
+      Median: 1.0
+      Mode: 1
+
+  Establishment 8:
+    Orders Fulfilled:
+      Mean: 28.61
+      Std_Dev: 4.867021676549222
+      Median: 29.0
+      Mode: 28
+    Idle Time:
+      Mean: 668.66
+      Std_Dev: 109.38452541378967
+      Median: 666.5
+      Mode: 757
+    Active Time:
+      Mean: 835.43
+      Std_Dev: 108.9543716424449
+      Median: 835.0
+      Mode: 815
+    Max Orders In Queue:
+      Mean: 1.0
+      Std_Dev: 0.0
+      Median: 1.0
+      Mode: 1
+
+  Establishment 9:
+    Orders Fulfilled:
+      Mean: 29.16
+      Std_Dev: 5.322067267519268
+      Median: 29.0
+      Mode: 30
+    Idle Time:
+      Mean: 675.73
+      Std_Dev: 122.24523344490778
+      Median: 667.5
+      Mode: 716
+    Active Time:
+      Mean: 828.36
+      Std_Dev: 120.54961800022429
+      Median: 836.0
+      Mode: 932
+    Max Orders In Queue:
+      Mean: 1.0
+      Std_Dev: 0.0
+      Median: 1.0
+      Mode: 1
+
+  Establishment 10:
+    Orders Fulfilled:
+      Mean: 28.62
+      Std_Dev: 5.613875666596117
+      Median: 28.0
+      Mode: 27
+    Idle Time:
+      Mean: 682.37
+      Std_Dev: 129.26354126357518
+      Median: 696.0
+      Mode: 744
+    Active Time:
+      Mean: 821.72
+      Std_Dev: 127.20649197269769
+      Median: 805.5
+      Mode: 705
+    Max Orders In Queue:
+      Mean: 1.0
+      Std_Dev: 0.0
+      Median: 1.0
+      Mode: 1
+
+Drivers:
+  Driver 1:
+    Orders Delivered:
+      Mean: 28.5
+      Std_Dev: 4.70425339453563
+      Median: 28.5
+      Mode: 29
+    Idle Time:
+      Mean: 921.195
+      Std_Dev: 103.4761662171536
+      Median: 934.5
+      Mode: 1001
+    Time Waiting For Order:
+      Mean: 95.74
+      Std_Dev: 30.565869855117818
+      Median: 95.0
+      Mode: 70
+    Total Distance:
+      Mean: 1461.845
+      Std_Dev: 283.7879331032241
+      Median: 1427.0
+      Mode: 1307
+
+  Driver 2:
+    Orders Delivered:
+      Mean: 28.86
+      Std_Dev: 5.167242978610547
+      Median: 29.0
+      Mode: 32
+    Idle Time:
+      Mean: 911.77
+      Std_Dev: 109.17351830915773
+      Median: 913.5
+      Mode: 977
+    Time Waiting For Order:
+      Mean: 94.745
+      Std_Dev: 32.30340500628378
+      Median: 93.0
+      Mode: 103
+    Total Distance:
+      Mean: 1488.53
+      Std_Dev: 298.35339632724146
+      Median: 1471.5
+      Mode: 1970
+
+  Driver 3:
+    Orders Delivered:
+      Mean: 29.245
+      Std_Dev: 5.380982716939351
+      Median: 29.0
+      Mode: 28
+    Idle Time:
+      Mean: 903.94
+      Std_Dev: 111.36375712052822
+      Median: 898.5
+      Mode: 976
+    Time Waiting For Order:
+      Mean: 97.88
+      Std_Dev: 33.41654679945251
+      Median: 94.0
+      Mode: 82
+    Total Distance:
+      Mean: 1510.89
+      Std_Dev: 296.791657396228
+      Median: 1514.5
+      Mode: 1389
+
+  Driver 4:
+    Orders Delivered:
+      Mean: 29.075
+      Std_Dev: 5.540701670366309
+      Median: 28.0
+      Mode: 28
+    Idle Time:
+      Mean: 902.495
+      Std_Dev: 119.56044485949357
+      Median: 919.5
+      Mode: 947
+    Time Waiting For Order:
+      Mean: 94.14
+      Std_Dev: 31.717194075138487
+      Median: 95.0
+      Mode: 58
+    Total Distance:
+      Mean: 1492.55
+      Std_Dev: 312.19668079593674
+      Median: 1466.5
+      Mode: 1249
+
+  Driver 5:
+    Orders Delivered:
+      Mean: 28.71
+      Std_Dev: 4.917916225394654
+      Median: 29.0
+      Mode: 31
+    Idle Time:
+      Mean: 916.475
+      Std_Dev: 100.28304629896321
+      Median: 914.0
+      Mode: 909
+    Time Waiting For Order:
+      Mean: 98.08
+      Std_Dev: 31.852842887252624
+      Median: 97.0
+      Mode: 123
+    Total Distance:
+      Mean: 1469.945
+      Std_Dev: 282.549521279014
+      Median: 1478.0
+      Mode: 1553
+
+  Driver 6:
+    Orders Delivered:
+      Mean: 28.77
+      Std_Dev: 4.774630875785059
+      Median: 29.0
+      Mode: 29
+    Idle Time:
+      Mean: 914.195
+      Std_Dev: 94.50897827719862
+      Median: 923.0
+      Mode: 956
+    Time Waiting For Order:
+      Mean: 97.895
+      Std_Dev: 32.47020133907395
+      Median: 98.0
+      Mode: 79
+    Total Distance:
+      Mean: 1482.115
+      Std_Dev: 271.1516582560394
+      Median: 1445.0
+      Mode: 1703
+
+  Driver 7:
+    Orders Delivered:
+      Mean: 28.675
+      Std_Dev: 5.047709876765898
+      Median: 29.0
+      Mode: 27
+    Idle Time:
+      Mean: 917.735
+      Std_Dev: 109.24039900604538
+      Median: 920.5
+      Mode: 1008
+    Time Waiting For Order:
+      Mean: 96.64
+      Std_Dev: 31.552502277949365
+      Median: 94.5
+      Mode: 91
+    Total Distance:
+      Mean: 1472.69
+      Std_Dev: 288.224936291085
+      Median: 1475.0
+      Mode: 1591
+
+  Driver 8:
+    Orders Delivered:
+      Mean: 28.625
+      Std_Dev: 5.49585070757931
+      Median: 28.0
+      Mode: 27
+    Idle Time:
+      Mean: 917.96
+      Std_Dev: 117.40259111280297
+      Median: 933.5
+      Mode: 877
+    Time Waiting For Order:
+      Mean: 97.895
+      Std_Dev: 33.53765011147919
+      Median: 95.0
+      Mode: 89
+    Total Distance:
+      Mean: 1462.79
+      Std_Dev: 286.68984268718
+      Median: 1443.0
+      Mode: 1488
+
+  Driver 9:
+    Orders Delivered:
+      Mean: 28.775
+      Std_Dev: 5.269191114393176
+      Median: 29.0
+      Mode: 25
+    Idle Time:
+      Mean: 908.915
+      Std_Dev: 120.75623286191069
+      Median: 916.5
+      Mode: 936
+    Time Waiting For Order:
+      Mean: 94.685
+      Std_Dev: 32.1063198607377
+      Median: 92.0
+      Mode: 79
+    Total Distance:
+      Mean: 1476.695
+      Std_Dev: 296.9918887360394
+      Median: 1449.0
+      Mode: 1271
+
+  Driver 10:
+    Orders Delivered:
+      Mean: 28.765
+      Std_Dev: 4.993973868574003
+      Median: 28.0
+      Mode: 26
+    Idle Time:
+      Mean: 913.445
+      Std_Dev: 110.13422254231425
+      Median: 931.0
+      Mode: 948
+    Time Waiting For Order:
+      Mean: 97.23
+      Std_Dev: 33.6748734221823
+      Median: 94.0
+      Mode: 93
+    Total Distance:
+      Mean: 1484.39
+      Std_Dev: 270.28123852757517
+      Median: 1468.5
+      Mode: 1515
+

@@ -9,15 +9,18 @@ from src.main.route.route import Route
 
 class LowestCostDriverOptimizerGym(OptimizerGym):
     
-    def __init__(self, environment: FoodDeliveryGymEnv, seed: int | None = None, cost_function: CostFunction | None = None):
-        super().__init__(environment, seed)
+    def __init__(self, environment: FoodDeliveryGymEnv, cost_function: CostFunction | None = None):
+        super().__init__(environment)
         self.cost_function = cost_function
 
     def compare_distance(self, driver: Driver, route: Route):
         map = self.gym_env.simpy_env.map
         return self.cost_function.cost(map, driver, route.route_segments[0])
+    
+    def get_title(self):
+        return "Otimizador do Motorista com Menor Custo"
 
-    def select_driver(self, drivers: List[Driver], route: Route):
+    def select_driver(self, obs: dict, drivers: List[Driver], route: Route):
         # drivers = list(filter(lambda driver: driver.current_route is None or
         # driver.current_route.size() <= 1, drivers))
         nearest_driver = min(drivers, key=lambda driver: self.compare_distance(driver, route))

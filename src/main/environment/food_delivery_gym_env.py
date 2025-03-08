@@ -26,9 +26,10 @@ from src.main.utils.random_manager import RandomManager
 from src.main.view.grid_view_pygame import GridViewPygame
 
 class FoodDeliveryGymEnv(Env):
+
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, function, time_shift, vel_drivers, 
+    def __init__(self, num_drivers, num_establishments, num_orders, num_costumers, function, lambda_code, time_shift, vel_drivers, 
                 prepare_time, operating_radius, production_capacity, percentage_allocation_driver, grid_map_size=100, use_estimate=True, 
                 desconsider_capacity=True, max_time_step=10000, reward_objective=1, render_mode=None, normalize=True):
         self.num_drivers = num_drivers
@@ -36,6 +37,7 @@ class FoodDeliveryGymEnv(Env):
         self.num_orders = num_orders
         self.num_costumers = num_costumers
         self.function = function
+        self.lambda_code = lambda_code
         self.time_shift = time_shift
         self.vel_drivers = vel_drivers
         self.prepare_time = prepare_time
@@ -153,31 +155,35 @@ class FoodDeliveryGymEnv(Env):
 
                 # Verifica se um pedido foi entregue
                 if self.simpy_env.state.orders_delivered > self.last_num_orders_delivered:
-                    print("Pedido entregue!")
-                    print(f"Número de pedidos entregues: {self.simpy_env.state.orders_delivered}")
+                    # TODO: Logs
+                    # print("Pedido entregue!")
+                    # print(f"Número de pedidos entregues: {self.simpy_env.state.orders_delivered}")
                     self.last_num_orders_delivered = self.simpy_env.state.orders_delivered
 
                 # Verifica o próximo evento principal
                 core_event = self.simpy_env.dequeue_core_event()
 
-                if core_event is not None:
-                    print('\n----> Pedido atual para alocação do motorista <----')
-                    print(core_event.order)
+                # TODO: Logs
+                # if core_event is not None:
+                #     print('\n----> Pedido atual para alocação do motorista <----')
+                #     print(core_event.order)
                 
                 # Verifica se atingiu o limite de tempo
                 if self.simpy_env.now >= self.max_time_step - 1:
                     print("Limite de tempo atingido!")
                     truncated = True
             else:
-                print("Todos os pedidos foram entregues!")
+                # TODO: Logs
+                # print("Todos os pedidos foram entregues!")
                 terminated = True
 
         return core_event, terminated, truncated
 
     def reset(self, seed: int | None = None, options: Optional[dict] = None):
-        super().reset(seed=seed)
-        self.action_space.seed(seed=seed)
-        RandomManager().set_seed(seed=seed)
+        if seed is not None:
+            super().reset(seed=seed)
+            self.action_space.seed(seed=seed)
+            RandomManager().set_seed(seed=seed)
 
         if options:
             self.render_mode = options.get("render_mode", None)
@@ -267,7 +273,8 @@ class FoodDeliveryGymEnv(Env):
             info = self._get_info()
 
             if terminated or truncated:
-                print("Terminated or truncated!")
+                # TODO: Logs
+                # print("Terminated or truncated!")
                 reward = 0
                 # print(f"reward: {reward}")
                 return observation, reward, terminated, truncated, info
@@ -297,7 +304,11 @@ class FoodDeliveryGymEnv(Env):
         if self.render_mode == "human":
             self.simpy_env.render()
 
-    def show_statistcs_board(self):
+    def show_statistcs_board(self, sum_reward = None, dir_path = None):
+        if sum_reward is None and dir_path is None:
+            save_figs = False
+        else:
+            save_figs = True
         custom_board = SummarizedDataBoard(metrics=[
             OrderCurveMetric(self.simpy_env),
             EstablishmentOrdersFulfilledMetric(self.simpy_env),
@@ -311,6 +322,38 @@ class FoodDeliveryGymEnv(Env):
         ],
             num_drivers=self.num_drivers,
             num_establishments=self.num_establishments,
+            sum_reward=sum_reward,
+            save_figs=save_figs,
+            dir_path=dir_path,
+            use_total_mean=False,
+            use_tkinter=False
+        )
+        custom_board.view()
+    
+    def show_total_mean_statistics_board(self, sum_rewards_mean = None, dir_path= None):
+        if sum_rewards_mean is None and dir_path is None:
+            save_figs = False
+        else:
+            save_figs = True
+        
+        statistics = self.get_statistics()
+
+        custom_board = SummarizedDataBoard(metrics=[
+            EstablishmentOrdersFulfilledMetric(self.simpy_env, establishments_statistics=statistics["establishments"]),
+            EstablishmentMaxOrdersInQueueMetric(self.simpy_env, establishments_statistics=statistics["establishments"]),
+            EstablishmentActiveTimeMetric(self.simpy_env, establishments_statistics=statistics["establishments"]),
+            EstablishmentIdleTimeMetric(self.simpy_env, establishments_statistics=statistics["establishments"]),
+            DriverOrdersDeliveredMetric(self.simpy_env, drivers_statistics=statistics["drivers"]),
+            DriverTotalDistanceMetric(self.simpy_env, drivers_statistics=statistics["drivers"]),
+            DriverIdleTimeMetric(self.simpy_env, drivers_statistics=statistics["drivers"]),
+            DriverTimeWaitingForOrderMetric(self.simpy_env, drivers_statistics=statistics["drivers"])
+        ],
+            num_drivers=self.num_drivers,
+            num_establishments=self.num_establishments,
+            sum_reward=sum_rewards_mean,
+            save_figs=save_figs,
+            dir_path=dir_path,
+            use_total_mean=True,
             use_tkinter=False
         )
         custom_board.view()
@@ -326,3 +369,33 @@ class FoodDeliveryGymEnv(Env):
     
     def get_drivers(self):
         return self.simpy_env.get_drivers()
+    
+    def register_statatistic_data(self):
+        self.simpy_env.register_statatistic_data()
+    
+    def reset_statistics(self):
+        self.simpy_env.reset_statistics()
+    
+    def get_statistics(self):
+        return self.simpy_env.compute_statistics()
+    
+    def get_description(self):
+        descricao = []
+        
+        descricao.append(f"Número de motoristas: {self.num_drivers}")
+        descricao.append(f"Número de estabelecimentos: {self.num_establishments}")
+        descricao.append(f"Número de pedidos: {self.num_orders}")
+        descricao.append(f"Número de clientes: {self.num_orders}")
+        descricao.append(f"Tamanho do grid do mapa: {self.grid_map_size}")
+        descricao.append(f"Objetivo da recompensa: {self.reward_objective}")
+        descricao.append(f"Max Time Step: {self.max_time_step}")
+
+        descricao.append(f"Geração de clientes e pedidos: {self.lambda_code} de {self.time_shift} em {self.time_shift} segundos")
+        descricao.append(f"Porcentagem de alocação de motoristas: {self.percentage_allocation_driver}")
+
+        descricao.append(f"Velocidade dos motorista entre: {self.vel_drivers[0]} e {self.vel_drivers[1]}")
+        descricao.append(f"Tempo de preparo dos pedidos entre: {self.prepare_time[0]} e {self.prepare_time[1]} minutos")
+        descricao.append(f"Raio de operação dos estabelecimentos: {self.operating_radius[0]} e {self.operating_radius[1]}")
+        descricao.append(f"Capacidade de produção dos estabelecimentos: {self.production_capacity[0]} e {self.production_capacity[1]}")
+        
+        return "\n".join(descricao)
