@@ -40,7 +40,7 @@ SEED = 101010
 # Escolha se deseja salvar o log em um arquivo
 SAVE_LOG_TO_FILE = False
 
-DIR_PATH = "C:/Users/marco/OneDrive/Área de Trabalho/Treinamentos PPO/13000000 eps/"
+DIR_PATH = "./data/ppo_training/6000000 eps/"
 
 # Verificar e criar os diretórios necessários
 os.makedirs(DIR_PATH + "logs/", exist_ok=True)
@@ -118,7 +118,7 @@ def main():
         # Treinar o modelo com EvalCallback
         model = PPO('MultiInputPolicy', env, verbose=1, tensorboard_log=DIR_PATH + "ppo_tensorboard/")
         start_time = time.time()
-        model.learn(total_timesteps=13000000, callback=eval_callback)
+        model.learn(total_timesteps=6000000, callback=eval_callback)
         end_time = time.time()
         training_time = end_time - start_time
 
