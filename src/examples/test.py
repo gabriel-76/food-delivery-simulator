@@ -7,16 +7,16 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
 
 NUM_DRIVERS = 10
-NUM_ORDERS = 12*24 # 12 pedidos por hora durante 24 horas
+NUM_ORDERS = 45*24 # 45 pedidos por hora durante 24 horas
 NUM_ESTABLISHMENTS = 10
 NUM_COSTUMERS = NUM_ORDERS
 GRID_MAP_SIZE = 50 # Tamanho do grid 50x50
 REWARD_OBJECTIVE = 1
 MAX_TIME_STEP = 60*24*2 # 2 dias
 # 2 pedidos de 10 em 10 minutos
-FUNCTION = lambda time: 2
-LAMBDA_CODE = "lambda time: 2"
-TIME_SHIFT = 10
+FUNCTION = lambda time: 3
+LAMBDA_CODE = "lambda time: 3"
+TIME_SHIFT = 4
 
 # Variáveis para criação dos Motoristas
 VEL_DRIVERS = [3, 5]

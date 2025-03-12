@@ -1,7 +1,7 @@
 import sys
 
 from stable_baselines3 import PPO
-from src.main.cost.simple_cost_function import SimpleCostFunction
+from src.main.cost.objective_based_cost_function import ObjectiveBasedCostFunction
 from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
 from src.main.optimizer.optimizer_gym.first_driver_optimizer_gym import FirstDriverOptimizerGym
 from src.main.optimizer.optimizer_gym.lowest_cost_driver_optimizer_gym import LowestCostDriverOptimizerGym
@@ -70,7 +70,7 @@ def main():
         #render_mode='human'
     )
 
-    num_runs = 200
+    num_runs = 20
 
     optimizer = RandomDriverOptimizerGym(gym_env)
     optimizer.run_simulations(num_runs, RESULTS_DIR + "random_heuristic/", seed=SEED)
@@ -81,7 +81,7 @@ def main():
     optimizer = NearestDriverOptimizerGym(gym_env)
     optimizer.run_simulations(num_runs, RESULTS_DIR + "nearest_driver_heuristic/", seed=SEED)
 
-    optimizer = LowestCostDriverOptimizerGym(gym_env, cost_function=SimpleCostFunction())
+    optimizer = LowestCostDriverOptimizerGym(gym_env, cost_function=ObjectiveBasedCostFunction(objective=REWARD_OBJECTIVE))
     optimizer.run_simulations(num_runs, RESULTS_DIR + "lowest_cost_driver_heuristic/", seed=SEED)
 
     optimizer = RLModelOptimizerGym(gym_env, PPO.load("./data/ppo_training/13000000 eps/best_model/best_model.zip"))
