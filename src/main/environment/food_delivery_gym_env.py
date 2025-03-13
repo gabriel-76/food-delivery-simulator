@@ -370,8 +370,11 @@ class FoodDeliveryGymEnv(Env):
     def get_drivers(self):
         return self.simpy_env.get_drivers()
     
-    def register_statatistic_data(self):
-        self.simpy_env.register_statatistic_data()
+    def register_statistic_data(self):
+        self.simpy_env.register_statistic_data()
+
+    def get_statistics_data(self):
+        return self.simpy_env.get_statistics_data()
     
     def reset_statistics(self):
         self.simpy_env.reset_statistics()

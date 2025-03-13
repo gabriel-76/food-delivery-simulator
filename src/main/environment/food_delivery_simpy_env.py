@@ -158,7 +158,7 @@ class FoodDeliverySimpyEnv(Environment):
         for driver in self._state.drivers:
             driver.update_statistcs_variables()
 
-    def register_statatistic_data(self):
+    def register_statistic_data(self):
         for establishment in self._state.establishments:
             id = establishment.establishment_id
             FoodDeliverySimpyEnv.establishment_metrics[id]["orders_fulfilled"].append(establishment.orders_fulfilled)
@@ -172,7 +172,10 @@ class FoodDeliverySimpyEnv(Environment):
             FoodDeliverySimpyEnv.driver_metrics[id]["idle_time"].append(driver.idle_time)
             FoodDeliverySimpyEnv.driver_metrics[id]["time_waiting_for_order"].append(driver.time_waiting_for_order)
             FoodDeliverySimpyEnv.driver_metrics[id]["total_distance"].append(driver.total_distance)
-    
+
+    def get_statistics_data(self):
+        return FoodDeliverySimpyEnv.establishment_metrics, FoodDeliverySimpyEnv.driver_metrics
+
     def reset_statistics(self):
         for establishment in self._state.establishments:
             id = establishment.establishment_id

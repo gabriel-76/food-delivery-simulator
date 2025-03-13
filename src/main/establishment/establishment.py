@@ -92,7 +92,11 @@ class Establishment(MapActor):
 
         available_cook.add_order_to_list(order)
 
-        if (available_cook.get_length_orders_accepted() > self.max_orders_in_queue):
+        total_orders_in_queue = 0
+        for cook in self.cooks:
+            total_orders_in_queue += cook.get_length_orders_accepted()
+
+        if (total_orders_in_queue > self.max_orders_in_queue):
             self.max_orders_in_queue = available_cook.get_length_orders_accepted()
 
         # TODO: Logs
