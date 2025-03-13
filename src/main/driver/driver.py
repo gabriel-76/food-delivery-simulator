@@ -390,6 +390,59 @@ class Driver(MapActor):
 
         return total_busy_time if total_busy_time > 0 else 0
     
+    def calculate_total_distance(self) -> Number:
+        total_distance = 0
+        valid_coordinate = self.coordinate  # Posição atual do motorista
+
+        # Se o motorista já está em uma rota, inclui o tempo restante dessa rota
+        if self.current_route is not None:
+            if self.current_route_segment is not None:
+                current_order = self.current_route_segment.order
+
+                # Se o segmento atual é de coleta, considera o tempo para pegar o pedido
+                if self.current_route_segment.is_pickup():
+                    total_distance += self.environment.map.distance(
+                        self.coordinate, current_order.establishment.coordinate
+                    )
+                    
+                    total_distance += self.environment.map.distance(
+                        current_order.establishment.coordinate, current_order.customer.coordinate
+                    )
+
+                # Se o segmento atual é de entrega, considera o tempo de entrega
+                if self.current_route_segment.is_delivery():
+                    if self.status == DriverStatus.DELIVERING:
+                        total_distance += self.environment.map.distance(
+                            self.coordinate, current_order.customer.coordinate
+                        )
+
+            # Atualiza a posição do motorista para o local da entrega
+            valid_coordinate = self.current_route_segment.order.customer.coordinate
+        
+        # Considera o tempo para processar todas as rotas na fila de pedidos
+        for route in self.route_requests:
+
+            # Percorre cada segmento da rota
+            for route_segment in route.route_segments:
+                order = route_segment.order
+
+                # Se o segmento é de coleta, calcula o tempo para pegar o pedido
+                if route_segment.is_pickup():
+                    total_distance += self.environment.map.distance(
+                        valid_coordinate, order.establishment.coordinate
+                    )
+
+                # Se o segmento é de entrega, calcula o tempo de entrega
+                if route_segment.is_delivery():
+                    total_distance += self.environment.map.distance(
+                        order.establishment.coordinate, order.customer.coordinate
+                    )
+
+                # Atualiza a posição após cada entrega
+                valid_coordinate = order.customer.coordinate
+
+        return total_distance if total_distance > 0 else 0
+    
     def estimate_time_to_complete_next_order(self, nextOrder: Order):
         #   Este método só é chamado pelo ambiente gymnasium no momento em que o ambiente simpy já avançou a ponto de ter um 
         # novo pedido, portanto ele só é chamado quando tem um novo pedido para ser atribuído ao motorista

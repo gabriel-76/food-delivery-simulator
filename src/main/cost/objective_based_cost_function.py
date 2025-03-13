@@ -30,30 +30,29 @@ class ObjectiveBasedCostFunction(CostFunction):
 
     def delay(self, map: Map, driver: Driver, route_segment: RouteSegment):
         current_delay = 0
+
         if driver.current_route_segment is not None:
-            current_delay = map.estimated_time(
-                driver.coordinate,
-                driver.current_route_segment.coordinate,
-                driver.movement_rate
-            )
+            current_delay = driver.estimate_total_busy_time()
+
         new_segment_delay = map.estimated_time(
             driver.coordinate,
             route_segment.coordinate,
             driver.movement_rate
         )
+        
         return current_delay + new_segment_delay
 
     def distance(self, map: Map, driver: Driver, route_segment: RouteSegment):
         current_distance = 0
+
         if driver.current_route_segment is not None:
-            current_distance = map.distance(
-                driver.coordinate,
-                driver.current_route_segment.coordinate
-            )
+            current_distance = driver.calculate_total_distance()
+
         new_segment_distance = map.distance(
             driver.coordinate,
             route_segment.coordinate
         )
+
         return current_distance + new_segment_distance
 
     def cost(self, map: Map, driver: Driver, route_segment: RouteSegment) -> Number:
