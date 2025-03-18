@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from typing import List
 
 import numpy as np
+import statistics as stt
 
 from src.main.driver.driver import Driver
 from src.main.environment.food_delivery_gym_env import FoodDeliveryGymEnv
@@ -125,7 +127,7 @@ class OptimizerGym(Optimizer, ABC):
 
                 resultado = self.run()
 
-                self.gym_env.register_statatistic_data()
+                self.gym_env.register_statistic_data()
 
                 sum_reward = resultado["sum_reward"]
                 self.gym_env.show_statistcs_board(sum_reward=sum_reward, dir_path=dir_path)
@@ -134,18 +136,50 @@ class OptimizerGym(Optimizer, ABC):
                 results_file.write(f"Execução {i + 1}: Soma das Recompensas = {sum_reward}\n")
 
                 self.reset_env()
+            
+            total_rewards_statistics = {}
+            total_rewards_statistics['avg'] = sum(total_rewards) / num_runs
+            total_rewards_statistics['std_dev'] = stt.stdev(total_rewards) if num_runs > 1 else 0
+            total_rewards_statistics['median'] = stt.median(total_rewards)
+            total_rewards_statistics['mode'] = stt.mode(total_rewards) if len(set(total_rewards)) > 1 else "Nenhuma moda única"
 
-            avg_reward = sum(total_rewards) / num_runs
-            results_file.write(f"\n---> Média das somas das recompensas: {avg_reward:.2f}\n")
-            statistics = self.gym_env.get_statistics()
+            results_file.write(f"\n---> Média das somas das recompensas: {total_rewards_statistics['avg']:.2f}\n")
+            results_file.write(f"---> Desvio Padrão: {total_rewards_statistics['std_dev']:.2f}\n")
+            results_file.write(f"---> Mediana: {total_rewards_statistics['median']:.2f}\n")
+            results_file.write(f"---> Moda: {total_rewards_statistics['mode']}\n")
+
+            geral_statistics = self.gym_env.get_statistics()
+
             results_file.write(f"\n---> Estatísticas Finais:\n")
-            results_file.write(f"{self.format_statistics(statistics)}")
-            self.gym_env.show_total_mean_statistics_board(sum_rewards_mean=avg_reward, dir_path=dir_path)
+            results_file.write(f"{self.format_statistics(geral_statistics)}")
 
-            self.save_metrics_to_file(total_rewards, statistics, dir_path)
+            self.gym_env.show_total_mean_statistics_board(sum_rewards_mean=total_rewards_statistics['avg'], dir_path=dir_path)
+
+            establishment_metrics, driver_metrics = self.gym_env.get_statistics_data()
+
+            self.save_metrics_to_file(total_rewards, total_rewards_statistics, establishment_metrics, driver_metrics, geral_statistics, dir_path)
         
         print(f"Resultados salvos em " + file_path)
 
-    def save_metrics_to_file(self, total_rewards: list, statistics: dict, dir_path: str = "./", file_name: str = "metrics_data.npz"):
+    def save_metrics_to_file(
+        self,
+        total_rewards: list[float], 
+        total_rewards_statistics: dict[str, float],
+        establishment_metrics: defaultdict[str, defaultdict[str, list[float]]], 
+        driver_metrics: defaultdict[str, defaultdict[str, list[float]]], 
+        geral_statistics: dict[str, dict[str, dict[str, float]]],
+        dir_path: str = "./", 
+        file_name: str = "metrics_data.npz"
+    ) -> None:
         file_path = dir_path + file_name
-        np.savez_compressed(file_path, total_rewards=total_rewards, statistics=statistics)
+
+        # Converte defaultdict para dict para evitar problemas de serialização
+        establishment_metrics = {k: dict(v) for k, v in establishment_metrics.items()}
+        driver_metrics = {k: dict(v) for k, v in driver_metrics.items()}
+
+        np.savez_compressed(file_path, 
+                            total_rewards=np.array(total_rewards), 
+                            total_rewards_statistics=total_rewards_statistics,
+                            establishment_metrics=establishment_metrics, 
+                            driver_metrics=driver_metrics,
+                            geral_statistics=geral_statistics)

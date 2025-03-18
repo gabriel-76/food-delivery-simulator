@@ -119,7 +119,7 @@ class FoodDeliveryGymEnv(Env):
         # 4. establishment_next_order_ready_time: Tempo que falta para o próximo pedido em preparação de cada restaurante ficar pronto
         establishment_busy_time = np.zeros((self.num_establishments,), dtype=self.dtype_observation)
         for i, establishment in enumerate(self.simpy_env.state.establishments):
-            establishment_busy_time[i] = establishment.get_establishment_busy_time()
+            establishment_busy_time[i] = establishment.calculate_mean_overload_time()
 
         # 5. current_time_step: O tempo atual da simulação (número do passo)
         current_time_step = self.simpy_env.now
@@ -370,8 +370,11 @@ class FoodDeliveryGymEnv(Env):
     def get_drivers(self):
         return self.simpy_env.get_drivers()
     
-    def register_statatistic_data(self):
-        self.simpy_env.register_statatistic_data()
+    def register_statistic_data(self):
+        self.simpy_env.register_statistic_data()
+
+    def get_statistics_data(self):
+        return self.simpy_env.get_statistics_data()
     
     def reset_statistics(self):
         self.simpy_env.reset_statistics()

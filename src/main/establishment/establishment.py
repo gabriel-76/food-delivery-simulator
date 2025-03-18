@@ -92,20 +92,25 @@ class Establishment(MapActor):
 
         available_cook.add_order_to_list(order)
 
-        if (available_cook.get_length_orders_accepted() > self.max_orders_in_queue):
+        total_orders_in_queue = 0
+        for cook in self.cooks:
+            total_orders_in_queue += cook.get_length_orders_accepted()
+
+        if (total_orders_in_queue > self.max_orders_in_queue):
             self.max_orders_in_queue = available_cook.get_length_orders_accepted()
 
         # TODO: Logs
         # print('\n----> Novo pedido <----')
         # print(order)
 
-    def get_establishment_busy_time(self) -> SimTime:
+    def calculate_mean_overload_time(self) -> SimTime:
         # É necessário verificar se tempo de ocupação é pelo menos o momento atual para evitar valores negativos
         self.update_overload_time_cooks()
 
         establishment_busy_time = 0
         for i in range(0, self.num_cooks):
             establishment_busy_time += self.cooks[i].get_overloaded_until() - self.now
+        establishment_busy_time = establishment_busy_time/self.num_cooks
 
         return establishment_busy_time
 
