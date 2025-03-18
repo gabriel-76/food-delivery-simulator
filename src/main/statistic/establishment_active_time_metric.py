@@ -19,9 +19,9 @@ class EstablishmentActiveTimeMetric(Metric):
             std_devs = [self.establishments_statistics[e]['active_time']['std_dev'] for e in est_ids]
 
             # Criando o gráfico
-            ax.errorbar(est_ids, means, yerr=std_devs, fmt='o-', label='Média', capsize=5)
-            ax.plot(est_ids, medians, marker='s', linestyle='--', label='Mediana')
-            ax.plot(est_ids, modes, marker='^', linestyle='-.', label='Moda')
+            ax.errorbar(est_ids, means, yerr=std_devs, fmt='o', label='Média', capsize=5)
+            ax.plot(est_ids, medians, marker='s', linestyle='', label='Mediana')
+            ax.plot(est_ids, modes, marker='^', linestyle='', label='Moda')
 
             # Adicionando títulos e legendas
             ax.set_xlabel('Estabelecimento')
