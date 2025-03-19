@@ -1,3 +1,4 @@
+import json
 import traceback
 from typing import Optional
 import numpy as np
@@ -402,3 +403,28 @@ class FoodDeliveryGymEnv(Env):
         descricao.append(f"Capacidade de produção dos estabelecimentos: {self.production_capacity[0]} e {self.production_capacity[1]}")
         
         return "\n".join(descricao)
+    
+    def save_scenario(self, file_name: str = "scenario.json"):
+        scenario = {
+            "num_drivers": self.num_drivers,
+            "num_establishments": self.num_establishments,
+            "num_orders": self.num_orders,
+            "num_costumers": self.num_costumers,
+            "grid_map_size": self.grid_map_size,
+            "vel_drivers": self.vel_drivers,
+            "prepare_time": self.prepare_time,
+            "operating_radius": self.operating_radius,
+            "production_capacity": self.production_capacity,
+            "percentage_allocation_driver": self.percentage_allocation_driver,
+            "use_estimate": self.use_estimate,
+            "desconsider_capacity": self.desconsider_capacity,
+            "max_time_step": self.max_time_step,
+            "reward_objective": self.reward_objective,
+            "function_code": self.lambda_code,
+            "time_shift": self.time_shift,
+            "normalize": self.normalize
+        }
+        file_path = "./scenarios/" + file_name
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(scenario, f, indent=4)
+        print(f"Cenário salvo em {file_path}")
