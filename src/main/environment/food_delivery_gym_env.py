@@ -98,7 +98,10 @@ class FoodDeliveryGymEnv(Env):
         normalized_obs = {}
         for key, value in obs.items():
             min_value, max_value = self.limits_observation_space[key]
-            normalized_obs[key] = (value - min_value) / (max_value - min_value)
+            normalized_value = (value - min_value) / (max_value - min_value)
+            
+            # Garantir que o valor esteja dentro do intervalo [0, 1]
+            normalized_obs[key] = np.clip(normalized_value, 0, 1)
         
         return normalized_obs
 
