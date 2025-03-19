@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
+import os
 from typing import List
 
 import numpy as np
@@ -116,6 +117,8 @@ class OptimizerGym(Optimizer, ABC):
 
     def run_simulations(self, num_runs: int, dir_path: str, seed: int | None = None):
         self.initialize(seed=seed)
+        # Garantir que o diretório existe
+        os.makedirs(dir_path, exist_ok=True)
         file_path = dir_path + "results.txt"
 
         total_rewards = []
