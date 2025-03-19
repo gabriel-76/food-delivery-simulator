@@ -23,7 +23,7 @@
     "percentage_allocation_driver": 0.7,
     "use_estimate": true,
     "desconsider_capacity": true,
-    "max_time_step": 11520,
+    "max_time_step": 5760,
     "reward_objective": 1,
     "function_code": "lambda time: 3",
     "time_shift": 6,
