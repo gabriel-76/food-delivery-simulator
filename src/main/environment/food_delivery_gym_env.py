@@ -67,11 +67,11 @@ class FoodDeliveryGymEnv(Env):
             self.dtype_observation = np.float32
 
             self.observation_space = Dict({
-                'drivers_busy_time': Box(low=0, high=1, shape=(self.num_drivers,), dtype=self.dtype_observation),
-                'time_to_drivers_complete_order': Box(low=0, high=1, shape=(self.num_drivers,), dtype=self.dtype_observation),
-                'remaining_orders': Box(low=0, high=1, shape=(1,), dtype=self.dtype_observation),
-                'establishment_busy_time': Box(low=0, high=1, shape=(self.num_establishments,), dtype=self.dtype_observation),
-                'current_time_step': Box(low=0, high=1, shape=(1,), dtype=self.dtype_observation)
+                'drivers_busy_time': Box(low=-1, high=1, shape=(self.num_drivers,), dtype=self.dtype_observation),
+                'time_to_drivers_complete_order': Box(low=-1, high=1, shape=(self.num_drivers,), dtype=self.dtype_observation),
+                'remaining_orders': Box(low=-1, high=1, shape=(1,), dtype=self.dtype_observation),
+                'establishment_busy_time': Box(low=-1, high=1, shape=(self.num_establishments,), dtype=self.dtype_observation),
+                'current_time_step': Box(low=-1, high=1, shape=(1,), dtype=self.dtype_observation)
             })
             
             self.limits_observation_space = {
@@ -98,11 +98,11 @@ class FoodDeliveryGymEnv(Env):
         normalized_obs = {}
         for key, value in obs.items():
             min_value, max_value = self.limits_observation_space[key]
-            normalized_value = (value - min_value) / (max_value - min_value)
-            
-            # Garantir que o valor esteja dentro do intervalo [0, 1]
-            normalized_obs[key] = np.clip(normalized_value, 0, 1)
+            normalized_value = 2 * (value - min_value) / (max_value - min_value) - 1
         
+            # Garantir que o valor esteja dentro do intervalo [-1, 1]
+            normalized_obs[key] = np.clip(normalized_value, -1, 1)
+
         return normalized_obs
 
     def get_observation(self):

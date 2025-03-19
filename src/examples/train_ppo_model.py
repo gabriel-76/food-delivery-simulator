@@ -56,7 +56,7 @@ def main():
         )
 
         # Treinar o modelo com EvalCallback
-        model = PPO('MultiInputPolicy', env, verbose=1, tensorboard_log=DIR_PATH + "ppo_tensorboard/")
+        model = PPO('MultiInputPolicy', env, verbose=1)
         start_time = time.time()
         model.learn(total_timesteps=6000000, callback=eval_callback)
         end_time = time.time()
