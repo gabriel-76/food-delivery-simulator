@@ -1,4 +1,3 @@
-import uuid
 from typing import Optional, List
 
 from simpy.events import ProcessGenerator
@@ -29,21 +28,18 @@ from src.main.route.route_segment import RouteSegment
 class Driver(MapActor):
     def __init__(
             self,
+            id: Number,
             environment: FoodDeliverySimpyEnv,
             coordinate: Coordinate,
             available: bool,
             color: Optional[tuple[int, int, int]] = (255, 0, 0), # Cor vermelha
             desconsider_capacity: bool = False,
-            id: Number = None,
             capacity: Optional[Capacity] = Capacity(Dimensions(100, 100, 100, 100)),
             status: Optional[DriverStatus] = DriverStatus.AVAILABLE,
             movement_rate: Optional[Number] = 5
     ):
         
-        if id is not None:
-            self.driver_id = id
-        else:
-            self.driver_id = uuid.uuid4()
+        self.driver_id = id
 
         super().__init__(environment, coordinate, available)
 
