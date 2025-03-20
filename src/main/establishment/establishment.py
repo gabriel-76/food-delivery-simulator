@@ -61,7 +61,7 @@ class Establishment(MapActor):
 
     def process_order_requests(self) -> ProcessGenerator:
         while True:
-            while len(self.order_requests) > 0:
+            while self.order_requests:
                 order = self.order_requests.pop(0)
                 self.process(self.process_order_request(order))
             yield self.timeout(self.time_to_process_order_requests())
